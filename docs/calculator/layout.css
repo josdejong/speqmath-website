@@ -1,0 +1,94 @@
+body
+{
+  font: 10pt arial;
+  background-color: white;
+}
+input.inputline
+{
+  font: 10pt arial;
+}
+input.menubutton
+{
+  font:10pt arial;
+  width:60px;
+  height:24px;
+}
+
+span
+{
+  font: 10pt arial;
+}
+div.content
+{
+  border:1px solid black;
+  padding:2px;
+  width:600px;
+  /*height:85%;*/
+  height:400px;
+  overflow:auto;
+  background-color:white;
+}
+div.menu
+{
+  border:0px;
+  width:600px;
+  background-color: #3F3F3F;
+  background-image: url(menuback.png);
+  background-repeat: repeat-x;
+  margin-bottom:10px;
+  padding:2px;
+}
+
+table
+{
+  border-collapse:collapse;
+}
+table.help
+{
+  border:1px solid black;
+  background-color:#FFF1AD;
+  }
+
+td.menutitle
+{
+  padding-left:40px;
+  background-image: url(logo.gif);
+  background-repeat: no-repeat;
+  font: bold 22px arial;
+  color: white;
+  height:32px;
+}
+td.menu
+{
+  padding-right:5px;
+  font:10pt arial;
+  color: white;
+}
+td.help
+{
+  font: 10pt arial;
+  vertical-align:top;
+}
+
+h2
+{
+  font: bold 11pt arial;
+  color: black;
+  margin-bottom: 4px;
+}
+font.bottom
+{
+  font: 8pt arial;
+}
+font.busy
+{
+  color: lightgray;
+}
+font.ans
+{
+  color: blue;
+}
+font.error
+{
+  color: red;
+}

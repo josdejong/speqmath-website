@@ -1,0 +1,129 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Copyright � 2006-2007 SpeQ Mathematics, Jos de Jong
+     www.speqmath.com
+     info@speqmath.com
+-->
+
+<html>
+
+<!-- Mirrored from speqmath.com/online/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 15 Nov 2021 19:22:35 GMT -->
+<head>
+  <title>Online calculator - SpeQ Mathematics</title>
+  
+  <meta name="generator" content="PSPad editor, www.pspad.com">
+  <meta name="author" content="Jos de Jong, info@speqmath.com">
+  <meta name="description" content="Advanced online calculator">
+  <meta name="keywords" content="online, calculator, speq, advanced, scientific, expression, variable, variables">  
+  <meta http-equiv="content-type" content="text/html; charset=windows-1250">
+
+  <script type="text/javascript" src="calculator/evaluator.js"></script>
+  <script type="text/javascript" src="calculator/functions.js"></script>
+  <script type="text/javascript" src="calculator/events.js"></script>
+
+  <link rel="shortcut icon" href="calculator/logo_16x16.gif">
+  <link rel="stylesheet" href="calculator/layout.css">
+</head>
+
+<body onload="body_onload();"
+      onkeydown="body_keydown(event);">
+  <table align="center" style="height:100%;">
+  <tr><td>
+  <div class="menu">
+    <table width="100%">
+    <tr>
+      <td class="menutitle">Online calculator</td>
+
+      <td align="right" class="menu">
+        Angles
+        <select id="ang" onchange="setAngles(ang.value); inputline.focus()">
+      	<option value="rad">Rad</option>
+      	<option value="deg">Deg</option>
+      	<option value="grad">Grad</option>
+      	</select>
+        &nbsp;
+
+      	<!--Decimals
+      	<select id="dec" onchange="setDecimals(dec.value); inputline.focus()">
+      	<option value="float">Float</option>
+      	<option value="0">0</option>
+      	<option value="1">1</option>
+      	<option value="2">2</option>
+      	<option value="3">3</option>
+      	<option value="4">4</option>
+      	<option value="5">5</option>
+      	</select> 
+        &nbsp;  -->
+        &nbsp;
+        <input class="menubutton" type="button" value="Help" onclick="showHelp()" />
+        &nbsp;
+        <input class="menubutton" type="button" value="Reset" onclick="resetCalculator()" />
+
+      </td>
+    </tr>  
+    </table>
+  </div>
+                
+  <div class="content" id="content">
+  <noscript><font color="red"><b>Your browser does not support Javascript, or Javascript is disabled. Therefore this calculator will not work in your browser.<br><br></b></font></noscript>
+
+  <span id="win">
+    <font color="green">
+      Type your expressions below and press &lt;Enter&gt; to calculate.<br>
+      <br>
+    </font>
+  </span>
+
+  <span>
+  &gt;&gt;<input id="inputline"
+    class="inputline"
+    style="border:0;"
+    value="2*(3+4)"
+    size=65
+    onkeydown="return keydown(event);"
+    onfocus="inputline.select();"
+  ><br>
+  </span>
+  <br><a name="bottom"></a>
+  </div>
+  
+  <table>
+    <col width=300>
+    <col width=300>
+    <tr>
+    <td><font face="verdana" size=-2>Copyright � 2006-2007 <a href="../index.html" style="text-decoration:none;" target="_blank">SpeQ Mathematics</a></font><br></td>
+    <td style="text-align:right;">
+    <font face="verdana" size=-2>
+    
+    <SCRIPT TYPE="text/javascript" >    
+      var txt = "Add to Favorites";
+      var url = "http://www.speqmath.com/online/";
+      var who = "Online Calculator - SpeQ Mathematics";
+      
+      var ver = navigator.appName;
+      var num = parseInt(navigator.appVersion);
+      if ((ver == "Microsoft Internet Explorer")&&(num >= 4)) {
+         document.write('<a href="javascript:window.external.AddFavorite(url,who);" style="text-decoration:none;">'+ txt + '<\/a>');
+      }else{
+         document.write("Press Ctrl+D to bookmark this page");
+      }
+    </SCRIPT>
+    
+    </font>
+    </td>
+    </tr>
+  </table>
+
+  </td></tr>
+  </table>
+
+ 	<SCRIPT TYPE="text/javascript">
+ 	  // reset the values (necessary for mozilla)
+ 	  inputline.value = "2*(3+4)";
+    ang.value = "rad";
+    setAngles(ang.value);
+  </SCRIPT>
+
+  </body>
+
+<!-- Mirrored from speqmath.com/online/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 15 Nov 2021 19:22:37 GMT -->
+</html>

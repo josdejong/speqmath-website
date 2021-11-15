@@ -1,0 +1,897 @@
+<html>
+
+<!-- Mirrored from speqmath.com/history.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 15 Nov 2021 19:22:35 GMT -->
+<head>
+<title>SpeQ Mathematics - History</title>
+<style>
+  body          { font: 10pt verdana; }
+  table         { font: 10pt verdana; 	border-collapse:collapse;}
+  td            { vertical-align: top; }
+  font.fn       { color:navy; }
+  font.new      { color: red; font-size:8pt}
+  font.adjusted { color: red; font-size:8pt}
+  font.bugfixed { color: red; font-size:8pt}
+  font.date     { font: italic 10pt verdana; color: blue;}
+  font.version  { font: bold 10pt verdana;   color: blue;}
+</style>
+<meta http-equiv="content-type" content="text/html; charset=windows-1250">
+</head>
+
+<body>
+
+<h1>History of SpeQ Mathematics</h1>
+Created by W.J. de Jong<br>
+Homepage: <a href="index.html">www.speqmath.com</a><br>
+<br>
+<br>
+
+
+<a name="speq34"></a><hr>
+<font class="version">Version: SpeQ Mathematics 3.4</font><br>
+<font class="date">Release Date: 2010-04-07 (updated 2010-06-18)</font><br>
+<br>
+
+Update 2010-06-18:
+<table border=1>
+<col width=100>
+<col width=500>
+<tr>
+  <td>updated</td>
+  <td>The Spanish translation.</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>A bug which plotted Plot(Sin(x),x) as two functions, Sin(x) and x.</td>
+</tr>
+</table>
+<br>
+<br>
+
+Release 2010-04-07:
+<table border=1>
+<col width=100>
+<col width=500>
+<tr>
+  <td>new</td>
+  <td>Function Run(filename) added, which evaluates the contents of a speq file. This way you can easily include a file with your own commonly used variables, functions, and units into all of your worksheets.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Function AddUnit(name {, relation}{,prefixtype}). You can now add your own custom units too.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Operator In for units, "x In unit". This operator is the same as function Convert(x, unit). The operator In supports lists, and the function Convert not. Example usage: "5.1 Inch In Meter",  "10 &deg;C In &deg;F", etc.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Function fnSolve(f(x) {, x} {, xstart}), to find zero points of a function.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Binary SI units for calculations with bits and bytes.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Units fully support exponent suffixes now, fore example "mm2" is interpreted as square millimeter, and "m3" as cubic meter.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Added units: Angstrom, mil, sqmil.</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>Implicit multiplications with units now have lower precedence than explicit multiplication and division. So for example  "12V/6A" is now calculated as "(12*V)/(6*A) = 2 Ohm" instead of "((12*V)/6)*A = 2 W".</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>Function factorial (x!) is now much faster for decimal values. Thanks to Rafael.</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>Some changes in the arrangement of functions and units in the Functions window.</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>The accuracy optimizer is improved. For example Cos(90 deg) now gives 0 instead of 7.273641325e-16.</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>Adding and subtracting temperatures is now only allowed with the same temperature scale (for example 20 Celsius + 5 Celsius) or in Kelvin (for example 20 Celsius + 5 Kelvin), to prevent conversion issues.</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>SpeQ uses a different degree (&deg;) character now, which is supported by more different fonts and by the web. This character is not backwards compatible.</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Bug with calculating Atan2 and Arg when Angles was set to Degrees or Gradians.</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>SpeQ crashed when you opened more than 9 functions in one graph.</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Some problems with non-Western fonts</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Units: small rounding error in the unit foot and mile fixed. Units Litre and L now support prefixes.</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Problem loading files with a dot in the name</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>SpeQ checks now at startup whether the stored window position fits in the current screen dimensions. If not, the position is adjusted.</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Various stability issues, and other small improvements.</td>
+</tr>
+</table>
+<br>
+<br>
+
+
+
+<a name="speq33"></a><hr>
+<font class="version">Version: SpeQ Mathematics 3.3</font><br>
+<font class="date">Release Date: 2008-04-24</font><br>
+<br>
+<table border=1>
+<col width=100>
+<col width=500>
+<tr>
+  <td>new</td>
+  <td>When plotting functions, the vertical axis (y-axis) is automatically adjusted to the range of the plotted functions.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>User will get a warning when using SpeQ portably, and checking the option "Associate files" in the Settings window, because this will leave traces onto the computer.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>When you have SpeQ installed on your computer, the settings are stored in the local user application data folder. So multiple users on one computer will have their own settings stored.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>SpeQ supports special characters for square (&sup2;), cube (&sup3;), degree (&deg;), and micro (&micro;). However, these characters are only supported on computers with Western character sets. SpeQ has now an option to turn usage of these characters off.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>New option "Automatically adjust prefix of units". When this option is selected, for example <i>2350000 mm</i> is changed to <i>2.35 km</i>.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>New option "Automatically copy answer after a calculation", see Settings Window, tab Expressions.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Physical constants have units now (for example <i>AtomicMass</i> returns now <i>1.660538731e-27 kg</i>, and <i>Gravity</i> returns
+	<i>9.80665 m/s&sup2;</i>.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Scientific notation <i>Engineer</i> added. This notation chooses the power in the notation as a multiple of three.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Option "Automatically check for updates" added. When checked, SpeQ will check if there are updates available when starting up.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>The usersguide is placed in a subfolder <i>\usersguide</i> and renamed to <i>English.chm</i>. It is possible to add translations of the usersguide into this folder. SpeQ will automatically check if there is a usersguide in used language available and if so, use this one.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Unit <i>eV</i> (ElectronVolt) added.</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>The value of the constant ElementaryCharge is changed from 1.60217648740e-19 to 1.6021765314e-19 in order to match with the unit ElectronVolt.</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>You can now give user defined functions a list as parameter. For example "a=(1,2,3)", "f(x)=x*2", "f(a)" now returns "Ans=(2,3,4)" instead of an error.</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Unit steradian is now called <i>sr</i> instead of the incorrect <i>st</i>.</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>The value of the constant ElementaryCharge was wrong (1.602176487e19 instead of the correct 1.602176487e-19)</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Fraction did not work for some arbitrary values, like Fraction(1/2 - 15/36).</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Some minor bug fixes</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>29 April 2008:<br>Fixed a problem with silent install of SpeQ Mathematics ("speq_setup.exe /S")</td>
+</tr>
+</table>
+<br>
+<br>
+
+
+<a name="speq32"></a><hr>
+<font class="version">Version: SpeQ Mathematics 3.2</font><br>
+<font class="date">Release Date: 2007-12-31</font><br>
+<br>
+<table border=1>
+<col width=100>
+<col width=500>
+<tr>
+  <td>new</td>
+  <td>Logical functions IIf() and Repeat() added.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Statistical functions do support units now.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Added physical constant ElementaryCharge.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Added unit psi (pound-force per squared inch) and lbf (pound-force).</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>The update function is now able to apply an update also when SpeQ is used portable.</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>You will get an error when you try to perform operations between values with dismatching units (for example "2m+3kg" or "2.5m+4")</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>When trying to use units in functions that does not support units, you get a warning (for example Log(3 cm)), instead of ignorance of the unit.</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>Changed unit lb (pound-mass) into lbm, to prevent confusion with pound-force (lbf).</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>At first runtime you will not be asked to choose a language any longer. You can choose your language in the Settings window.</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Bug with displaying units with an exponent between 0 and 1 (for example 3m^(1/2) was dispayed as 3/m^(1/2)).</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>A bug when complex units should cancel out, for example with "m&sup2;/N*Bar".</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>A bug in simplifying complex units.</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Function Convert() did not work when using it in a variable or function definition.</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Function Abs() did not preserve unit, for example with Abs(-5 cm).</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Wrong definition of the unit g (gram), error with a factor 1000 which shows up when converting to units like pound or grain.</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Bug in removing file association.</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Some minor bugs fixed.</td>
+</tr>
+</table>
+<br>
+<br>
+
+
+
+
+<a name="speq31"></a><hr>
+<font class="version">Version: SpeQ Mathematics 3.1</font><br>
+<font class="date">Release Date: 12-Nov-2007</font><br>
+<br>
+<table border=1>
+<col width=100>
+<col width=500>
+<tr>
+  <td>new</td>
+  <td>Extensive support for units (See "Units" in the functionstree of SpeQ). You can enter calculations like "3.4m + 5cm", "Convert(8cm, inch)", "3 Ohm * 1.2 A", "2 Bar + 0.32 N/mm&sup2;".</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Support for multiple languages. Adjustable in the Settings window</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Operators x&sup2; and x&sup3; to calculate the square and cube of x. You can insert these operators with quickkeys Ctrl+2 and Ctrl+3.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Option "Insert 'Ans' before operators at the start of a line", so you can now turn this option on or off. In SpeQ 3.1 'Ans' is also inserted before the operator -, in contrast to previous versions.</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>A bug fixed which occured when using the same user defined function at both sides of an operator. For example a function "f(x)=x^2" in an expression like "f(2)+f(3)".</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Bug with user defined functions that causes a circular reference.</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Some minor bug fixes.</td>
+</tr>
+</table>
+<br>
+<br>
+
+
+
+<a name="speq30"></a><hr>
+<font class="version">Version: SpeQ Mathematics 3.0</font><br>
+<font class="date">Release Date: 23-Jun-2007</font><br>
+<br>
+<table border=1>
+<col width=100>
+<col width=500>
+<tr>
+  <td>new</td>
+  <td>Calculations with lists. You can for example define a variable<br> "myvar = (2,3,4+1,8.3)". To get some specific elements from a list you can enter for example "myvar(2)" or "myvar(3, 4)". To change the values of some specific elements you can enter something like "myvar(3, 4) = (2.34, 8.2)".</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Statistical function Sort(a, b, c, ...) and logical operator Not(a) added</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>You can get the results of your calculations by default in different representations: Bin, Dec, Oct, Hex or as Fraction.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Conversion functions: Deg2Rad(x),	Rad2Deg(x), Grad2Rad(x), Rad2Grad(x), Cycle2Rad(x), Rad2Cycle(x)</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Some handy menu functions added. In the menu Edit you can now choose Comment or Uncomment, to comment or uncomment the selection. Quick-keys for this are Ctrl+R and Ctrol+T</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>By pressing Ctrl+D the last calculated expression will be copied to the clipboard. By pressing Ctrl+C the last calculated answer will be copied to the clipboard.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Added alias Trunc for the function Fix</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>More functions do support complex values now</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Two shortcuts to the system variables Representation and SciNotation added to the statusbar. Also line and column counter added to the statusbar.</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>Improved speed with calculations, more than twice as fast compared to SpeQ Mathematics 2.3.5.</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>The behavior of the action "Recalculate sheet", F5 key, is changed. The cursor remains on the same position, instead of scrolling down to the end of the sheet.</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>Lines in the workarea are now colored real-time, not only after a recalculation.</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>Legend text of a plotted function: is now by default the function itself. If you want to hide a function from the Legend box, you have to make the Legend textbox empty.</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>With Ctrl+Arrowskeys you can move a graph, and with Shift+Arrowskeys you can move the tracepoint with small steps. This is changed because of conflicting key combinations</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Accuracy error with for example "Sin(-1*pi)" and "(-1)^(-1)" solved.</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Problem with the function fnInt with periodic functions, for example "fnInt(Sin(x)^2,0,2*Pi)" did give problems.</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Problem solved with plotting assymptotes,<br>for example with "Plot(7*x + 2*e^(-3*x))"</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>The splitterbars for changing the width of the memorylist and the functionstree are now also working on winNT and win2000.</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Some minor bugs.</td>
+</tr>
+</table>
+<br>
+<br>
+
+
+
+<a name="speq235"></a><hr>
+<font class="version">Version: SpeQ Mathematics 2.3.5</font><br>
+<font class="date">Release Date: 18-Oct-2006</font><br>
+<br>
+<table border=1>
+<col width=100>
+<col width=500>
+<tr>
+  <td>new</td>
+  <td>Quick key Ctrl+C to copy the last answer to the clipboard if there is no text selected.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Quick key F2 to open the Settings window.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Quick keys + and - to zoom a graph in and out.<br>Quick keys Ctrl+Arrowkeys to move a graph.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>SpeQ can handle hexagonal, binary and octal values (see the page <a href="http://www.speqmath.com/usersguide/index.php?page=numeralsystems.html" target="_blank">Numeral Systems</a>). You can enter these values by a prefix for example Hexagonal: 0x33DF, Binary: 0b1101, Octal: 0o177</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Functions Hex, Bin, Dec and Oct for specifying in which numeral system the output values are represented.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>System variable Bytes to specify the number of bytes used for hexagonal, binary and octal numbers.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Option "Show leading zeros in binary, hexadecimal and octal numbers".</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>A search functionallity for the Functionstree.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>There is a folder with example sheets added to the program. All examples come from the usersguide.</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>The math constant "Mill" is changed into "Mills"</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>The Settings window is expanded: All options are collected there now. The options for Angles, Decimals, Scientific Notation are moved from the menu to the Settings window.</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>There is now an automatic update manager.</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>The function "Expression >Frac" is now changed to "Fraction(Expression)" for a more consistent syntax of the program. The old function is still available.</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>Some small internal changes and improvements</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>20-Jan-2007:<br>The executable is now compressed with UPX instead of Petite. When compressed with Petite, some anti virus programs gave a false virus warning when running SpeQ.</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Some minor bugs</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>28-Oct-2006:<br>SpeQ does now check for circular references in user defined functions</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>28-Oct-2006:<br>In the provided example "using constants.spq" there was an error "radius = 2*diameter;", changed to "radius = 0.5*diameter;"</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>27-Feb-2007:<br>The functions Sec, Csc and Cot did not take into account if Angles was set to degrees or gradians, the functions always calculated the answer for radians. Fixed in version 2.3.5 (built 3).</td>
+</tr>
+</table>
+<br>
+<br>
+
+
+<a name="speq234"></a><hr>
+<font class="version">Version: SpeQ Mathematics 2.3.4</font><br>
+<font class="date">Release Date: 02-Aug-2006</font><br>
+<br>
+<table border=1>
+<col width=100>
+<col width=500>
+<tr>
+  <td>new</td>
+  <td>A lot of new figure properties for Title, Legend, Labels, Grid, Axes, Fonts, LineStyle.
+  See the <a href="http://www.speqmath.com/usersguide/index.php?page=propertywindow.html" target="_blank">usersguide</a> for more information.<br></td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Around 80 new built-in mathematical and physical constants,
+  see <a href="http://www.speqmath.com/usersguide/index.php?page=constants_math.html" target="_blank">Math Constants</a> and
+  <a href="http://www.speqmath.com/usersguide/index.php?page=constants_physical.html" target="_blank">Physical Constants</a>
+  </td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>You can edit the plotted functions from within the Figure itself.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>You can plot graphs with a logarithmic scale.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>You can save graphs as Enhanced Meta File (EMF).
+  When you save the graph as EMF, the image will always look sharp, also when you resize the image.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Integer Functions: Round, Floor, Ceil, Fix.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Probability Function: Factorial. Acts the same as the operator x!.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Statistical Function: Median.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Bitwise operators &lt;&lt; (bitshift left) and &gt;&gt; (bitshift right).</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Options (see window Settings):<br>Systray Icon,<br>Minimize to SysTray,<br>Close to SysTray,<br>Stay always on top</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>Names of Figure properties: ShowAxes, ShowGrid, ShowLegend and ShowProperties are renamed to 
+  AxesStyle, GridStyle, LegendStyle, Properties.</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>If you want to hide the answerline you now have to end the line with a semicolon ";" instead of a colon ":".
+  This is done in consideration of future vector and matrix calculations. The colon is needed for another purpose then.</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>SpeQ crashed when you entered ";" on a line and pressed Enter to calculate</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>A bug when the power of two values results in a complex value, for example with (-3)^2.5</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>The function rand didn't work any longer</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Some small bugs</td>
+</tr>
+</table>
+<br>
+<br>
+
+
+<a name="speq233"></a><hr>
+<font class="version">Version: SpeQ Mathematics 2.3.3</font><br>
+<font class="date">Release Date: 16-May-2006</font><br>
+<br>
+<table border=1>
+<col width=100>
+<col width=500>
+<tr>
+  <td>fixed</td>
+  <td>Angles mode couldn't be changed through the menu or statusbar. Calculations where always done in radians.<br></td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Bug in function nCr(n, r)<br></td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Bug in the option "Adjust spaces in expressions"</td>
+</tr>
+</table>
+<br>
+<br>
+
+<a name="speq232"></a><hr>
+<font class="version">Version: SpeQ Mathematics 2.3.2</font><br>
+<font class="date">Release Date: 30-Mar-2006</font><br>
+
+<br>
+<table border=1>
+<col width=100>
+<col width=500>
+<tr>
+  <td>new</td>
+  <td>The imaginary number i, per definition i<sup>2</sup> = -1</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Complex number calculations with<br>the operators +, -, *, /, ^.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>All arithmetic, trigonometric and hyperbolic functions supports complex values</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Functions for complex numbers:<br>Re(a + bi)<br>Im(a + bi)<br>Abs(a + bi)<br>Arg(a + bi)<br>Conj(a + bi)</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Functions Atan2(y, x), Log(x, base), Sign(x)</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>The usersguide is online available at <a href="http://www.speqmath.com/usersguide/" target="_blank">www.speqmath.com/usersguide/</a>.
+  SpeQ will automatically open the online usersguide if the offline usersguide is not available (usersguide.chm).<br>
+  When you are running SpeQ from an USB-stick and you want to save some space, you can simply delete the usersguide.</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>When you ask for a figure property in the workarea, the value is now directly filled in in the variable Ans (for example when you enter "ShowGrid")</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>You can now easilly check if you have the newest version of SpeQ installed on your computer: Menu "Help", "Check updates"</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Option "Optimize accuracy in calculations", To prevent accuracy errors that would occur with for example "2*Sin(pi)"</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>Functions ArcSin, ArcCos, ArcTan, ArcSinh, ArcCosh, ArcTanh renamed to ASin, ACos, ATan, ASinh, ACosh, ATanh.<br>
+  Functions Average, StdDev, Variance renamed to Avg, Std, Var.
+  The former function names are still available.</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Some minor bugs fixed</td>
+</tr>
+</table>
+<br>
+<br>
+
+
+<a name="speq231"></a><hr>
+<font class="version">Version: SpeQ Mathematics 2.3.1</font><br>
+<font class="date">Release Date: 17-Feb-2006</font><br>
+
+<br>
+<table border=1>
+<col width=100>
+<col width=500>
+<tr>
+  <td>new</td>
+  <td>New operator to calculate the modulus: % or Mod</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>The variable SciNotation can now be set to three values: Auto (automatically), on or Off. Until now this was On or Off.</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>The characters % and # can not be used any longer for start of a remark, you can only use ' to start a remark.</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>When cursor is halfway a line and you press &gt;Enter&gt; the line is recalculated instead of splitted. You can split the line with &lt;ctrl+Enter&gt;.</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>The operators &, |, || are now bitwise operators instead of logical operators</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>fnInt(x^2, 1, 0) did give no error "empty interval"</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Aliases Acos and Atan where replaced with wrong function</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Functions Sec, Csc and Cot did always calculate the value in Radians.</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Variable SciNotation was not saved. Did give also a wrong error message when assigning a value other than On or Off.</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>The command "Figure = expression" did not work correctly</td>
+</tr>
+<tr>
+  <td>fixed</td>
+  <td>Some other minor bugs</td>
+</tr>
+</table>
+<br>
+<br>
+
+<a name="speq230"></a><hr>
+<font class="version">Version: SpeQ Mathematics 2.3.0</font><br>
+<font class="date">Date: 10-Feb-2006</font><br>
+<br>
+
+<br>
+<table border=1>
+<col width=100>
+<col width=500>
+<tr>
+  <td>new</td>
+  <td>New site: <a href="index.html">www.speqmath.com</a></td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Conditional operators: =, &lt;&gt;, &lt;, &gt;, &lt;=, &gt;= </td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Logical operators: And, Or, Xor, &, |, ||</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Some extra Hyperbolic functions</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Analysis functions fnInt and fnDiff</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Context sensitive help, you can select a keyword and press F1 to get help</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Plot graphs.<br>
+    - User-friendly trace, move and zoom functionality<br>
+    - Analyse intersections, minima and maxima<br>
+    - Adjust all figure properties in the Propertylist or in the Workarea<br>
+    - functions: Plot, RGB, Close, CloseAll
+    </td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Probability functions nCr, nPr, !, Rand, RandInt</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>Command functions to set mode for angles and decimals</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>Faster evaluation of expressions</td>
+</tr>
+<tr>
+  <td>changed</td>
+  <td>The Functionstree and Memorylist are changed</td>
+</tr>
+</table>
+<br>
+<br>
+
+<a name="speq21"></a><hr>
+<font class="version">Version: SpeQ 2.1</font><br>
+<font class="date">Release Date: 05-01-2005</font><br>
+<br>
+<table border=1>
+<col width=100>
+<col width=500>
+<tr>
+  <td>New</td>
+  <td>Define and use your own functions like "F(x) = 0.5 * x^2"</td>
+</tr>
+<tr>
+  <td>New</td>
+  <td>Functionstree with an overview of all available functions</td>
+</tr>
+<tr>
+  <td>New</td>
+  <td>Memorylist with an overview of all variables and functions in memory.</td>
+</tr>
+<tr>
+  <td>New</td>
+  <td>Statistical functions</td>
+</tr>
+<tr>
+  <td>New</td>
+  <td>Colored sheetinterface</td>
+</tr>
+<tr>
+  <td>New</td>
+  <td>Detailed users guide</td>
+</tr>
+<tr>
+  <td>Changed</td>
+  <td>Faster evaluation of expressions</td>
+</tr>
+</table>
+<br>
+<br>
+
+<a name="speq10"></a><hr>
+<font class="version">Version: SpeQ Calculator 1.0</font><br>
+<font class="date">Release Date: 05-06-2003</font><br>
+<br>
+
+<table border=1>
+<col width=100>
+<col width=500>
+<tr>
+  <td>new</td>
+  <td>Basic calculations with the operators + - * / ^ !</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Expression calculations with parentheses ( )</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Constants Pi and e</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Define and use your own variables</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Most common scientific functions</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Trigonometrical functions</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Hyperbolic functions</td>
+</tr>
+<tr>
+  <td>new</td>
+  <td>Save and load sheets</td>
+</tr>
+</table>
+<br>
+<br>
+
+
+</body>
+
+<!-- Mirrored from speqmath.com/history.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 15 Nov 2021 19:22:35 GMT -->
+</html>

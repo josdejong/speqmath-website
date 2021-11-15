@@ -1,0 +1,63 @@
+
+th 
+{
+  vertical-align:top;
+  text-align:left;
+}
+
+td 
+{
+  vertical-align:top;
+}
+
+img
+{
+  border:0px;
+  padding-top: 5px;
+}
+
+
+table.download 
+{
+  border: 0px;
+  background-color: #D7E5EF;
+  background-image: url(img/downloadbutton.png);
+  background-repeat: no-repeat;
+
+  width: 200px;
+  height: 60px;
+  
+  text-decoration: none;
+  color: #3F3F3F;
+}
+
+td.download 
+{
+  vertical-align: middle;
+  padding: 2px;
+}
+th.archive
+{
+  padding:5px;
+}
+td.archive
+{
+  padding:5px;
+}
+
+img.download
+{
+  padding: 0px;
+}
+ 
+font.error
+{
+  color: red;
+  font-weight: bold;
+}
+
+div.ad
+{
+  /*padding: 20px;*/
+  text-align: center;
+}
