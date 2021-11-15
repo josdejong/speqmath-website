@@ -60,7 +60,7 @@ function keydown(e) {
 }
 
 function showHelp() {
-  window.open("calculator/help.html", "_blank", "toolbar=0, scrollbars=1, location=0, statusbar=0, menubar=0, resizable=1, width=650, height=560, left=100, top=100");
+  window.open("help.html", "_blank", "toolbar=0, scrollbars=1, location=0, statusbar=0, menubar=0, resizable=1, width=650, height=560, left=100, top=100");
 }
 
 function resetCalculator() {
