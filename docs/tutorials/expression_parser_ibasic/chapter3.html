@@ -1,0 +1,38 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Tutorial on how to create an expression parser -->
+<!-- Created by Jos de Jong, May 2006 -->
+<!-- wjosdejong@hotmail.com, www.speqmath.com -->
+
+<!-- Todo: add links to the sourcecode and executables of the examples, and a zipfile with everything -->
+
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=windows-1250">
+  <meta name="generator" content="PSPad editor, www.pspad.com">
+  <meta name="keywords" content="Tutorial, create, expression, parser, recursive, math, speq, ibasic">
+  <meta name="description" content="Tutorial on how to create an expression parser">
+  <link rel="stylesheet" href="layout.css">
+  <title>Chapter 3. Parsing rules</title>
+  
+  <SCRIPT TYPE="text/javascript" SRC="events.js"></SCRIPT>
+</head>
+<body>
+<div class="content">
+
+<h2>3. Parsing rules</h2>
+Now, what will be inside the eval function? The idea is to search in the expression for an operator. Then split the expression in the part left from the operator (part1) and the part right from the operator (part2). Evaluate part1 and part2 with the function eval, and finally evaluate the answers of part1 and part2 with the found operator. You can not just pick any operator and do this, because we have to do with mathematical rules. For finding the operator in the expression that needs to be evaluated first, the following three rules hold.<br>
+<ol>
+<li><b>Neglect the operators between parentheses ( and ).</b> Parentheses are used to overrule the precedence of mathematical operators. Normally the answer of the expression 2+3*4 is 14 and not 20, because multiplication has a higher precedence than addition. If you want to calculate the addition first, you have to enclose that part of the expression with parentheses: (2+3)*4.</li>
+<li><b>Find the operator with the lowest precedence.</b> You can not just pick any operator and evaluate the parts left and right , because we have to do with mathematical precedence. For example 2+3*4 must be calculated as 2+(3*4)=14 and not (2+3)*4=20.
+The order of precedence from low to high is: ( ), - +, / *, ^.</li>
+<li><b>If there are more operators of the lowest precedence, then choose the last one.</b> This is important for a good evaluation of for example "10 - 3 - 4". This must be calculated as "(10 - 3) - 4" = 3 and not "10 - (3 - 4)" = 11. The same holds for divisions.</li>
+</ol>
+<br>
+<br>
+<div class="bottom"></div>
+<font face="verdana" size=-2>Copyright © 2006 <a href="http://www.speqmath.com" style="text-decoration:none;" TARGET="_blank">SpeQ Mathematics</a></font><br>
+<br>
+
+</div>
+</body>
+</html>

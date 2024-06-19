@@ -1,0 +1,6 @@
+SUB errClear(msg:MESSAGE)
+    'clear the given message
+    msg.t = MSG_EMPTY
+    msg.desc = ""
+    RETURN
+ENDSUB

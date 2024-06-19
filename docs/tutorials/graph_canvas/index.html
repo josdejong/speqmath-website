@@ -1,0 +1,37 @@
+<html>  
+<head>  
+  <title>Canvas Graph demo</title>
+  <script type="text/javascript" src="canvas.js"></script>
+  <script type="text/javascript" src="evaluator.js"></script>
+  <script type="text/javascript" src="functions.js"></script>
+  <style>
+    body {font-family: verdana; font-size:10pt;}
+  </style>  
+</head>  
+
+<body onload="init(); draw();">
+  <h1>Canvas Graph demo</h1>
+  <p>
+  This demo shows how to make a dragable graph using the HTML canvas element.
+  </p>
+  <p>
+  You can find an extensive Canvas tutorial here: 
+  <a href="https://developer.mozilla.org/en/Canvas_tutorial" target="_blank">Canvas Tutorial</a>.
+  </p>
+  <p>
+    Function <input type="text" id="function" value="sin(x*2) * abs(x) / 3">
+    Variable <input type="text" id="variable" value="x" size=3> 
+    <input type="button" value="Apply" onclick="init(); draw();">
+  </p>
+  <p>
+  Drag the graph around to move it.
+  </p>
+  <canvas id="graph" 
+          width="400" 
+          height="400" style="border:1px solid black;"
+          onmousedown="mousedown(event);"
+          onmousemove="mousemove(event);"
+          onmouseup="mouseup(event);"
+          ></canvas>
+</body>
+</html>

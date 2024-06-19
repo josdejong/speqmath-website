@@ -1,0 +1,17 @@
+FOR n=1 TO 6
+    operator = MID$("-+/*^E", n, 1)
+    
+    'search for this operator in expr
+    pos = InstrP(UCASE$(expr), operator, 255)
+    WHILE pos>0
+        IF isOperator(expr, operator, pos)=TRUE
+        
+            '... evaluate it and return
+            
+        ENDIF
+        
+        'if this operator is not evaluated, search for another one
+        IF pos>0 THEN pos=instrP(UCASE$(expr), operator, pos-1)
+    WEND
+NEXT n
+

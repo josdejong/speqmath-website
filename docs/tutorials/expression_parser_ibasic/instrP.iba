@@ -1,0 +1,24 @@
+SUB instrP(source:STRING, search:STRING, start:INT), INT
+    'this sub searches for the LAST string search in the string
+    'source, reverse of the function instr(). The sub returns 0 if
+    'the search could not be found. Also this function neglects
+    'content between parenthesis () in source
+    INT n, bopen, bclose
+    STRING sign
+    
+    n=start
+    IF n>LEN(source) THEN n=LEN(source)-LEN(search)+1
+    bopen=0     :'number of parenthesis open (
+    bclose=0    :'number of parenthesis close )
+    DO
+        sign = MID$(source, n, LEN(search))
+        'if search is found and outside parentheses then return n
+        IF (sign=search) AND (bopen=bclose) THEN RETURN n
+        IF LEFT$(sign,1)="(" THEN bopen++
+        IF LEFT$(sign,1)=")" THEN bclose++
+        n--
+    UNTIL (n <= 0)
+    
+    'if the string search is not found, then return 0
+    RETURN 0
+ENDSUB

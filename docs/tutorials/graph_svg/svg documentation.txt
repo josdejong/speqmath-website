@@ -1,0 +1,14 @@
+SVG Javascript
+
+http://www.w3schools.com/svg/svg_examples.asp
+
+http://www.kevlindev.com/tutorials/basics/shapes/js_dom/index.htm
+
+http://srufaculty.sru.edu/david.dailey/svg/intro/PartA.htm#B
+
+http://www.netlobo.com/url_query_string_javascript.html 
+ 
+http://silentmatt.com/math/graph.php
+
+mouse events, embedding an svg in html
+http://eu.mozdev.org/Brussels2003/talks/alex/svg-events.xml

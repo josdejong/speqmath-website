@@ -1,0 +1,13 @@
+'create an array with all available operators
+CONST opcount = 5
+DEF oplist[opcount]:STRING
+oplist[0] = "-", "+", "/", "*", "^"
+
+'...
+
+FOR n=0 TO opcount-1
+    operator = oplist[n]
+
+    '... code here ...
+    
+NEXT n

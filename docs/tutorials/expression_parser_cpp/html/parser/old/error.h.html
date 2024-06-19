@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Untitled</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="generator" content="SynEdit HTML exporter" />
+<style type="text/css">
+<!--
+body { color: #000000; background-color: #FFFFFF; }
+.cpp1-assembler { }
+.cpp1-character { }
+.cpp1-comment { color: #000080; font-style: italic; }
+.cpp1-float { color: #800040; }
+.cpp1-hexadecimal { color: #800040; }
+.cpp1-identifier { }
+.cpp1-illegalchar { }
+.cpp1-number { color: #800040; }
+.cpp1-octal { color: #800040; }
+.cpp1-preprocessor { color: #008000; }
+.cpp1-reservedword { font-weight: bold; }
+.cpp1-space { color: #008080; }
+.cpp1-string { color: #FF0000; }
+.cpp1-symbol { }
+-->
+</style>
+</head>
+<body>
+<pre>
+<code><span style="font: 10pt Courier New;"><span class="cpp1-comment">/*
+error class for the parser
+
+todo:
+    add the line and column where the error occured to the error message
+*/
+
+
+</span><span class="cpp1-preprocessor">#ifndef ERROR_H
+#define ERROR_H
+
+#include &lt;cstdio&gt;
+#include &lt;cstdarg&gt;
+#include &lt;cstring&gt;
+
+</span><span class="cpp1-reservedword">using</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">namespace</span><span class="cpp1-space"> </span><span class="cpp1-identifier">std;
+
+
+
+</span><span class="cpp1-reservedword">class</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Error</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">public</span><span class="cpp1-symbol">:
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">Error(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">row,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">col,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">id,</span><span class="cpp1-space"> </span><span class="cpp1-symbol">...);
+
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">get_row()</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">err_row;}</span><span class="cpp1-space"> </span><span class="cpp1-comment">// Returns the row of the error
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">get_col()</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">err_col;}</span><span class="cpp1-space"> </span><span class="cpp1-comment">// Returns the column of the error
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">get_id()</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">err_id;}</span><span class="cpp1-space">   </span><span class="cpp1-comment">// Returns the id of the error
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">char</span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">get_msg()</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">msg;}</span><span class="cpp1-space">   </span><span class="cpp1-comment">// Returns a pointer to the error msg
+
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">private</span><span class="cpp1-symbol">:
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">err_row;</span><span class="cpp1-space">    </span><span class="cpp1-comment">// row where the error occured
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">err_col;</span><span class="cpp1-space">    </span><span class="cpp1-comment">// column (position) where the error occured
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">err_id;</span><span class="cpp1-space">     </span><span class="cpp1-comment">// id of the error
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">char</span><span class="cpp1-space"> </span><span class="cpp1-identifier">msg[</span><span class="cpp1-number">255</span><span class="cpp1-symbol">];
+</span><span class="cpp1-space">        
+        </span><span class="cpp1-reservedword">char</span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">msgdesc(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">id);
+};
+
+
+</span><span class="cpp1-preprocessor">#endif
+
+</span></span>
+</code></pre>
+</body>
+</html>

@@ -1,0 +1,254 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Created by Jos de Jong, 2007. www.speqmath.com -->
+
+<html>
+	<head>
+	<title>
+		Javascript demo - A simple directory structure
+	</title>
+
+	<!-- Set up the styles for this page -->
+	<style>
+		body {
+			font: 10pt arial;
+		}
+		img {
+			margin: 0px;
+			vertical-align: bottom;
+		}
+		span.node {
+			cursor:pointer;
+			cursor:hand;
+		}
+		div.dir {
+			width:250px;
+			height:400px;
+  			overflow:auto;
+			border:1px inset gray;
+		}
+	</style>
+
+	<!-- Create some javascript functions -->
+	<script language="JavaScript" type="text/javascript">
+		// create some global functions
+		var level=0;
+		var id=0;
+		var levelIsLast = new Array(false, false, false, false, false, false, false, false, false, false, false);
+
+		function dirFold(nodeID) {
+		// for displaying or hiding parts of the page
+		// different code is neccessary for different browsers.
+			document.getElementById(nodeID).style.display = 'none';
+			setImage("img" + nodeID, "plus");
+		}
+
+		function dirUnfold(nodeID) {
+		// for displaying or hiding parts of the page
+		// different code is neccessary for different browsers.
+			document.getElementById(nodeID).style.display = 'block';
+			setImage("img" + nodeID, "minus");
+		}
+
+		function dirState(nodeID) {
+		// returns the current state of the given object id
+			return document.getElementById(nodeID).style.display;
+		}
+
+		function setImage(imgID, changeTo) {
+			// change the source of an image
+
+			current = document.getElementById(imgID).src;
+
+			if (changeTo=="plus") {
+				// change the image from a plus node to a minus node
+				// first check if this node is a last item
+				if (current.indexOf("last.png") >= 0) {document.getElementById(imgID).src = "node_pluslast.png";}
+				else {document.getElementById(imgID).src = "node_plus.png";}
+				return;
+			} else {
+				// change the image from a minus node to a plus node
+				// first check if this node is a last item
+				if (current.indexOf("last.png") >= 0) {document.getElementById(imgID).src = "node_minuslast.png";}
+				else {document.getElementById(imgID).src = "node_minus.png";}
+				return;
+			}
+		}
+
+		function dirClick(nodeID) {
+			// when the user clicked on a directory:
+			// - unfold it when the directory is currently fold
+			// - fold it when the directory is currently unfold
+			if (dirState(nodeID)=='none') {
+				dirUnfold(nodeID);
+			} else {
+				dirFold(nodeID);
+			}
+		}
+
+		function nodeStart(nodeName, imageName, isLastItem) {
+		// add a node at the given level
+		// the node is initially collapsed
+
+			id++;
+			nodeID = "node"+id;
+			imgID = "imgnode"+id;
+
+			document.write("<span class='node' onclick='dirClick(\"" + nodeID + "\");'>");
+			for (i=0;i<level;i++) document.write("<img src='node_line.png' alt=''>");
+			if (isLastItem == false) {
+				// this is not the last node in this list
+				document.write("<img id='"+imgID+"' src='node_minus.png' alt=''><img src=" +imageName+ " alt=''> "+nodeName+"<br>");
+			} else {
+				// this is the last node in this list
+				document.write("<img id='"+imgID+"' src='node_minuslast.png' alt=''><img src=" +imageName+ " alt=''> "+nodeName+"<br>");
+			}
+			document.write("</span>");
+			document.write("<div id='"+nodeID+"'>");
+
+			// collapse the node initially
+			dirFold(nodeID);
+
+			// adjust the level info. This is important for displaying the right lines and nodes
+			levelIsLast[level] = isLastItem;
+
+			// the items inside the node are a level higher
+			level++;
+		}
+
+		function itemStart(nodeName, imageName, isLastItem) {
+			
+			// create the right lines left from the item 
+			// (the number of lines depends on the level)
+			for (i=0;i<level;i++) {
+				if (levelIsLast[i]==false) {
+					document.write("<img src='node_line.png' alt=''>");
+				} else {
+					document.write("<img src='node_empty.png' alt=''>");
+					//alert('level='+level);
+				}
+			}
+			if (isLastItem==false) {
+				// this is not the last item in the list
+				document.write("<img src='node_t.png' alt=''>");
+			} else {
+				// this is the last item in the list
+				document.write("<img src='node_tlast.png' alt=''>");
+			}
+			if (imageName != "") {
+				document.write("<img src='" +imageName+ "' alt=''>");
+			}
+			document.write(" "+nodeName+"<br>");
+		}
+		
+		function nodeEnd() {
+			// end of this node
+			document.write("</div>");
+
+			// reduce the level with one
+			level--;
+		}
+
+	</script>
+</head>
+
+
+<body onload="initCollapse();">
+
+<h1>A simple directory structure</h1>
+This demo shows how to create a directory structure with javascript.
+<br><br>
+<a href="js_directory_demo.zip">Click here</a> to download the demo including images.
+<br><br>
+
+
+<div class="dir">
+<script language="JavaScript" type="text/javascript">
+
+	document.write("Programs<br>");
+	nodeStart("Internet", "logo_internet.png", false);
+		itemStart("Program 1", "", false);
+		itemStart("Program 2", "", false);
+		itemStart("Program 3", "", false);
+		itemStart("...", "", true);
+	nodeEnd();
+	nodeStart("Games", "logo_games.png", false);
+		itemStart("Program 1", "", false);
+		itemStart("Program 2", "", false);
+		itemStart("Program 3", "", false);
+		itemStart("...", "", true);
+	nodeEnd();
+	nodeStart("Multimedia", "logo_multimedia.png", false);
+		itemStart("Program 1", "", false);
+		itemStart("Program 2", "", false);
+		itemStart("Program 3", "", false);
+		itemStart("...", "", true);
+	nodeEnd();
+	nodeStart("Edutainment", "logo_edutainment.png", false);
+		nodeStart("Languages", "logo_languages.png", false);
+			itemStart("Program 1", "", false);
+			itemStart("Program 2", "", false);
+			itemStart(" Program 3", "", false);
+			itemStart("...", "", true);
+		nodeEnd();
+		nodeStart("Mathematics", "logo_mathematics.png", false);
+			itemStart("Program 1", "", false);
+			itemStart("Program 2", "", false);
+			itemStart("Program 3", "", false);
+			itemStart("...", "", true);
+		nodeEnd();
+		nodeStart("Miscellaneous", "logo_edutainment.png", false);
+			itemStart("Program 1", "", false);
+			itemStart("Program 2", "", false);
+			itemStart("Program 3", "", false);
+			itemStart("...", "", true);
+		nodeEnd();
+		nodeStart("Science", "logo_science.png", false);
+			itemStart("Program 1", "", false);
+			itemStart("Program 2", "", false);
+			itemStart("Program 3", "", false);
+			itemStart("...", "", true);
+		nodeEnd();
+		nodeStart("Teaching Tools", "logo_teachingtools.png", true);
+			itemStart("Program 1", "", false);
+			itemStart("Program 2", "", false);
+			itemStart("Program 3", "", false);
+			itemStart("...", "", true);
+		nodeEnd();
+	nodeEnd();
+  nodeStart("Office", "logo_office.png", false);
+		itemStart("Program 1", "", false);
+		itemStart("Program 2", "", false);
+		itemStart("Program 3", "", false);
+		itemStart("...", "", true);
+	nodeEnd();	
+	nodeStart("Graphics", "logo_graphics.png", false);
+		itemStart("Program 1", "", false);
+		itemStart("Program 2", "", false);
+		itemStart("Program 3", "", false);
+		itemStart("...", "", true);
+	nodeEnd();
+	nodeStart("Development", "logo_development.png", false);
+		itemStart("Program 1", "", false);
+		itemStart("Program 2", "", false);
+		itemStart("Program 3", "", false);
+		itemStart("...", "", true);
+	nodeEnd();
+	nodeStart("System", "logo_system.png", false);
+		itemStart("Program 1", "", false);
+		itemStart("Program 2", "", false);
+		itemStart("Program 3", "", false);
+		itemStart("...", "", true);
+	nodeEnd();
+	nodeStart("Utilities", "logo_utilities.png", true);
+		itemStart("Program 1", "", false);
+		itemStart("Program 2", "", false);
+		itemStart("Program 3", "", false);
+		itemStart("...", "", true);
+	nodeEnd();
+</script>
+</div>
+
+</body>
+</html>
+
+

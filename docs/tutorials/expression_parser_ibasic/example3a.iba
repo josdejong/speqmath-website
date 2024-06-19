@@ -1,0 +1,6 @@
+IF LEFT$(expr,1)="(" AND RIGHT$(expr,1)=")"
+    'remove parentheses at start and end of the expression,
+    'for example "(2+3)" -> "2+3"
+    expr = MID$(expr,2,LEN(expr)-2)
+    RETURN Eval(expr)
+ENDIF

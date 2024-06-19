@@ -1,0 +1,229 @@
+' graph_ibpro.iba
+' by jos de jong, with help from the ibasic forums
+' ibasic pro code
+'
+' This graph demo shows how to draw graphs using low level Windows API
+' functions like MoveToEx, LineTo, TextOut. This results in very fast rendering.
+' To prevent the graph from flickering when redrawing, the graph is drawn in 
+' a bitmap in memory, and when ready it is copyied using BitBlt.
+'
+' http://www.catch22.net/tuts/flicker.asp
+' http://www.pyxia.com/community/viewtopic.php?t=7894
+' http://www.pyxia.com/community/viewtopic.php?t=10344
+
+'DECLARATIONS
+$INCLUDE "windows.inc"
+DECLARE IMPORT, LoadCursor ALIAS LoadCursorA(hInstance AS INT,lpCursorName AS POINTER),INT
+DECLARE IMPORT, GetCursorPos(lppoint:POINTER)
+DECLARE IMPORT, ScreenToClient(HWND:uint, lppoint:POINTER) 
+
+WINDOW figure, plotwin
+DOUBLE xmin, xmax, ymin, ymax           	 :'axes of the graphics screen
+DOUBLE xfactor, xshift, yfactor, yshift      :'factors such that xscreen = x * xfactor + xshift and yscreen = y * yfactor + yshift
+
+DEF MouseDownL, MouseDownR, MouseStartX, MouseStartY:INT
+CONST Black=0
+
+Figure_Load()
+Resize()
+Refresh_Scale()
+Plot_Graph()
+WAITUNTIL figure=0
+END
+
+'_______________________________________________________________________
+SUB Figure_Load()
+'load window figure with subwindow plotwin
+   OPENWINDOW figure, -600,100,500,400, @MINBOX | @MAXBOX | @SIZE | @NOAUTODRAW, 0, "Figure - Move by dragging mouse in window", &RoutineFigure
+   CENTERWINDOW figure
+
+   OPENWINDOW plotwin, 0,0,200,200, @NOCAPTION | @NOAUTODRAW, figure, "plot", &RoutinePlotWin
+
+   'create this window with a sunken border
+   _SetWindowLong(plotwin.hwnd,-20,512)
+   _SetWindowPos(plotwin.hwnd,NULL,0,0,0,0,39)
+
+   CfgSetDefault()
+
+   RETURN
+ENDSUB
+
+'_______________________________________________________________________
+SUB RoutineFigure()
+'handling of messages from window figure
+
+   SELECT @MESSAGE
+      CASE @IDCLOSEWINDOW
+         'close the figure window
+         CLOSEWINDOW plotwin
+         CLOSEWINDOW figure      
+
+      CASE @IDSIZECHANGED
+         Resize()
+         Refresh_Scale()
+         Plot_Graph()
+
+   ENDSELECT
+   RETURN
+ENDSUB
+
+'_______________________________________________________________________
+SUB RoutinePlotwin()
+'handling of messages from window plotwin
+   SETTYPE @HITWINDOW, WINDOW
+
+   SELECT @MESSAGE
+      CASE @IDPAINT
+         Refresh_Scale()
+         Plot_Graph()
+
+      CASE @IDLBUTTONDN
+         'move axes
+         _SetCapture(*@HITWINDOW.hwnd)
+         GetCursorPos(&@MOUSEX)
+         ScreenToClient(*@HITWINDOW.hwnd, &@MOUSEX)
+         MouseStartX = @MOUSEX
+         MouseStartY = @MOUSEY
+         SETCURSOR plotwin, @CSCUSTOM, LoadCursor(NULL, IDC_SIZEALL)      :'cursor "move"
+
+      CASE @IDLBUTTONUP
+         _ReleaseCapture()
+         SETCURSOR plotwin, @CSARROW               :' cursor back to normal cursor
+
+      CASE @IDMOUSEMOVE
+         if (_GetCapture() = *@HITWINDOW.hwnd)
+            GetCursorPos(&@MOUSEX)
+            ScreenToClient(*@HITWINDOW.hwnd, &@MOUSEX)
+            'Left mousebutton down. move the plot with the mouse movement
+            xmin -= (@MOUSEX-MouseStartX) / xfactor
+            xmax -= (@MOUSEX-MouseStartX) / xfactor
+            ymin -= (@MOUSEY-MouseStartY) / yfactor
+            ymax -= (@MOUSEY-MouseStartY) / yfactor
+            MouseStartX = @MOUSEX
+            MouseStartY = @MOUSEY
+
+            'replot
+            Refresh_Scale()
+            Plot_Graph()
+         ENDIF
+   
+   ENDSELECT
+   RETURN
+ENDSUB
+
+'_______________________________________________________________________
+SUB Plot_Graph()
+   'this sub repaints the graph
+   INT L,T,W,H
+   DOUBLE xscreen, yscreen
+   INT hdc, hdcMem, hbmMem
+   INT oldBmp, oldBrush, oldPen, oldFont
+   'get size of window
+   GETCLIENTSIZE(plotwin, L,T,W,H)
+
+   'Create an off-screen DC for double-buffering
+   hdc = _GetDC(plotwin.hwnd)
+   hdcMem = _CreateCompatibleDC(0)
+   hbmMem = _CreateCompatibleBitmap(hdc, W, H)
+   oldBmp = _SelectObject(hdcMem, hbmMem)
+   oldBrush = _SelectObject(hdcMem, _CreateSolidBrush(RGB(255,255,255)))
+   oldPen = _SelectObject(hdcMem, _CreatePen(PS_SOLID,1,RGB(255,255,255)))
+
+   'set specific font
+   INT textW, textH
+   INT fontsize, fontweight
+   STRING fontface
+   fontface = "Courier New"
+   fontsize = 10
+   fontweight = 400
+   SETFONT plotwin, fontface, fontsize, fontweight, 0
+   GETTEXTSIZE(plotwin, "A", textW, textH)		:'find the desired text Height
+   oldFont = _SelectObject(hdcMem, _CreateFont(textH,0,0,0,fontweight, 0,0,0,0,0,0,0,0, fontface))
+   _SetTextColor(hdcMem, RGB(0,0,255))
+   _SetBkMode(hdcMem, TRANSPARENT)
+   _SetTextAlign(hdcMem,TA_UPDATECP)
+
+   
+   'empty window -> draw white, filled rectangle
+   _Rectangle(hdcMem, 0, 0, W, H)
+   
+   'Paint axes with black frontpen
+   _DeleteObject(_SelectObject(hdcMem, _CreatePen(PS_SOLID,1,RGB(0,0,0))))
+   _MoveToEx(hdcMem, xmin * xfactor + xshift, 0 * yfactor + yshift, NULL)
+   _LineTo(hdcMem, xmax * xfactor + xshift, 0 * yfactor + yshift)
+   _MoveToEx(hdcMem, 0 * xfactor + xshift, ymin * yfactor + yshift, NULL)
+   _LineTo(hdcMem, 0 * xfactor + xshift, ymax * yfactor + yshift)
+   
+   'paint the function with red frontpen
+   _DeleteObject(_SelectObject(hdcMem, _CreatePen(PS_SOLID,1,RGB(255,0,0))))
+   xscreen = 0
+   yscreen = myfunction((xscreen-xshift)/xfactor) * yfactor + yshift
+   _MoveToEx(hdcMem, xscreen, yscreen, NULL)
+   FOR n=0 TO w+5 STEP 2
+      xscreen = n
+      yscreen = myfunction((xscreen-xshift)/xfactor) * yfactor + yshift
+      _LineTo(hdcMem, xscreen, yscreen)
+   NEXT n
+
+   'Print some text with blue frontpen
+   _DeleteObject(_SelectObject(hdcMem, _CreatePen(PS_SOLID,1,RGB(0,0,255))))
+   STRING mystring
+   mystring = "4 * Sin(x*2) * Cos(x)"
+   _MoveToEx(hdcMem, 10,10, NULL)
+   _TextOut(hdcMem, 0, 0, mystring, len(mystring))
+
+   'Transfer the off-screen DC to the screen
+   _BitBlt(hdc, 0, 0, W, H, hdcMem, 0, 0, SRCCOPY)
+   
+   'Free-up the off-screen DC
+   _DeleteObject(_SelectObject(hdcMem, oldFont))
+   _DeleteObject(_SelectObject(hdcMem, oldBrush))
+   _DeleteObject(_SelectObject(hdcMem, oldPen))
+   _DeleteObject(_SelectObject(hdcMem, oldBmp))
+   _DeleteDC(hdcMem)
+   _ReleaseDC(plotwin.hwnd, hdc)
+   RETURN
+ENDSUB
+
+'_______________________________________________________________________
+SUB myfunction(value:DOUBLE),DOUBLE
+'calculate a functionvalue
+   RETURN 4 * Sin(value*2) * Cos(value)
+ENDSUB
+
+'_______________________________________________________________________
+SUB Refresh_Scale()
+'calculate the scale for painting in the screen plotwin
+'this depends on the scale of the graph: xmin, xmax, ymin, ymax
+'and the size of the window plotwin
+'factors such that    xscreen = x * xfactor + xshift
+'               yscreen = y * yfactor + yshift
+INT L,T,W,H
+   GETCLIENTSIZE plotwin, L,T,W,H
+   xfactor = W / (xmax - xmin)
+   yfactor = -H / (ymax - ymin)
+   xshift = -xmin * xfactor
+   yshift = -ymax * yfactor
+   RETURN
+ENDSUB
+
+'_______________________________________________________________________
+SUB Resize()
+'resize figure window with its subwindow
+INT L,T,W,H
+   GETCLIENTSIZE figure, L,T,W,H
+   SETSIZE plotwin, 0,0,W,H
+
+   RETURN
+ENDSUB
+
+'_______________________________________________________________________
+SUB CfgSetDefault()
+'set default values for the properties of the figure
+   xmin=-5
+   xmax=5
+   ymin=-5
+   ymax=5
+
+   RETURN
+ENDSUB

@@ -1,0 +1,45 @@
+SUB isOperator(expr:STRING, op:CHAR, n:INT), INT
+    'This sub checks of the operator at postion n in expr is a
+    'legal operator. For example the "+" in "2.3E+3" is no operator,
+    'and the "-" in "3 * -2.5" is no operator but a unary minus
+    STRING sign
+    
+    IF op="+"
+        IF UCASE$(MID$(expr,n-1,1))="E"
+            IF n>2
+                IF INSTR("1234567890.", MID$(expr,n-2,1))>0
+                    'for example "2.52E+4"
+                    RETURN FALSE
+                ENDIF
+            ENDIF
+        ENDIF
+        RETURN TRUE
+    ENDIF
+    
+    IF op="-"
+        IF n=1
+            'this is an unary minus, at the first position of the expr
+            'for example "-3.4 / 6"
+            RETURN FALSE
+        ELSE
+            'check for an unary minus (for example 2*-3  or  2.5E-6)
+            'check the characters before the minus
+            sign = LEFT$(expr,n-1)
+            sign = RIGHT$(RTRIM$(sign),1)
+            IF INSTR("+-/*^", sign)>0
+                'For example "3.5 * -2"
+                RETURN FALSE
+            ENDIF
+            IF UCASE$(MID$(expr,n-1,1))="E" AND n>2
+                IF INSTR("1234567890.", MID$(expr,n-2,1))>0
+                    'for example "2.3E-4"
+                    RETURN FALSE
+                ENDIF
+            ENDIF
+        ENDIF
+        RETURN TRUE
+    ENDIF
+    
+    'no problems found, the operator is indeed an operator.
+    RETURN TRUE
+ENDSUB

@@ -1,0 +1,179 @@
+/*
+Recursive expression parser, Example 3.
+Written with IBasic Professional
+By Jos de Jong, may 2006
+
+Supports expressions with operators + - * / ^ E and parentheses ( )
+*/
+AUTODEFINE "Off"
+SETPRECISION 5
+DEF inputexpr:STRING
+
+OPENCONSOLE
+
+'print some examples of expressions with their answers
+PRINT "Expression Calculator"
+PRINT ""
+PRINT "You can use + - * / ^ E and parentheses ( )"
+PRINT "Enter an expression and press Enter to calculate it."
+PRINT "Enter an empty expression to quit"
+PRINT ""
+PRINT "Examples:"
+PRINT "2 + 3 * -4 = ", Eval("2 + 3 * -4")
+PRINT "2 + 3 / 4 - 5= ", Eval("2 + 3 / 4 - 5")
+PRINT "2.5 ^ 3.25 - 5E2 / 100 = ", Eval("2.5 ^ 3.25 - 5E2 / 100 ")
+PRINT "(1.5+2.5) * (3+4) = ", Eval("(1.5+2.5) * (3+4)")
+PRINT ""
+DO
+    'ask the user to enter an expression. After this the expression
+    'will be evaluated and the answer will be printed
+    INPUT ">>", inputexpr
+    IF RTRIM$(inputexpr)<>""
+        PRINT "    Ans = ", Eval(inputexpr)
+        PRINT ""
+    ENDIF
+UNTIL RTRIM$(inputexpr)=""
+
+'end the program
+CLOSECONSOLE
+END
+
+'_____________________________________________________________________
+SUB Eval(Expression:STRING), DOUBLE
+    DEF pos, n:INT
+    DEF expr:STRING
+    DEF part1, part2:STRING
+    DEF operator:STRING
+    
+    'remove spaces at start and end of the expression
+    expr = LTRIM$(RTRIM$(Expression))
+    
+    FOR n=1 TO 6
+        'choose an operator
+        '(for each loop choose the following of the five operators)
+        operator = MID$("-+/*^E", n, 1)
+        
+        'search for the last occurance of this operator outside
+        'parentheses
+        pos = InstrP(UCASE$(expr), operator, 255)
+        WHILE pos>0
+            'Check if the found operator realy is an operator
+            '(and not a unary plus or minus)
+            IF isOperator(expr, operator, pos)=TRUE
+                'there is an operator found at position pos. Split up
+                'the expression in two parts and calculate the result
+                'of that two parts. Then calculate the result for the
+                'complete expression.
+                part1 = LEFT$(expr, pos-1)
+                part2 = RIGHT$(expr, LEN(expr)-pos)
+                
+                'now execute the calculation between left and right
+                'part, and return the answer
+                SELECT operator
+                    CASE "-"
+                        RETURN Eval(part1) - Eval(part2)
+                    CASE "+"
+                        RETURN Eval(part1) + Eval(part2)
+                    CASE "/"
+                        RETURN Eval(part1) / Eval(part2)
+                    CASE "*"
+                        RETURN Eval(part1) * Eval(part2)
+                    CASE "^"
+                        RETURN Eval(part1) ^ Eval(part2)
+                    CASE "E"
+                        RETURN Eval(part1) * 10 ^ Eval(part2)
+                ENDSELECT
+            ENDIF
+            
+            'the found operator was no operator,
+            'search if there is another operator before this one
+            IF pos>0 THEN pos=instrP(UCASE$(expr), operator, pos-1)
+        WEND
+    NEXT n
+    
+    'check if the expression starts and ends with parentheses
+    IF LEFT$(expr,1)="(" AND RIGHT$(expr,1)=")"
+        'remove parentheses at start and end of the expression,
+        'for example "(2+3)" -> "2+3"
+        expr = MID$(expr,2,LEN(expr)-2)
+        RETURN Eval(expr)
+    ENDIF
+    
+    'there are no more operators left in the expression, and the
+    'expression is not solved yet so the expression must be a value
+    'return the value
+    RETURN VAL(expr)
+ENDSUB
+
+'_____________________________________________________________________
+SUB instrP(source:STRING, search:STRING, start:INT), INT
+    'this sub searches for the LAST string search in the string
+    'source, reverse of the function instr(). The sub returns 0 if
+    'the search could not be found. Also this function neglects
+    'content between parenthesis () in source
+    INT n, bopen, bclose
+    STRING sign
+    
+    n=start
+    IF n>LEN(source) THEN n=LEN(source)-LEN(search)+1
+    bopen=0     :'number of parenthesis open (
+    bclose=0    :'number of parenthesis close )
+    DO
+        sign = MID$(source, n, LEN(search))
+        'if search is found and outside parentheses then return n
+        IF (sign=search) AND (bopen=bclose) THEN RETURN n
+        IF LEFT$(sign,1)="(" THEN bopen++
+        IF LEFT$(sign,1)=")" THEN bclose++
+        n--
+    UNTIL (n <= 0)
+    
+    'if the string search is not found, then return 0
+    RETURN 0
+ENDSUB
+
+'_______________________________________________________________
+SUB isOperator(expr:STRING, op:CHAR, n:INT), INT
+    'This sub checks of the operator at postion n in expr is a
+    'legal operator. For example the "+" in "2.3E+3" is no operator,
+    'and the "-" in "3 * -2.5" is no operator but a unary minus
+    STRING sign
+    
+    IF op="+"
+        IF UCASE$(MID$(expr,n-1,1))="E"
+            IF n>2
+                IF INSTR("1234567890.", MID$(expr,n-2,1))>0
+                    'for example "2.52E+4"
+                    RETURN FALSE
+                ENDIF
+            ENDIF
+        ENDIF
+        RETURN TRUE
+    ENDIF
+    
+    IF op="-"
+        IF n=1
+            'this is an unary minus, at the first position of the expr
+            'for example "-3.4 / 6"
+            RETURN FALSE
+        ELSE
+            'check for an unary minus (for example 2*-3  or  2.5E-6)
+            'check the characters before the minus
+            sign = LEFT$(expr,n-1)
+            sign = RIGHT$(RTRIM$(sign),1)
+            IF INSTR("+-/*^", sign)>0
+                'For example "3.5 * -2"
+                RETURN FALSE
+            ENDIF
+            IF UCASE$(MID$(expr,n-1,1))="E" AND n>2
+                IF INSTR("1234567890.", MID$(expr,n-2,1))>0
+                    'for example "2.3E-4"
+                    RETURN FALSE
+                ENDIF
+            ENDIF
+        ENDIF
+        RETURN TRUE
+    ENDIF
+    
+    'no problems found, the operator is indeed an operator.
+    RETURN TRUE
+ENDSUB

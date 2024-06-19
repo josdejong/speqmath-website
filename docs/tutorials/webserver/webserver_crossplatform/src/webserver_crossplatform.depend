@@ -1,0 +1,1392 @@
+# depslib dependency file v1.0
+1264105417 source:z:\jos\programming\c++\webserver_crossplatform\src\generalfunctions.cpp
+	"GeneralFunctions.h"
+
+1261313359 h>
+
+1261838887 nctions.h"
+
+1264105443 z:\jos\programming\c++\webserver_crossplatform\src\generalfunctions.h
+	<cstdio>
+	<string.h>
+	<string>
+	<dirent.h>
+	<cstdarg>
+	<fstream>
+	<cctype>
+
+1261938885 
+
+1243074199 source:z:\jos\programming\c++\webserver_crossplatform\src\mimetype.cpp
+	"Mimetype.h"
+
+1261867789 h"
+
+1262434203 z:\jos\programming\c++\webserver_crossplatform\src\mimetype.h
+	<string>
+	"GeneralFunctions.h"
+
+1241041822 source:/home/jos/.gvfs/jos op joske/Programming/C++/webserver_crossplatform/src/ClientSocket.cpp
+	"ClientSocket.h"
+	"SocketException.h"
+	"ClientSocket.h"
+	"SocketException.h"
+	"ClientSocket.h"
+	"SocketException.h"
+	"ClientSocket.h"
+	"SocketException.h"
+	"ClientSocket.h"
+	"SocketException.h"
+
+1243026371 eption.h"
+
+1241041818 /home/jos/.gvfs/jos op joske/Programming/C++/webserver_crossplatform/src/ClientSocket.h
+	"Socket.h"
+	"Socket.h"
+	"Socket.h"
+	"Socket.h"
+	"Socket.h"
+
+1261313359 /home/jos/.gvfs/jos op joske/Programming/C++/webserver_crossplatform/src/Socket.h
+	<string>
+	<iostream>
+	<sys/types.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<netdb.h>
+	<unistd.h>
+	<arpa/inet.h>
+	<string>
+	<iostream>
+	<sys/types.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<netdb.h>
+	<unistd.h>
+	<arpa/inet.h>
+	<WinSock2.h>
+	<string>
+	<iostream>
+	<sys/types.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<netdb.h>
+	<unistd.h>
+	<arpa/inet.h>
+	<WinSock2.h>
+	<string>
+	<iostream>
+	<sys/types.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<netdb.h>
+	<unistd.h>
+	<arpa/inet.h>
+	<WinSock2.h>
+	<string>
+	<iostream>
+	<sys/types.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<netdb.h>
+	<unistd.h>
+	<arpa/inet.h>
+	<WinSock2.h>
+	<string>
+	<iostream>
+	<sys/types.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<netdb.h>
+	<unistd.h>
+	<arpa/inet.h>
+	<WinSock2.h>
+	<string>
+	<iostream>
+	<sys/types.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<netdb.h>
+	<unistd.h>
+	<arpa/inet.h>
+	<WinSock2.h>
+	<string>
+	<iostream>
+	<sys/types.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<netdb.h>
+	<unistd.h>
+	<arpa/inet.h>
+	<WinSock2.h>
+	<string>
+	<iostream>
+	<sys/types.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<netdb.h>
+	<unistd.h>
+	<arpa/inet.h>
+	<WinSock2.h>
+	<string>
+	<iostream>
+	<sys/types.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<netdb.h>
+	<unistd.h>
+	<arpa/inet.h>
+	<WinSock2.h>
+	<string>
+	<iostream>
+	<sys/types.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<netdb.h>
+	<unistd.h>
+	<arpa/inet.h>
+	<WinSock2.h>
+	<string>
+	<iostream>
+	<sys/types.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<netdb.h>
+	<unistd.h>
+	<arpa/inet.h>
+	<WinSock2.h>
+	<string>
+	<iostream>
+	<sys/types.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<netdb.h>
+	<unistd.h>
+	<arpa/inet.h>
+	<WinSock2.h>
+
+1261233237 .h>
+
+1241041796 /home/jos/.gvfs/jos op joske/Programming/C++/webserver_crossplatform/src/SocketException.h
+	<string>
+	<string>
+	<string>
+	<string>
+	<string>
+	<string>
+	<string>
+	<string>
+	<string>
+	<string>
+	<string>
+	<string>
+	<string>
+
+1261825313 source:/home/jos/.gvfs/jos op joske/Programming/C++/webserver_crossplatform/src/GeneralFunctions.cpp
+	"GeneralFunctions.h"
+	"GeneralFunctions.h"
+	"GeneralFunctions.h"
+	"GeneralFunctions.h"
+	"GeneralFunctions.h"
+	"GeneralFunctions.h"
+	"GeneralFunctions.h"
+	"GeneralFunctions.h"
+	"GeneralFunctions.h"
+	"GeneralFunctions.h"
+	"GeneralFunctions.h"
+	"GeneralFunctions.h"
+	"GeneralFunctions.h"
+
+1261825254 /home/jos/.gvfs/jos op joske/Programming/C++/webserver_crossplatform/src/GeneralFunctions.h
+	<cstdio>
+	<string.h>
+	<string>
+	<dirent.h>
+	<cstdarg>
+	<fstream>
+	<cctype>
+	<cstdio>
+	<string.h>
+	<string>
+	<dirent.h>
+	<cstdarg>
+	<fstream>
+	<cctype>
+	<cstdio>
+	<string.h>
+	<string>
+	<dirent.h>
+	<cstdarg>
+	<fstream>
+	<cctype>
+	<cstdio>
+	<string.h>
+	<string>
+	<dirent.h>
+	<cstdarg>
+	<fstream>
+	<cctype>
+	<cstdio>
+	<string.h>
+	<string>
+	<dirent.h>
+	<cstdarg>
+	<fstream>
+	<cctype>
+	<cstdio>
+	<string.h>
+	<string>
+	<dirent.h>
+	<cstdarg>
+	<fstream>
+	<cctype>
+	<cstdio>
+	<string.h>
+	<string>
+	<dirent.h>
+	<cstdarg>
+	<fstream>
+	<cctype>
+	<cstdio>
+	<string.h>
+	<string>
+	<dirent.h>
+	<cstdarg>
+	<fstream>
+	<cctype>
+	<cstdio>
+	<string.h>
+	<string>
+	<dirent.h>
+	<cstdarg>
+	<fstream>
+	<cctype>
+	<cstdio>
+	<string.h>
+	<string>
+	<dirent.h>
+	<cstdarg>
+	<fstream>
+	<cctype>
+	<cstdio>
+	<string.h>
+	<string>
+	<dirent.h>
+	<cstdarg>
+	<fstream>
+	<cctype>
+	<cstdio>
+	<string.h>
+	<string>
+	<dirent.h>
+	<cstdarg>
+	<fstream>
+	<cctype>
+	<cstdio>
+	<string.h>
+	<string>
+	<dirent.h>
+	<cstdarg>
+	<fstream>
+	<cctype>
+
+1243077799 source:/home/jos/.gvfs/jos op joske/Programming/C++/webserver_crossplatform/src/Mimetype.cpp
+	"Mimetype.h"
+	"Mimetype.h"
+	"Mimetype.h"
+	"Mimetype.h"
+	"Mimetype.h"
+	"Mimetype.h"
+	"Mimetype.h"
+	"Mimetype.h"
+	"Mimetype.h"
+	"Mimetype.h"
+	"Mimetype.h"
+	"Mimetype.h"
+	"Mimetype.h"
+
+1243076380 /home/jos/.gvfs/jos op joske/Programming/C++/webserver_crossplatform/src/Mimetype.h
+	<string>
+	"GeneralFunctions.h"
+	<iostream>
+	<string>
+	"GeneralFunctions.h"
+	<iostream>
+	<string>
+	"GeneralFunctions.h"
+	<iostream>
+	<string>
+	"GeneralFunctions.h"
+	<iostream>
+	<string>
+	"GeneralFunctions.h"
+	<iostream>
+	<string>
+	"GeneralFunctions.h"
+	<iostream>
+	<string>
+	"GeneralFunctions.h"
+	<iostream>
+	<string>
+	"GeneralFunctions.h"
+	<iostream>
+	<string>
+	"GeneralFunctions.h"
+	<iostream>
+	<string>
+	"GeneralFunctions.h"
+	<iostream>
+	<string>
+	"GeneralFunctions.h"
+	<iostream>
+	<string>
+	"GeneralFunctions.h"
+	<iostream>
+	<string>
+	"GeneralFunctions.h"
+	<iostream>
+
+1243026371 source:/home/jos/.gvfs/jos op joske/Programming/C++/webserver_crossplatform/src/ServerSocket.cpp
+	"ServerSocket.h"
+	"SocketException.h"
+	"ServerSocket.h"
+	"SocketException.h"
+	"ServerSocket.h"
+	"SocketException.h"
+	"ServerSocket.h"
+	"SocketException.h"
+	"ServerSocket.h"
+	"SocketException.h"
+	"ServerSocket.h"
+	"SocketException.h"
+	"ServerSocket.h"
+	"SocketException.h"
+	"ServerSocket.h"
+	"SocketException.h"
+	"ServerSocket.h"
+	"SocketException.h"
+	"ServerSocket.h"
+	"SocketException.h"
+	"ServerSocket.h"
+	"SocketException.h"
+	"ServerSocket.h"
+	"SocketException.h"
+	"ServerSocket.h"
+	"SocketException.h"
+
+1241089794 /home/jos/.gvfs/jos op joske/Programming/C++/webserver_crossplatform/src/ServerSocket.h
+	"Socket.h"
+	"Socket.h"
+	"Socket.h"
+	"Socket.h"
+	"Socket.h"
+	"Socket.h"
+	"Socket.h"
+	"Socket.h"
+	"Socket.h"
+	"Socket.h"
+	"Socket.h"
+	"Socket.h"
+	"Socket.h"
+
+1261867789 source:/home/jos/.gvfs/jos op joske/Programming/C++/webserver_crossplatform/src/Settings.cpp
+	"Settings.h"
+	"Settings.h"
+	"Settings.h"
+	"Settings.h"
+	"Settings.h"
+	"Settings.h"
+	"Settings.h"
+	"Settings.h"
+	"Settings.h"
+	"Settings.h"
+	"Settings.h"
+	"Settings.h"
+	"Settings.h"
+
+1261865853 /home/jos/.gvfs/jos op joske/Programming/C++/webserver_crossplatform/src/Settings.h
+	<cstdio>
+	<cstdlib>
+	<string>
+	<iostream>
+	"GeneralFunctions.h"
+	"Resources.h"
+	<cstdio>
+	<cstdlib>
+	<string>
+	<iostream>
+	"GeneralFunctions.h"
+	"Resources.h"
+	<cstdio>
+	<cstdlib>
+	<string>
+	<iostream>
+	"GeneralFunctions.h"
+	"Resources.h"
+	<cstdio>
+	<cstdlib>
+	<string>
+	<iostream>
+	"GeneralFunctions.h"
+	"Resources.h"
+	<cstdio>
+	<cstdlib>
+	<string>
+	<iostream>
+	"GeneralFunctions.h"
+	"Resources.h"
+	<cstdio>
+	<cstdlib>
+	<string>
+	<iostream>
+	"GeneralFunctions.h"
+	"Resources.h"
+	<cstdio>
+	<cstdlib>
+	<string>
+	<iostream>
+	"GeneralFunctions.h"
+	"Resources.h"
+	<cstdio>
+	<cstdlib>
+	<string>
+	<iostream>
+	"GeneralFunctions.h"
+	"Resources.h"
+	<cstdio>
+	<cstdlib>
+	<string>
+	<iostream>
+	"GeneralFunctions.h"
+	"Resources.h"
+	<cstdio>
+	<cstdlib>
+	<string>
+	<iostream>
+	"GeneralFunctions.h"
+	"Resources.h"
+	<cstdio>
+	<cstdlib>
+	<string>
+	"GeneralFunctions.h"
+	"Resources.h"
+	<cstdio>
+	<cstdlib>
+	<string>
+	<vector>
+	"GeneralFunctions.h"
+	"Resources.h"
+	<cstdio>
+	<cstdlib>
+	<string>
+	<vector>
+	"GeneralFunctions.h"
+	"Resources.h"
+
+1261939713 .h"
+
+1261853996 /home/jos/.gvfs/jos op joske/Programming/C++/webserver_crossplatform/src/Resources.h
+
+1261868963 source:/home/jos/.gvfs/jos op joske/Programming/C++/webserver_crossplatform/src/Socket.cpp
+	"Socket.h"
+	"string.h"
+	<string.h>
+	<errno.h>
+	<fcntl.h>
+	"Socket.h"
+	"string.h"
+	<string.h>
+	<errno.h>
+	<fcntl.h>
+	"Socket.h"
+	"string.h"
+	<string.h>
+	<errno.h>
+	<fcntl.h>
+	"Socket.h"
+	"string.h"
+	<string.h>
+	<errno.h>
+	<fcntl.h>
+	"Socket.h"
+	"string.h"
+	<string.h>
+	<errno.h>
+	<fcntl.h>
+	"Socket.h"
+	"string.h"
+	<string.h>
+	<errno.h>
+	<fcntl.h>
+	"Socket.h"
+	"string.h"
+	<string.h>
+	<errno.h>
+	<fcntl.h>
+	"Socket.h"
+	"string.h"
+	<string.h>
+	<errno.h>
+	<fcntl.h>
+	"Socket.h"
+	"string.h"
+	<string.h>
+	<errno.h>
+	<fcntl.h>
+	"Socket.h"
+	"string.h"
+	<string.h>
+	<errno.h>
+	<fcntl.h>
+	"Socket.h"
+	"string.h"
+	<string.h>
+	<errno.h>
+	<fcntl.h>
+	"Socket.h"
+	"string.h"
+	<string.h>
+	<errno.h>
+	<fcntl.h>
+	"Socket.h"
+	"string.h"
+	<string.h>
+	<errno.h>
+	<fcntl.h>
+
+1261871020 source:/home/jos/.gvfs/jos op joske/Programming/C++/webserver_crossplatform/src/Webserver.cpp
+	"Webserver.h"
+	"Webserver.h"
+	"Webserver.h"
+	"Webserver.h"
+	"Webserver.h"
+	"Webserver.h"
+	"Webserver.h"
+	"Webserver.h"
+	"Webserver.h"
+	"Webserver.h"
+	"Webserver.h"
+	"Webserver.h"
+
+1261938885 /home/jos/.gvfs/jos op joske/Programming/C++/webserver_crossplatform/src/Webserver.h
+	<cstdio>
+	<cstdlib>
+	<string.h>
+	<string>
+	<iostream>
+	<dirent.h>
+	<cstdarg>
+	"GeneralFunctions.h"
+	"ServerSocket.h"
+	"SocketException.h"
+	"Settings.h"
+	"Mimetype.h"
+	"Resources.h"
+	<cstdio>
+	<cstdlib>
+	<string.h>
+	<string>
+	<iostream>
+	<dirent.h>
+	<cstdarg>
+	"GeneralFunctions.h"
+	"ServerSocket.h"
+	"SocketException.h"
+	"Settings.h"
+	"Mimetype.h"
+	"Resources.h"
+	<cstdio>
+	<cstdlib>
+	<string.h>
+	<string>
+	<iostream>
+	<dirent.h>
+	<cstdarg>
+	"GeneralFunctions.h"
+	"ServerSocket.h"
+	"SocketException.h"
+	"Settings.h"
+	"Mimetype.h"
+	"Resources.h"
+	<cstdio>
+	<cstdlib>
+	<string.h>
+	<string>
+	<iostream>
+	<dirent.h>
+	<cstdarg>
+	"GeneralFunctions.h"
+	"ServerSocket.h"
+	"SocketException.h"
+	"Settings.h"
+	"Mimetype.h"
+	"Resources.h"
+	<cstdio>
+	<cstdlib>
+	<string.h>
+	<string>
+	<list>
+	<algorithm>
+	<iostream>
+	<dirent.h>
+	<cstdarg>
+	"GeneralFunctions.h"
+	"ServerSocket.h"
+	"SocketException.h"
+	"Settings.h"
+	"Mimetype.h"
+	"Resources.h"
+	<cstdio>
+	<cstdlib>
+	<string.h>
+	<string>
+	<list>
+	<algorithm>
+	<iostream>
+	<dirent.h>
+	<cstdarg>
+	"GeneralFunctions.h"
+	"ServerSocket.h"
+	"SocketException.h"
+	"Settings.h"
+	"Mimetype.h"
+	"Resources.h"
+	<cstdio>
+	<string>
+	"RequestHandler.h"
+	"ServerSocket.h"
+	"SocketException.h"
+	"Settings.h"
+	"GeneralFunctions.h"
+	"Resources.h"
+	<pthread.h>
+	<process.h>
+	<cstdio>
+	<string>
+	"RequestHandler.h"
+	"ServerSocket.h"
+	"SocketException.h"
+	"Settings.h"
+	"GeneralFunctions.h"
+	"Resources.h"
+	"Thread.h"
+	<cstdio>
+	<string>
+	"ServerSocket.h"
+	"SocketException.h"
+	"Settings.h"
+	"GeneralFunctions.h"
+	"Resources.h"
+	"RequestHandler.h"
+	<pthread.h>
+	<process.h>
+	<cstdio>
+	<string>
+	"ServerSocket.h"
+	"SocketException.h"
+	"Settings.h"
+	"GeneralFunctions.h"
+	"Resources.h"
+	"RequestHandler.h"
+	<pthread.h>
+	<process.h>
+	<cstdio>
+	<string>
+	"ServerSocket.h"
+	"SocketException.h"
+	"Settings.h"
+	"GeneralFunctions.h"
+	"Resources.h"
+	"RequestHandler.h"
+	<pthread.h>
+	<process.h>
+	<cstdio>
+	<string>
+	"ServerSocket.h"
+	"SocketException.h"
+	"Settings.h"
+	"GeneralFunctions.h"
+	"Resources.h"
+	"RequestHandler.h"
+	<pthread.h>
+	<process.h>
+	"windows.h"
+	<cstdio>
+	<string>
+	"ServerSocket.h"
+	"SocketException.h"
+	"Settings.h"
+	"GeneralFunctions.h"
+	"Resources.h"
+	"RequestHandler.h"
+	"Thread.h"
+
+1261939531 "
+
+1261752301 >
+
+1261870453 source:/home/jos/.gvfs/jos op joske/Programming/C++/webserver_crossplatform/src/main.cpp
+	"Webserver.h"
+	<string>
+	"Webserver.h"
+	<string>
+	"Webserver.h"
+	<string>
+	"Webserver.h"
+	<string>
+	"Webserver.h"
+	<string>
+	"Webserver.h"
+	<string>
+	"Webserver.h"
+	<string>
+	"Webserver.h"
+	<string>
+	"Webserver.h"
+	<string>
+	"Webserver.h"
+	<string>
+	"Webserver.h"
+	<string>
+	"Webserver.h"
+	"Service.h"
+	<string>
+	"Webserver.h"
+	"Service.h"
+	<string>
+
+1264110673 source:z:\jos\programming\c++\webserver_crossplatform\src\socket.cpp
+	"Socket.h"
+	"string.h"
+	<string.h>
+	<errno.h>
+	<fcntl.h>
+
+1264110687 z:\jos\programming\c++\webserver_crossplatform\src\socket.h
+	<string>
+	<sys/types.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<netdb.h>
+	<unistd.h>
+	<arpa/inet.h>
+	<WinSock2.h>
+
+1261311938 source:z:\jos\programming\c++\webserver_crossplatform\src\socket_win.cpp
+	"Socket.h"
+	"string.h"
+	<string.h>
+	<errno.h>
+	<fcntl.h>
+
+1263740471 source:z:\jos\programming\c++\webserver_crossplatform\src\webserver.cpp
+	"Webserver.h"
+
+1264102279 z:\jos\programming\c++\webserver_crossplatform\src\webserver.h
+	<cstdio>
+	<string>
+	"ServerSocket.h"
+	"SocketException.h"
+	"Settings.h"
+	"GeneralFunctions.h"
+	"Resources.h"
+	"RequestHandler.h"
+	"Thread.h"
+
+1262525079 z:\jos\programming\c++\webserver_crossplatform\src\serversocket.h
+	"Socket.h"
+
+1241038196 z:\jos\programming\c++\webserver_crossplatform\src\socketexception.h
+	<string>
+
+1261865853 z:\jos\programming\c++\webserver_crossplatform\src\settings.h
+	<cstdio>
+	<cstdlib>
+	<string>
+	<vector>
+	"GeneralFunctions.h"
+	"Resources.h"
+
+1261853996 z:\jos\programming\c++\webserver_crossplatform\src\resources.h
+
+1241038222 source:z:\jos\programming\c++\webserver_crossplatform\src\clientsocket.cpp
+	"ClientSocket.h"
+	"SocketException.h"
+
+1241038218 z:\jos\programming\c++\webserver_crossplatform\src\clientsocket.h
+	"Socket.h"
+
+1263505853 source:z:\jos\programming\c++\webserver_crossplatform\src\serversocket.cpp
+	"ServerSocket.h"
+	"SocketException.h"
+
+1261867789 source:z:\jos\programming\c++\webserver_crossplatform\src\settings.cpp
+	"Settings.h"
+
+1264193543 source:z:\jos\programming\c++\webserver_crossplatform\src\main.cpp
+	"Webserver.h"
+
+1261312766 source:/home/jos/.gvfs/jos op joske/Programming/C++/webserver_crossplatform/src/Socket_win.cpp
+	"Socket.h"
+	"string.h"
+	<string.h>
+	<errno.h>
+	<fcntl.h>
+
+1264194337 source:z:\jos\programming\c++\webserver_crossplatform\src\requesthandler.cpp
+	"RequestHandler.h"
+
+1262033836 ndler.h"
+
+1264194403 z:\jos\programming\c++\webserver_crossplatform\src\requesthandler.h
+	<string>
+	<vector>
+	<iostream>
+	<list>
+	<algorithm>
+	"ServerSocket.h"
+	"SocketException.h"
+	"Mimetype.h"
+	"GeneralFunctions.h"
+	"HttpRequest.h"
+	"HttpResponse.h"
+
+1262033765 nse.h"
+
+1264105417 source:/home/jos/Programming/C++/webserver_crossplatform/src/GeneralFunctions.cpp
+	"GeneralFunctions.h"
+	"GeneralFunctions.h"
+	"GeneralFunctions.h"
+
+1264105443 /home/jos/Programming/C++/webserver_crossplatform/src/GeneralFunctions.h
+	<cstdio>
+	<string.h>
+	<string>
+	<dirent.h>
+	<cstdarg>
+	<fstream>
+	<cctype>
+	<cstdio>
+	<string.h>
+	<string>
+	<dirent.h>
+	<cstdarg>
+	<fstream>
+	<cctype>
+	<cstdio>
+	<string.h>
+	<string>
+	<dirent.h>
+	<cstdarg>
+	<fstream>
+	<cctype>
+
+1243077799 source:/home/jos/Programming/C++/webserver_crossplatform/src/Mimetype.cpp
+	"Mimetype.h"
+	"Mimetype.h"
+	"Mimetype.h"
+
+1262434203 /home/jos/Programming/C++/webserver_crossplatform/src/Mimetype.h
+	<string>
+	"GeneralFunctions.h"
+	<iostream>
+	<string>
+	"GeneralFunctions.h"
+	<iostream>
+	<string>
+	"GeneralFunctions.h"
+
+1263505853 source:/home/jos/Programming/C++/webserver_crossplatform/src/ServerSocket.cpp
+	"ServerSocket.h"
+	"SocketException.h"
+	"ServerSocket.h"
+	"SocketException.h"
+	"ServerSocket.h"
+	"SocketException.h"
+
+1262525079 /home/jos/Programming/C++/webserver_crossplatform/src/ServerSocket.h
+	"Socket.h"
+	"Socket.h"
+	"Socket.h"
+
+1264110687 /home/jos/Programming/C++/webserver_crossplatform/src/Socket.h
+	<string>
+	<iostream>
+	<sys/types.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<netdb.h>
+	<unistd.h>
+	<arpa/inet.h>
+	<WinSock2.h>
+	<string>
+	<iostream>
+	<sys/types.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<netdb.h>
+	<unistd.h>
+	<arpa/inet.h>
+	<WinSock2.h>
+	<string>
+	<sys/types.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<netdb.h>
+	<unistd.h>
+	<arpa/inet.h>
+	<WinSock2.h>
+
+1241041796 /home/jos/Programming/C++/webserver_crossplatform/src/SocketException.h
+	<string>
+	<string>
+	<string>
+
+1261867789 source:/home/jos/Programming/C++/webserver_crossplatform/src/Settings.cpp
+	"Settings.h"
+	"Settings.h"
+	"Settings.h"
+
+1261865853 /home/jos/Programming/C++/webserver_crossplatform/src/Settings.h
+	<cstdio>
+	<cstdlib>
+	<string>
+	<iostream>
+	"GeneralFunctions.h"
+	"Resources.h"
+	<cstdio>
+	<cstdlib>
+	<string>
+	<vector>
+	"GeneralFunctions.h"
+	"Resources.h"
+	<cstdio>
+	<cstdlib>
+	<string>
+	<vector>
+	"GeneralFunctions.h"
+	"Resources.h"
+
+1261853996 /home/jos/Programming/C++/webserver_crossplatform/src/Resources.h
+
+1264110673 source:/home/jos/Programming/C++/webserver_crossplatform/src/Socket.cpp
+	"Socket.h"
+	"string.h"
+	<string.h>
+	<errno.h>
+	<fcntl.h>
+	"Socket.h"
+	"string.h"
+	<string.h>
+	<errno.h>
+	<fcntl.h>
+	"Socket.h"
+	"string.h"
+	<string.h>
+	<errno.h>
+	<fcntl.h>
+
+1261855581 source:/home/jos/.gvfs/jos op joske/Programming/C++/webserver_crossplatform/src/RequestHandler.cpp
+	"RequestHandler.h"
+	"RequestHandler.h"
+	"RequestHandler.h"
+	"RequestHandler.h"
+	"RequestHandler.h"
+
+1261838886 /home/jos/.gvfs/jos op joske/Programming/C++/webserver_crossplatform/src/RequestHandler.h
+	<string>
+	<list>
+	"ServerSocket.h"
+	"SocketException.h"
+	"Mimetype.h"
+	"GeneralFunctions.h"
+	<string>
+	<list>
+	"ServerSocket.h"
+	"SocketException.h"
+	"Mimetype.h"
+	"GeneralFunctions.h"
+	<string>
+	<list>
+	"ServerSocket.h"
+	"SocketException.h"
+	"Mimetype.h"
+	"GeneralFunctions.h"
+	<string>
+	<list>
+	"ServerSocket.h"
+	"SocketException.h"
+	"Mimetype.h"
+	"GeneralFunctions.h"
+	"HttpRequest.h"
+	"HttpResponse.h"
+	<string>
+	<list>
+	"ServerSocket.h"
+	"SocketException.h"
+	"Mimetype.h"
+	"GeneralFunctions.h"
+	"HttpRequest.h"
+	"HttpResponse.h"
+	<string>
+	<list>
+	"ServerSocket.h"
+	"SocketException.h"
+	"Mimetype.h"
+	"GeneralFunctions.h"
+	"HttpRequest.h"
+	"HttpResponse.h"
+	<string>
+	<list>
+	"ServerSocket.h"
+	"SocketException.h"
+	"Mimetype.h"
+	"GeneralFunctions.h"
+	"HttpRequest.h"
+	"HttpResponse.h"
+
+1263504247 source:z:\jos\programming\c++\webserver_crossplatform\src\thread.cpp
+	"Thread.h"
+
+1263504246 z:\jos\programming\c++\webserver_crossplatform\src\thread.h
+	<vector>
+	<pthread.h>
+	<process.h>
+	"windows.h"
+
+1261753868 ket.h"
+
+1261751713 source:/home/jos/.gvfs/jos op joske/Programming/C++/webserver_crossplatform/src/Thread.cpp
+	"Thread.h"
+
+1261939531 /home/jos/.gvfs/jos op joske/Programming/C++/webserver_crossplatform/src/Thread.h
+	<pthread.h>
+	<process.h>
+	<pthread.h>
+	<process.h>
+	"windows.h"
+
+1264110616 z:\jos\programming\c++\webserver_crossplatform\src\httprequest.h
+	<string>
+	<map>
+	<cstdlib>
+	"GeneralFunctions.h"
+
+1264110628 z:\jos\programming\c++\webserver_crossplatform\src\httpresponse.h
+	<string>
+	<map>
+	"GeneralFunctions.h"
+	"Resources.h"
+
+1264110625 source:z:\jos\programming\c++\webserver_crossplatform\src\httpresponse.cpp
+	"HttpResponse.h"
+
+1264110621 source:z:\jos\programming\c++\webserver_crossplatform\src\httprequest.cpp
+	"HttpRequest.h"
+
+1262034358 st.h"
+
+1261838956 source:/home/jos/.gvfs/jos op joske/Programming/C++/webserver_crossplatform/src/HttpRequest.cpp
+	"HttpRequest.h"
+	"HttpRequest.h"
+	"HttpRequest.h"
+	"HttpRequest.h"
+
+1261838887 /home/jos/.gvfs/jos op joske/Programming/C++/webserver_crossplatform/src/HttpRequest.h
+	<string>
+	<iostream>
+	<map>
+	"GeneralFunctions.h"
+	<string>
+	<iostream>
+	<map>
+	"GeneralFunctions.h"
+	<string>
+	<iostream>
+	<map>
+	"GeneralFunctions.h"
+	<string>
+	<iostream>
+	<map>
+	"GeneralFunctions.h"
+
+1261854013 source:/home/jos/.gvfs/jos op joske/Programming/C++/webserver_crossplatform/src/HttpResponse.cpp
+	"HttpResponse.h"
+	"HttpResponse.h"
+	"HttpResponse.h"
+	"HttpResponse.h"
+
+1261854031 /home/jos/.gvfs/jos op joske/Programming/C++/webserver_crossplatform/src/HttpResponse.h
+	<string>
+	<map>
+	<iostream>
+	"GeneralFunctions.h"
+	<string>
+	<map>
+	<iostream>
+	"GeneralFunctions.h"
+	"Resources.h"
+	<string>
+	<map>
+	<iostream>
+	"GeneralFunctions.h"
+	"Resources.h"
+	<string>
+	<map>
+	<iostream>
+	"GeneralFunctions.h"
+	"Resources.h"
+
+1261868536 source:z:\jos\programming\c++\webserver_crossplatform\src\service.cpp
+	"Service.h"
+
+1261868521 z:\jos\programming\c++\webserver_crossplatform\src\service.h
+	<cassert>
+	<windows.h>
+	<tchar.h>
+	<cstdio>
+
+1261868536 source:/home/jos/.gvfs/jos op joske/Programming/C++/webserver_crossplatform/src/Service.cpp
+	"Service.h"
+	"Service.h"
+
+1261868521 /home/jos/.gvfs/jos op joske/Programming/C++/webserver_crossplatform/src/Service.h
+	<cassert>
+	<windows.h>
+	<tchar.h>
+	<cstdio>
+	<cassert>
+	<windows.h>
+	<tchar.h>
+	<cstdio>
+
+1264110621 source:/home/jos/Programming/C++/webserver_crossplatform/src/HttpRequest.cpp
+	"HttpRequest.h"
+	"HttpRequest.h"
+
+1264110616 /home/jos/Programming/C++/webserver_crossplatform/src/HttpRequest.h
+	<string>
+	<iostream>
+	<map>
+	"GeneralFunctions.h"
+	<string>
+	<map>
+	<cstdlib>
+	"GeneralFunctions.h"
+
+1264110625 source:/home/jos/Programming/C++/webserver_crossplatform/src/HttpResponse.cpp
+	"HttpResponse.h"
+	"HttpResponse.h"
+
+1264110628 /home/jos/Programming/C++/webserver_crossplatform/src/HttpResponse.h
+	<string>
+	<map>
+	<iostream>
+	"GeneralFunctions.h"
+	"Resources.h"
+	<string>
+	<map>
+	"GeneralFunctions.h"
+	"Resources.h"
+
+1261868536 source:/home/jos/Programming/C++/webserver_crossplatform/src/Service.cpp
+	"Service.h"
+	"Service.h"
+
+1261868521 /home/jos/Programming/C++/webserver_crossplatform/src/Service.h
+	<cassert>
+	<windows.h>
+	<tchar.h>
+	<cstdio>
+	<cassert>
+	<windows.h>
+	<tchar.h>
+	<cstdio>
+
+1263504247 source:/home/jos/Programming/C++/webserver_crossplatform/src/Thread.cpp
+	"Thread.h"
+	"Thread.h"
+
+1263504246 /home/jos/Programming/C++/webserver_crossplatform/src/Thread.h
+	<pthread.h>
+	<process.h>
+	"windows.h"
+	<vector>
+	<pthread.h>
+	<process.h>
+	"windows.h"
+
+1263740471 source:/home/jos/Programming/C++/webserver_crossplatform/src/Webserver.cpp
+	"Webserver.h"
+	"Webserver.h"
+
+1264102279 /home/jos/Programming/C++/webserver_crossplatform/src/Webserver.h
+	<cstdio>
+	<string>
+	"ServerSocket.h"
+	"SocketException.h"
+	"Settings.h"
+	"GeneralFunctions.h"
+	"Resources.h"
+	"RequestHandler.h"
+	"Thread.h"
+	<cstdio>
+	<string>
+	"ServerSocket.h"
+	"SocketException.h"
+	"Settings.h"
+	"GeneralFunctions.h"
+	"Resources.h"
+	"RequestHandler.h"
+	"Thread.h"
+
+1264106784 /home/jos/Programming/C++/webserver_crossplatform/src/RequestHandler.h
+	<string>
+	<list>
+	<algorithm>
+	"ServerSocket.h"
+	"SocketException.h"
+	"Mimetype.h"
+	"GeneralFunctions.h"
+	"HttpRequest.h"
+	"HttpResponse.h"
+	<string>
+	<iostream>
+	<list>
+	<algorithm>
+	"ServerSocket.h"
+	"SocketException.h"
+	"Mimetype.h"
+	"GeneralFunctions.h"
+	"HttpRequest.h"
+	"HttpResponse.h"
+
+1264106708 source:/home/jos/Programming/C++/webserver_crossplatform/src/main.cpp
+	"Webserver.h"
+	"Service.h"
+	<string>
+	"Webserver.h"
+
+1264110061 source:/home/jos/Programming/C++/webserver_crossplatform/src/RequestHandler.cpp
+	"RequestHandler.h"
+	"RequestHandler.h"
+
+1264109017 source:z:\jos\speq3\tutorials\webserver\webserver_crossplatform\src\generalfunctions.cpp
+	"GeneralFunctions.h"
+
+1264109043 z:\jos\speq3\tutorials\webserver\webserver_crossplatform\src\generalfunctions.h
+	<cstdio>
+	<string.h>
+	<string>
+	<dirent.h>
+	<cstdarg>
+	<fstream>
+	<cctype>
+
+1264114221 source:z:\jos\speq3\tutorials\webserver\webserver_crossplatform\src\httprequest.cpp
+	"HttpRequest.h"
+
+1264114216 z:\jos\speq3\tutorials\webserver\webserver_crossplatform\src\httprequest.h
+	<string>
+	<map>
+	<cstdlib>
+	"GeneralFunctions.h"
+
+1264114225 source:z:\jos\speq3\tutorials\webserver\webserver_crossplatform\src\httpresponse.cpp
+	"HttpResponse.h"
+
+1264114228 z:\jos\speq3\tutorials\webserver\webserver_crossplatform\src\httpresponse.h
+	<string>
+	<map>
+	"GeneralFunctions.h"
+	"Resources.h"
+
+1271872038 z:\jos\speq3\tutorials\webserver\webserver_crossplatform\src\resources.h
+
+1243077799 source:z:\jos\speq3\tutorials\webserver\webserver_crossplatform\src\mimetype.cpp
+	"Mimetype.h"
+
+1262437803 z:\jos\speq3\tutorials\webserver\webserver_crossplatform\src\mimetype.h
+	<string>
+	"GeneralFunctions.h"
+
+1264197937 source:z:\jos\speq3\tutorials\webserver\webserver_crossplatform\src\requesthandler.cpp
+	"RequestHandler.h"
+
+1264198003 z:\jos\speq3\tutorials\webserver\webserver_crossplatform\src\requesthandler.h
+	<string>
+	<vector>
+	<iostream>
+	<list>
+	<algorithm>
+	"ServerSocket.h"
+	"SocketException.h"
+	"Mimetype.h"
+	"GeneralFunctions.h"
+	"HttpRequest.h"
+	"HttpResponse.h"
+
+1262528679 z:\jos\speq3\tutorials\webserver\webserver_crossplatform\src\serversocket.h
+	"Socket.h"
+
+1264114287 z:\jos\speq3\tutorials\webserver\webserver_crossplatform\src\socket.h
+	<string>
+	<sys/types.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<netdb.h>
+	<unistd.h>
+	<arpa/inet.h>
+	<WinSock2.h>
+
+1241041796 z:\jos\speq3\tutorials\webserver\webserver_crossplatform\src\socketexception.h
+	<string>
+
+1263509453 source:z:\jos\speq3\tutorials\webserver\webserver_crossplatform\src\serversocket.cpp
+	"ServerSocket.h"
+	"SocketException.h"
+
+1261871389 source:z:\jos\speq3\tutorials\webserver\webserver_crossplatform\src\settings.cpp
+	"Settings.h"
+
+1261869453 z:\jos\speq3\tutorials\webserver\webserver_crossplatform\src\settings.h
+	<cstdio>
+	<cstdlib>
+	<string>
+	<vector>
+	"GeneralFunctions.h"
+	"Resources.h"
+
+1264114273 source:z:\jos\speq3\tutorials\webserver\webserver_crossplatform\src\socket.cpp
+	"Socket.h"
+	"string.h"
+	<string.h>
+	<errno.h>
+	<fcntl.h>
+
+1263507847 source:z:\jos\speq3\tutorials\webserver\webserver_crossplatform\src\thread.cpp
+	"Thread.h"
+
+1263507846 z:\jos\speq3\tutorials\webserver\webserver_crossplatform\src\thread.h
+	<vector>
+	<pthread.h>
+	<process.h>
+	"windows.h"
+
+1263744071 source:z:\jos\speq3\tutorials\webserver\webserver_crossplatform\src\webserver.cpp
+	"Webserver.h"
+
+1264105879 z:\jos\speq3\tutorials\webserver\webserver_crossplatform\src\webserver.h
+	<cstdio>
+	<string>
+	"ServerSocket.h"
+	"SocketException.h"
+	"Settings.h"
+	"GeneralFunctions.h"
+	"Resources.h"
+	"RequestHandler.h"
+	"Thread.h"
+
+1264197996 source:z:\jos\speq3\tutorials\webserver\webserver_crossplatform\src\main.cpp
+	"Webserver.h"
+

@@ -1,0 +1,97 @@
+a.top {
+  text-decoration: underline;
+  text-align: right;
+  font-size: xx-small;
+  }
+a.ct {
+  font: bold 10pt verdana;
+  text-decoration:none;
+  color:black;
+}
+a:hover {
+  color: red;
+  text-decoration: underline;
+}
+a.download {
+  text-decoration: none;
+  font: bold 10pt verdana;
+}
+  
+h1 {
+  font: bold 18pt verdana;
+  font-family: verdana, arial;
+  color: 000066;
+  margin: 0px;
+}
+h2 {
+  font: bold 12pt arial;
+  color: #E6F2FF;
+  margin-top:4px;
+  margin-bottom: 7px;
+  padding: 3px;
+  background-color:#336699;
+}
+
+h3 {
+  font: bold italic 12pt arial;
+  color: 000066;
+  margin: 0px;
+}
+
+div.content {
+  font:10pt verdana;
+  font-family: verdana, arial;
+  text-align:justify;
+  width:680;
+}
+div.contentlist {
+  font:10pt verdana;
+  font-family: verdana, arial;
+}
+div.figure {
+  font:italic 10pt verdana;
+  font-family: verdana, arial;
+  margin-left:50px;
+}
+div.code {
+  font:10pt courier;
+  margin-left:40px;
+  border: 1px solid #336699;
+  background-color:#FAFDFF;
+  width:600px;
+  overflow:auto;
+}
+div.codeheader {
+  font:bold 10pt verdana;
+  margin-left:40px;
+  border: 1px solid #336699;
+  border-bottom: 0px;
+  background-color:#E6F2FF;
+  width:600px;
+}
+div.bottom {
+  border-top:2px solid #336699;
+  
+}
+
+table {
+  border-color:D8D8D8;
+  border-style:solid;
+  border-width:1;
+}
+
+td {
+  font:10pt verdana;
+  font-family: verdana, arial;
+  vertical-align:top;
+}
+th {
+  font: bold 10pt verdana;
+  font-family: verdana, arial;
+  vertical-align:top;
+  text-align:left;
+}
+td.ct {
+  font: bold 10pt verdana;
+  text-decoration:none;
+}

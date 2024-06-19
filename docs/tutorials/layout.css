@@ -1,0 +1,35 @@
+body {
+  font-size: 11pt;
+  font-family: verdana, arial, lucida grande, sans serif;
+}
+
+h1 {
+  font: bold 18pt verdana;
+  font-family: verdana, arial, lucida grande, sans serif;
+  margin: 0px;
+}
+
+div.content {
+  width:780px;
+}
+
+li {
+  margin-bottom: 10px;
+}
+
+th, td {
+  font-size: 11pt;
+  font-family: verdana, arial, lucida grande, sans serif;
+  text-align: left;
+  vertical-align: top;
+  padding: 5px;
+  border: 1px solid #92ABC3;
+}
+th {
+  font-weight: bold;
+  background-color: #D0D9E2;
+}
+
+table {
+  border-collapse: collapse;
+}

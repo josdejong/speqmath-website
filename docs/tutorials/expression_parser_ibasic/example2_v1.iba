@@ -1,0 +1,105 @@
+/*
+Recursive expression parser, Example 2.
+Written with IBasic Professional
+By Jos de Jong, may 2006
+
+Supports expressions with operators + - * / ^
+*/
+AUTODEFINE "Off"
+DEF inputexpr:STRING
+
+OPENCONSOLE
+
+'print some examples of expressions with their answers
+PRINT "Expression Calculator"
+PRINT "You can use + - * / ^"
+PRINT "Enter an expression and press Enter to calculate it."
+PRINT "Enter an empty expression to quit"
+PRINT ""
+PRINT "Examples:"
+PRINT "2 + 3 * 4 = ", Eval("2 + 3 * 4")
+PRINT "2 + 3 / 4 - 5 = ", Eval("2 + 3 / 4 - 5")
+PRINT "2.5 ^ 3.25 = ", Eval("2.5 ^ 3.25")
+PRINT ""
+DO
+    'ask the user to enter an expression. After this the expression
+    'will be evaluated and the answer will be printed
+    INPUT ">>", inputexpr
+    IF RTRIM$(inputexpr)<>""
+        PRINT "    Ans = ", Eval(inputexpr)
+    ENDIF
+UNTIL RTRIM$(inputexpr)=""
+
+'end the program
+CLOSECONSOLE
+END
+
+'_____________________________________________________________________
+SUB Eval(Expression:STRING), DOUBLE
+    DEF Ans:DOUBLE
+    DEF pos, n:INT
+    DEF expr:STRING
+    DEF part1, part2:STRING
+    DEF operator:STRING
+
+    'remove spaces at start and end of the expression
+    expr = LTRIM$(RTRIM$(Expression))
+
+    FOR n=1 TO 5
+        'choose an operator
+        '(for each loop choose the following of the five operators)
+        operator = MID$("-+/*^", n, 1)
+
+        'search for the last occurance of this operator
+        pos = InstrREV(expr, operator, 255)
+        IF pos
+            'there is an operator found at position pos. Split up the
+            'expression in two parts and calculate the result of that
+            'two parts. Then calculate the result for the complete
+            'expression.
+            part1 = LEFT$(expr, pos-1)
+            part2 = RIGHT$(expr, LEN(expr)-pos)
+            
+            'now execute the calculation between left and right part.
+            SELECT operator
+                CASE "-"
+                    Ans = Eval(part1) - Eval(part2)
+                    RETURN Ans
+                CASE "+"
+                    Ans = Eval(part1) + Eval(part2)
+                    RETURN Ans
+                CASE "/"
+                    Ans = Eval(part1) / Eval(part2)
+                    RETURN Ans
+                CASE "*"
+                    Ans = Eval(part1) * Eval(part2)
+                    RETURN Ans
+                CASE "^"
+                    Ans = Eval(part1) ^ Eval(part2)
+                    RETURN Ans
+            ENDSELECT
+        ENDIF
+    NEXT n
+
+    'there are no more operators left in the expression, and the
+    'expression is not solved yet so the expression must be a value
+    Ans = VAL(expr)
+
+    'return the answer of the expression
+    RETURN Ans
+ENDSUB
+
+'_____________________________________________________________________
+SUB InstrREV(expr:STRING, search:STRING, posmax:INT), INT
+    'returns the position of the last string search in the string expr,
+    ' before position posmax
+    INT n, p
+    p=0	:n=0
+    DO
+        p = INSTR(expr, search, p+1)
+        p = p*(p<=posmax)
+        IF p>0 THEN n=p
+    UNTIL p=0
+
+    RETURN n
+ENDSUB

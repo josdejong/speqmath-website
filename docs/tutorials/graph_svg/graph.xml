@@ -1,0 +1,273 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      xmlns:svg="http://www.w3.org/2000/svg" > 
+
+<head>
+  <script type="text/javascript" src="../evaluator.js"></script>
+  <script type="text/javascript" src="../functions.js"></script>
+  <script type="text/javascript"><![CDATA[
+
+  var svgns = "http://www.w3.org/2000/svg";
+
+  var graphLeft = 0;
+  var graphRight = 400;
+  var graphTop = 0;
+  var graphBottom = 400;
+
+  var xmin = -5;
+  var xmax = 10;
+  var ymin = -2;
+  var ymax = 2;
+
+  var xscale = 0;
+  var xshift = 0;
+  var yscale = 0;
+  var yshift = 0;
+  var axisXstep = 0;
+  var axisYstep = 0; 
+  var xstep = 1;
+
+  var mouseX = 0;
+  var mouseY = 0;
+  var mouseDown = false;
+
+  var canvas;  
+  var func;
+  var param;
+
+  function makeShape(evt) 
+  {
+    var graph = document.getElementById('graph');
+
+    shape = svgDocument.createElementNS(svgns, "polyline");
+    shape.setAttributeNS(null, "points", getPoly());
+    shape.setAttributeNS(null, "fill", "none");
+    shape.setAttributeNS(null, "stroke", "blue");
+    
+    //svgDocument.documentElement.appendChild(shape);
+    graph.appendChild(shape);
+  }
+
+  function apply()
+  {
+    init(); 
+    draw();
+  }
+  
+  function init()
+  {
+    
+    var graph = document.getElementById('graph');
+    graph.addEventListener("mousedown", mousedown, false);
+    graph.addEventListener("mouseup", mouseup, false);
+    graph.addEventListener("mousemove", mousemove, false);
+      
+    // get function and variable from url
+    func = document.getElementById("function").value;
+    param =  document.getElementById("variable").value;
+
+    // evaluate the function
+    var expr = "f=function(" + param + ") {return " + func + ";}";
+    eval(expr);
+
+    /* TODO
+    // get the size of the graph 
+    graphLeft = 0;
+    graphRight = document.width;
+    graphTop = 0;
+    graphBottom = document.height;
+    */
+  }
+
+
+  function init_scale()
+  {
+    // calculate scaling
+    xscale = (graphRight - graphLeft) / (xmax - xmin);
+    xshift = graphLeft - xmin * xscale;
+    yscale = (graphTop - graphBottom) / (ymax - ymin);
+    yshift = graphBottom - ymin * yscale;
+    xstep = 1 / xscale;  // every step equals one pixel on the screen
+    xstep *= 2;  // half the number of steps to make drawing faster
+    
+    // todo intelligent axis numbering
+    axisXstep = 1;
+    axisYstep = 1;
+  }
+
+  function draw(evt) 
+  {
+    init_scale();
+
+    // clear current drawing
+    var graph = document.getElementById('graph');
+    while (graph.hasChildNodes()) 
+    {
+      graph.removeChild(graph.firstChild);
+    }    
+
+    drawAxes(evt);
+    drawGraph(evt);
+  }
+
+  function drawAxes(evt)
+  {
+    var graph = document.getElementById('graph');
+    
+    // ctx.lineWidth = 0.5; // TODO
+
+    // x-axis
+    var xaxis = document.createElementNS(svgns, "line");
+    xaxis.setAttributeNS(null, "x1", xmin * xscale + xshift);
+    xaxis.setAttributeNS(null, "y1", 0 * yscale + yshift);
+    xaxis.setAttributeNS(null, "x2", xmax * xscale + xshift);
+    xaxis.setAttributeNS(null, "y2", 0 * yscale + yshift);
+    xaxis.setAttributeNS(null, "stroke", "black");
+    graph.appendChild(xaxis);
+
+    var x = ceil(xmin / axisXstep) * axisXstep;
+    do
+    {
+      // x-axis
+      var line = document.createElementNS(svgns, "line");
+      line.setAttributeNS(null, "x1", x * xscale + xshift);
+      line.setAttributeNS(null, "y1", 0 * yscale + yshift);
+      line.setAttributeNS(null, "x2", x * xscale + xshift);
+      line.setAttributeNS(null, "y2", 0 * yscale + yshift + 5);
+      line.setAttributeNS(null, "stroke", "black");
+      graph.appendChild(line);
+      
+      if (abs(x) > 0.1 * axisXstep)
+      {
+        var textHeight = 12;
+
+        var data = document.createTextNode(x);
+        var text = document.createElementNS(svgns, "text");
+        text.setAttributeNS(null, "x", x * xscale + xshift);
+        text.setAttributeNS(null, "y", yshift + 8 + textHeight);
+        text.setAttributeNS(null, "fill", "black");
+        text.setAttributeNS(null, "font-size", textHeight + "pt");        
+        text.setAttributeNS(null, "text-anchor", "middle");
+        text.appendChild(data);
+        graph.appendChild(text);        
+      }
+      
+      x += axisXstep;
+    }
+    while (x <= xmax);
+
+    // y-axis
+    var yaxis = document.createElementNS(svgns, "line");
+    yaxis.setAttributeNS(null, "x1", 0 * xscale + xshift);
+    yaxis.setAttributeNS(null, "y1", ymin * yscale + yshift);
+    yaxis.setAttributeNS(null, "x2", 0 * xscale + xshift);
+    yaxis.setAttributeNS(null, "y2", ymax * yscale + yshift);
+    yaxis.setAttributeNS(null, "stroke", "black");
+    graph.appendChild(yaxis);
+
+    var y = ceil(ymin / axisYstep) * axisYstep;
+    do
+    {
+      var line = document.createElementNS(svgns, "line");
+      line.setAttributeNS(null, "x1", 0 * xscale + xshift);
+      line.setAttributeNS(null, "y1", y * yscale + yshift);
+      line.setAttributeNS(null, "x2", 0 * xscale + xshift - 5);
+      line.setAttributeNS(null, "y2", y * yscale + yshift);
+      line.setAttributeNS(null, "stroke", "black");
+      graph.appendChild(line);
+            
+      if (abs(y) > 0.1 * axisXstep)
+      {
+        var textHeight = 12;
+
+        var data = document.createTextNode(y);
+        var text = document.createElementNS(svgns, "text");
+        text.setAttributeNS(null, "x", xshift - 8);
+        text.setAttributeNS(null, "y", y * yscale + yshift + 0.5 * textHeight);
+        text.setAttributeNS(null, "fill", "black");
+        text.setAttributeNS(null, "font-size", textHeight + "pt");
+        text.setAttributeNS(null, "text-anchor", "end");
+        text.appendChild(data);
+        graph.appendChild(text);        
+      }      
+      
+      y += axisYstep;
+    }
+    while (y <= ymax);  
+  }
+
+  function drawGraph(evt) 
+  {
+    // draw graph
+    var graph = document.getElementById('graph');
+
+    var poly = "";
+    for (x = xmin; x < xmax; x += xstep)
+    {
+      poly += (x * xscale + xshift) + "," + (f(x) * yscale + yshift) + " ";  
+    }    
+
+    polyline = document.createElementNS(svgns, "polyline");
+    polyline.setAttributeNS(null, "points", poly);
+    polyline.setAttributeNS(null, "fill", "none");
+    polyline.setAttributeNS(null, "stroke", "red");
+    graph.appendChild(polyline);
+  }
+
+  function mousedown(evt)
+  {
+    if (evt.which == 1)
+    {
+      // left mouse button pressed
+      mouseX = evt.pageX;
+      mouseY = evt.pageY;
+      mouseDown = true;
+    }
+  }
+
+  function mousemove(evt)
+  {
+    if (mouseDown)
+    {
+      var diffX = evt.pageX - mouseX;
+      var diffY = evt.pageY - mouseY;
+      
+      xmin -= diffX / xscale;
+      xmax -= diffX / xscale;
+
+      ymin -= diffY / yscale;
+      ymax -= diffY / yscale;
+
+      mouseX = evt.pageX;
+      mouseY = evt.pageY;
+          
+      draw();
+    }
+  }
+
+  function mouseup(evt)
+  {
+    mouseDown = false;
+  }
+    
+  ]]></script>
+</head>
+
+<body onload="apply();">
+  <p>
+    Function <input type="text" id="function" value="sin(x*2)*abs(x)/3" />
+    Variable <input type="text" id="variable" value="x" size="3" /> 
+    <input type="button" value="Apply" onclick="apply();" />
+  </p>
+  <p>
+  Drag the graph around to move it.
+  </p>
+
+  <svg:svg width="400px" 
+           height="400px" 
+           id="graph" 
+           style="border:1px solid black;"> 
+  </svg:svg> 
+
+</body>
+</html>

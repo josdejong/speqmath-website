@@ -1,0 +1,44 @@
+'check if the expression is a function, like "Sin(2+3)"
+pos = INSTR(expr,"(")
+IF pos>0 AND RIGHT$(expr,1)=")"
+    'extract the function name, for example "Sin"
+    function = LTRIM$(LEFT$(expr, pos-1))
+    
+    'extract the expression inside the parentheses, "2+3"
+    'evaluate this expression
+    part2 = MID$(expr, pos+1, LEN(expr)-pos-1)
+    value2 = Eval(part2, msg)
+    
+    'evaluate the function
+    SELECT UCASE$(function)
+        'if function="", then the expression is just enclosed
+        'with brackets, like "(2+3*4)"
+        CASE ""     :RETURN value2
+            
+        'arithmetic functions
+        CASE "ABS"  :RETURN ABS(value2)
+        CASE "SQRT" :RETURN SQRT(value2)
+        CASE "LOG"  :RETURN LOG(value2)
+        CASE "LOG10":RETURN LOG10(value2)
+        CASE "EXP"  :RETURN EXP(value2)
+        CASE "INT"  :RETURN INT(value2)
+        CASE "CEIL" :RETURN CEIL(value2)
+        CASE "FLOOR":RETURN FLOOR(value2)
+
+        'Trigonometric functions
+        CASE "SIN"  :RETURN SIN(value2)
+        CASE "COS"  :RETURN COS(value2)
+        CASE "TAN"  :RETURN TAN(value2)
+        CASE "ASIN" :RETURN ASIN(value2)
+        CASE "ACOS" :RETURN ACOS(value2)
+        CASE "ATAN" :RETURN ATAN(value2)
+            
+        'Hyperbolic functions
+        CASE "SINH" :RETURN SINH(value2)
+        CASE "COSH" :RETURN COSH(value2)
+        CASE "TANH" :RETURN TANH(value2)
+            
+        'Unknown function
+        DEFAULT     :errSet(msg, MSG_DOMAINERROR, "Error: Unknown function \"" + function + "\"")
+    ENDSELECT
+ENDIF

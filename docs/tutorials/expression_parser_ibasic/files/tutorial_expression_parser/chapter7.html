@@ -1,0 +1,461 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Tutorial on how to create an expression parser -->
+<!-- Created by Jos de Jong, May 2006 -->
+<!-- wjosdejong@hotmail.com, www.speqmath.com -->
+
+<!-- Todo: add links to the sourcecode and executables of the examples, and a zipfile with everything -->
+
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=windows-1250">
+  <meta name="generator" content="PSPad editor, www.pspad.com">
+  <meta name="keywords" content="Tutorial, create, expression, parser, recursive, math, speq, ibasic">
+  <meta name="description" content="Tutorial on how to create an expression parser">
+  <link rel="stylesheet" href="layout.css">
+  <title>Chapter 7. Error Handling</title>
+  
+  <SCRIPT TYPE="text/javascript" SRC="events.js"></SCRIPT>
+</head>
+<body>
+<div class="content">
+
+<h2>7. Error Handling</h2>
+So far, we have forgotten one very important thing: error handling.
+At the moment the calculator we have made can't react on syntax errors and other types of errors.
+If you enter "2+*3" the resulting answer is 2, while you would like to get an message that something is wrong.
+For expression parsers it is absolutely necessary that they either give the right answer,
+or give an error message if there is something that the parser can't handle.
+Errors can occur when:<br>
+<ul>
+  <li>The user tries to divide by zero, for example in "3.26 / 0".</li>
+  <li>There is a value missing before or after an operator, for example in "3.2 * ".</li>
+  <li>The remaining value is no legal value, for example in "23.0ax3" or "2 * sin(3.14/2)" (the parser can not handle a function like sin).</li>
+</ul>
+
+To handle errors, each function needs the possibility to fill in an error message and send that back.
+At the end of the calculation there will be checked if an error occured somewhere.
+If so, the error will be printed on screen instead of the wrong answer.
+This will be done by the funcion evalLine.<br>
+<br>
+<div class="code"><pre>
+<font color="#0000FF">SUB </font>evalLine<font color="#000080">(</font>expression<font color="#000080">:</font><font color="#FF0000">STRING</font><font color="#000080">), </font><font color="#FF0000">STRING
+    </font><font color="#008000"><b><i>'this sub evaluates the expression and returns a string that
+</i></b>    <b><i>'can contain the answer or an (error) message. The expression
+</i></b>    <b><i>'may contain values, operators + - * / ^ E and parentheses ( )
+</i></b>    </font><font color="#FF0000">DOUBLE </font>ans
+    MESSAGE msg
+
+    <font color="#008000"><b><i>'make the error message empty (ready for use)
+</i></b>    </font>errClear<font color="#000080">(</font>msg<font color="#000080">)
+
+    </font><font color="#008000"><b><i>'evaluate the expression
+</i></b>    </font>ans <font color="#000080">= </font>eval<font color="#000080">(</font>expression<font color="#000080">, </font>msg<font color="#000080">)
+
+    </font><font color="#008000"><b><i>'return (error) message if not empty
+</i></b>    </font><font color="#0000FF">IF </font>msg<font color="#000080">.</font>t<font color="#000080">&lt;&gt;</font>MSG_EMPTY <font color="#0000FF">THEN RETURN </font>msg<font color="#000080">.</font>desc
+
+    <font color="#008000"><b><i>'if no error occured, return the answer
+</i></b>    </font><font color="#0000FF">RETURN </font><font color="#800080">&quot;Ans = &quot; </font><font color="#000080">+ </font><font color="#0000FF">USING</font><font color="#000080">(</font><font color="#800080">&quot;#.#####&quot;</font><font color="#000080">, </font>ans<font color="#000080">)
+</font><font color="#0000FF">ENDSUB</font>
+</pre></div>
+<br>
+
+
+<b>Error type and constants</b><br>
+To store and fill in errors we will create an special Type that can contain an error id and an error description.
+Furthermore we define some constants that represent the types for errors.
+For example a syntax error like "2+*3" and a domain error like "2.5 / 0".<br>
+<br>
+<div class="code"><pre>
+<font color="#0000FF">TYPE </font><font color="#FF0000">MESSAGE        </font><font color="#008000"><b><i>'this type will store error messages
+</i></b>    </font><font color="#FF0000">INT </font>t           <font color="#008000"><b><i>'type of the error
+</i></b>    </font><font color="#FF0000">STRING </font>desc     <font color="#008000"><b><i>'description of the error
+</i></b></font><font color="#0000FF">ENDTYPE
+
+</font><font color="#008000"><b><i>'the following error types are available for error messages
+</i></b></font><font color="#0000FF">CONST </font>MSG_EMPTY <font color="#000080">= </font><b>0
+</b><font color="#0000FF">CONST </font>MSG_SYNTAXERROR <font color="#000080">= </font><b>1
+</b><font color="#0000FF">CONST </font>MSG_DOMAINERROR <font color="#000080">= </font><b>2
+</b><font color="#0000FF">CONST </font>MSG_INFO <font color="#000080">= </font><b>3
+</b><font color="#0000FF">CONST </font>MSG_MEMERROR <font color="#000080">= </font><b>4
+</b><font color="#0000FF">CONST </font>MSG_SYSTEMERROR <font color="#000080">= </font><b>5
+</b><font color="#0000FF">CONST </font>MSG_OVERFLOW <font color="#000080">= </font><b>6</b>
+</pre></div>
+<br>
+
+<b>Error messages</b><br>
+The error message will be manipulated by two functions: errSet and errClear.
+Before using an error message, the message must be cleared. 
+That is done with the function errClear. 
+And when an error message needs to be filled in, the function errSet is used.
+This function does fill in a new message only if the current message is empty. 
+So, when a certain expression causes multiple errors, only the first will be returned.
+This gives the most logical response for the user.<br>
+<br>
+<div class="code"><pre>
+<font color="#0000FF">SUB </font>errSet<font color="#000080">(</font>msg<font color="#000080">:</font><font color="#FF0000">MESSAGE</font><font color="#000080">, </font>newType<font color="#000080">:</font><font color="#FF0000">INT</font><font color="#000080">, </font>newMessage<font color="#000080">:</font><font color="#FF0000">STRING</font><font color="#000080">)
+    </font><font color="#008000"><b><i>'if msg is empty, then fill in the new type and message.
+</i></b>    <b><i>'don't overwrite an existing message
+</i></b>    </font><font color="#0000FF">IF </font>msg<font color="#000080">.</font>t <font color="#000080">= </font>MSG_EMPTY
+        msg<font color="#000080">.</font>t <font color="#000080">= </font>newType
+        msg<font color="#000080">.</font>desc <font color="#000080">= </font>newMessage
+    <font color="#0000FF">ENDIF
+    RETURN
+ENDSUB</font></b>
+</pre></div>
+<br>
+
+<div class="code"><pre>
+<font color="#0000FF">SUB </font>errClear<font color="#000080">(</font>msg<font color="#000080">:</font><font color="#FF0000">MESSAGE</font><font color="#000080">)
+    </font><font color="#008000"><b><i>'clear the given message
+</i></b>    </font>msg<font color="#000080">.</font>t <font color="#000080">= </font>MSG_EMPTY
+    msg<font color="#000080">.</font>desc <font color="#000080">= </font><font color="#800080">&quot;&quot;
+    </font><font color="#0000FF">RETURN
+ENDSUB</font>
+</pre></div>
+<br>
+
+<b>Value check</b><br>
+So far the function Eval does search for an operator and, if found, executes the calculation.
+If no operator is found the function assumes that an value will be left and returns this value.
+But it is possible that the remaining expression is no legal value, 
+for example because of an syntax error or unsupported operators or functions.
+Therefore the function has to check whether the remaining expression is a value and if not return an error message.
+To check if an expression consists of a legal value the function isValue is created.<br>
+<br>
+
+<div class="code"><pre>
+<font color="#0000FF">SUB </font>isValue<font color="#000080">(</font>value<font color="#000080">:</font><font color="#FF0000">STRING</font><font color="#000080">), </font><font color="#FF0000">INT
+    </font><font color="#008000"><b><i>'This sub checks if value is a legal value. if so, returns True.
+</i></b>    <b><i>'If not, returns False
+</i></b>    </font><font color="#FF0000">INT </font>i
+    <font color="#FF0000">STRING </font>sign
+
+    <font color="#0000FF">FOR </font>i<font color="#000080">=</font><b>1</b> <font color="#0000FF">TO LEN</font><font color="#000080">(</font>value<font color="#000080">)
+        </font><font color="#008000"><b><i>'check each character one by one
+</i></b>        </font>sign <font color="#000080">= </font><font color="#0000FF">UCASE$</font><font color="#000080">(</font><font color="#0000FF">MID$</font><font color="#000080">(</font>value<font color="#000080">,</font>i<font color="#000080">,</font><b>1</b><font color="#000080">))
+
+        </font><font color="#008000"><b><i>'check for legal signs in the string
+</i></b>        </font><font color="#0000FF">IF INSTR</font><font color="#000080">(</font><font color="#800080">&quot;1234567890.-&quot;</font><font color="#000080">, </font>sign<font color="#000080">)=</font><b>0</b> <font color="#0000FF">THEN RETURN </font><font color="#FF8000">FALSE
+
+        </font><font color="#008000"><b><i>'check if there is max. 1 point in the string
+</i></b>        </font><font color="#0000FF">IF </font>sign<font color="#000080">=</font><font color="#800080">&quot;.&quot; </font><font color="#0000FF">THEN IF INSTR</font><font color="#000080">(</font>value<font color="#000080">,</font><font color="#800080">&quot;.&quot;</font><font color="#000080">,</font>i<font color="#000080">+</font><b>1</b><font color="#000080">)&gt;</font><b>0</b> <font color="#0000FF">THEN RETURN </font><font color="#FF8000">FALSE
+
+        </font><font color="#008000"><b><i>'check for correct use of minus: only at position 1
+</i></b>        </font><font color="#0000FF">IF </font>sign<font color="#000080">=</font><font color="#800080">&quot;-&quot; </font><font color="#0000FF">THEN IF </font>i<font color="#000080">&lt;&gt;</font><b>1</b> <font color="#0000FF">THEN RETURN </font><font color="#FF8000">FALSE
+    </font><font color="#0000FF">NEXT </font>i
+
+    <font color="#0000FF">RETURN </font><font color="#FF8000">TRUE
+</font><font color="#0000FF">ENDSUB
+</font></pre></div>
+<br>
+
+<b>Example 4</b><br>
+In the following example the error handling is added. 
+There are some things changed in the function Eval, and the functions evalLine, isValue, errSet and errClear are added.<br>
+<br>
+
+<!-- Example4 - START -->
+<div class="codeheader" >
+Example 4
+<SCRIPT TYPE="text/javascript">
+  createCodeHeader("ex4", "300px")    // if javascript is available, add the options <Select> and <Expand>
+</SCRIPT>
+<br>
+</div>
+<div class="code" id="ex4" style="height:300px;"><pre>
+<font color="#008000"><b><i>/*
+Recursive expression parser, Example 4.
+Written with IBasic Professional
+By Jos de Jong, may 2006
+
+Supports expressions with operators + - * / ^ E and parentheses ( )
+Error handling is included.
+*/
+</i></b></font><font color="#0000FF">AUTODEFINE </font><font color="#800080">&quot;Off&quot;
+
+</font><font color="#0000FF">TYPE </font><font color="#FF0000">MESSAGE        </font><font color="#008000"><b><i>'this type can store an error message
+</i></b>    </font><font color="#FF0000">INT </font>t           <font color="#008000"><b><i>'type of the error
+</i></b>    </font><font color="#FF0000">STRING </font>desc     <font color="#008000"><b><i>'description of the error
+</i></b></font><font color="#0000FF">ENDTYPE
+
+</font><font color="#008000"><b><i>'the following error types are available for error messages
+</i></b></font><font color="#0000FF">CONST </font>MSG_EMPTY <font color="#000080">= </font><b>0
+</b><font color="#0000FF">CONST </font>MSG_SYNTAXERROR <font color="#000080">= </font><b>1
+</b><font color="#0000FF">CONST </font>MSG_DOMAINERROR <font color="#000080">= </font><b>2
+</b><font color="#0000FF">CONST </font>MSG_INFO <font color="#000080">= </font><b>3
+</b><font color="#0000FF">CONST </font>MSG_MEMERROR <font color="#000080">= </font><b>4
+</b><font color="#0000FF">CONST </font>MSG_SYSTEMERROR <font color="#000080">= </font><b>5
+</b><font color="#0000FF">CONST </font>MSG_OVERFLOW <font color="#000080">= </font><b>6
+
+
+</b><font color="#0000FF">OPENCONSOLE
+
+</font><font color="#008000"><b><i>'print some examples of expressions with their answers
+</i></b></font><font color="#0000FF">PRINT </font><font color="#800080">&quot;Expression Calculator&quot;
+</font><font color="#0000FF">PRINT </font><font color="#800080">&quot;&quot;
+</font><font color="#0000FF">PRINT </font><font color="#800080">&quot;You can use + - * / ^ E and parentheses ( )&quot;
+</font><font color="#0000FF">PRINT </font><font color="#800080">&quot;Enter an expression and press Enter to calculate it.&quot;
+</font><font color="#0000FF">PRINT </font><font color="#800080">&quot;Enter an empty expression to quit&quot;
+</font><font color="#0000FF">PRINT </font><font color="#800080">&quot;&quot;
+</font><font color="#0000FF">PRINT </font><font color="#800080">&quot;Examples:&quot;
+</font><font color="#0000FF">PRINT </font><font color="#800080">&quot;2 + 3 * -4 = &quot;</font><font color="#000080">, </font>evalLine<font color="#000080">(</font><font color="#800080">&quot;2 + 3 * -4&quot;</font><font color="#000080">)
+</font><font color="#0000FF">PRINT </font><font color="#800080">&quot;2 + 3 / 4 - 5= &quot;</font><font color="#000080">, </font>evalLine<font color="#000080">(</font><font color="#800080">&quot;2 + 3 / 4 - 5&quot;</font><font color="#000080">)
+</font><font color="#0000FF">PRINT </font><font color="#800080">&quot;2.5 ^ 3.25 - 5E2 / 100 = &quot;</font><font color="#000080">, </font>evalLine<font color="#000080">(</font><font color="#800080">&quot;2.5 ^ 3.25 - 5E2 / 100 &quot;</font><font color="#000080">)
+</font><font color="#0000FF">PRINT </font><font color="#800080">&quot;(1.5+2.5) * (3+4) = &quot;</font><font color="#000080">, </font>evalLine<font color="#000080">(</font><font color="#800080">&quot;(1.5+2.5) * (3+4)&quot;</font><font color="#000080">)
+</font><font color="#0000FF">PRINT </font><font color="#800080">&quot;&quot;
+
+</font><font color="#0000FF">DEF </font>inputexpr<font color="#000080">:</font><font color="#FF0000">STRING
+</font><font color="#0000FF">DO
+    </font><font color="#008000"><b><i>'ask the user to enter an expression. After this the expression
+</i></b>    <b><i>'will be evaluated and the answer will be printed
+</i></b>    </font><font color="#0000FF">INPUT </font><font color="#800080">&quot;&gt;&gt;&quot;</font><font color="#000080">, </font>inputexpr
+    <font color="#0000FF">IF RTRIM$</font><font color="#000080">(</font>inputexpr<font color="#000080">)&lt;&gt;</font><font color="#800080">&quot;&quot;
+        </font><font color="#0000FF">PRINT </font><font color="#800080">&quot;    &quot;</font><font color="#000080">, </font>evalLine<font color="#000080">(</font>inputexpr<font color="#000080">)
+        </font><font color="#0000FF">PRINT </font><font color="#800080">&quot;&quot;
+    </font><font color="#0000FF">ENDIF
+UNTIL RTRIM$</font><font color="#000080">(</font>inputexpr<font color="#000080">)=</font><font color="#800080">&quot;&quot;
+
+</font><font color="#008000"><b><i>'end the program
+</i></b></font><font color="#0000FF">CLOSECONSOLE
+END
+
+</font><font color="#008000"><b><i>'_______________________________________________________________
+</i></b></font><font color="#0000FF">SUB </font>evalLine<font color="#000080">(</font>expression<font color="#000080">:</font><font color="#FF0000">STRING</font><font color="#000080">), </font><font color="#FF0000">STRING
+    </font><font color="#008000"><b><i>'this sub evaluates the expression and returns a string that
+</i></b>    <b><i>'can contain the answer or an (error) message. The expression can
+</i></b>    <b><i>'have values, operators + - * / ^ E and parentheses ( )
+</i></b>    </font><font color="#FF0000">DOUBLE </font>ans
+    <font color="#FF0000">MESSAGE </font>msg
+    
+    <font color="#008000"><b><i>'make the error message empty (ready for use)
+</i></b>    </font>errClear<font color="#000080">(</font>msg<font color="#000080">)
+    
+    </font><font color="#008000"><b><i>'evaluate the expression
+</i></b>    </font>ans <font color="#000080">= </font>eval<font color="#000080">(</font>expression<font color="#000080">, </font>msg<font color="#000080">)
+    
+    </font><font color="#008000"><b><i>'return (error) message if not empty
+</i></b>    </font><font color="#0000FF">IF </font>msg<font color="#000080">.</font>t<font color="#000080">&lt;&gt;</font>MSG_EMPTY <font color="#0000FF">THEN RETURN </font>msg<font color="#000080">.</font>desc
+    
+    <font color="#008000"><b><i>'if no error occured, return the answer
+</i></b>    </font><font color="#0000FF">RETURN </font><font color="#800080">&quot;Ans = &quot; </font><font color="#000080">+ </font><font color="#0000FF">USING</font><font color="#000080">(</font><font color="#800080">&quot;#.#####&quot;</font><font color="#000080">, </font>ans<font color="#000080">)
+</font><font color="#0000FF">ENDSUB
+
+</font><font color="#008000"><b><i>'_____________________________________________________________________
+</i></b></font><font color="#0000FF">SUB </font>Eval<font color="#000080">(</font>Expression<font color="#000080">:</font><font color="#FF0000">STRING</font><font color="#000080">, </font>msg<font color="#000080">:</font><font color="#FF0000">MESSAGE</font><font color="#000080">), </font><font color="#FF0000">DOUBLE
+    </font><font color="#0000FF">DEF </font>pos<font color="#000080">, </font>n<font color="#000080">:</font><font color="#FF0000">INT
+    </font><font color="#0000FF">DEF </font>expr<font color="#000080">:</font><font color="#FF0000">STRING
+    </font><font color="#0000FF">DEF </font>part1<font color="#000080">, </font>part2<font color="#000080">:</font><font color="#FF0000">STRING
+    </font><font color="#0000FF">DEF </font>value1<font color="#000080">, </font>value2<font color="#000080">:</font><font color="#FF0000">DOUBLE
+    </font><font color="#0000FF">DEF </font>operator<font color="#000080">:</font><font color="#FF0000">STRING
+    
+    </font><font color="#008000"><b><i>'remove spaces at start and end of the expression
+</i></b>    </font>expr <font color="#000080">= </font><font color="#0000FF">LTRIM$</font><font color="#000080">(</font><font color="#0000FF">RTRIM$</font><font color="#000080">(</font>Expression<font color="#000080">))
+    
+    </font><font color="#0000FF">FOR </font>n<font color="#000080">=</font><b>1</b> <font color="#0000FF">TO </font><b>6
+</b>        <font color="#008000"><b><i>'choose an operator
+</i></b>        <b><i>'(for each loop choose the following of the five operators)
+</i></b>        </font>operator <font color="#000080">= </font><font color="#0000FF">MID$</font><font color="#000080">(</font><font color="#800080">&quot;-+/*^E&quot;</font><font color="#000080">, </font>n<font color="#000080">, </font><b>1</b><font color="#000080">)
+        
+        </font><font color="#008000"><b><i>'search for the last occurance of this operator outside
+</i></b>        <b><i>'parentheses
+</i></b>        </font>pos <font color="#000080">= </font>InstrP<font color="#000080">(</font><font color="#0000FF">UCASE$</font><font color="#000080">(</font>expr<font color="#000080">), </font>operator<font color="#000080">, </font><b>255</b><font color="#000080">)
+        </font><font color="#0000FF">WHILE </font>pos<font color="#000080">&gt;</font><b>0
+</b>            <font color="#008000"><b><i>'Check if the found operator realy is an operator
+</i></b>            <b><i>'(and not a unary plus or minus)
+</i></b>            </font><font color="#0000FF">IF </font>isOperator<font color="#000080">(</font>expr<font color="#000080">, </font>operator<font color="#000080">, </font>pos<font color="#000080">)=</font><font color="#FF8000">TRUE
+                </font><font color="#008000"><b><i>'there is an operator found at position pos. Split up
+</i></b>                <b><i>'the expression in two parts and calculate the result
+</i></b>                <b><i>'of that two parts. Then calculate the result for the
+</i></b>                <b><i>'complete expression.
+</i></b>                </font>part1 <font color="#000080">= </font><font color="#0000FF">LEFT$</font><font color="#000080">(</font>expr<font color="#000080">, </font>pos<font color="#000080">-</font><b>1</b><font color="#000080">)
+                </font>part2 <font color="#000080">= </font><font color="#0000FF">RIGHT$</font><font color="#000080">(</font>expr<font color="#000080">, </font><font color="#0000FF">LEN</font><font color="#000080">(</font>expr<font color="#000080">)-</font>pos<font color="#000080">)
+                
+                </font><font color="#008000"><b><i>'If part1 and part2 are empty fill in an error message and return
+</i></b>                </font><font color="#0000FF">IF RTRIM$</font><font color="#000080">(</font>part1<font color="#000080">)=</font><font color="#800080">&quot;&quot;
+                    </font>errSet<font color="#000080">(</font>msg<font color="#000080">, </font>MSG_SYNTAXERROR<font color="#000080">, </font><font color="#800080">&quot;Error: Missing value before operator &quot; </font><font color="#000080">+ </font>operator<font color="#000080">)
+                    </font><font color="#0000FF">RETURN </font><b>0
+</b>                <font color="#0000FF">ENDIF
+                IF RTRIM$</font><font color="#000080">(</font>part2<font color="#000080">)=</font><font color="#800080">&quot;&quot;
+                    </font>errSet<font color="#000080">(</font>msg<font color="#000080">, </font>MSG_SYNTAXERROR<font color="#000080">, </font><font color="#800080">&quot;Error: Missing value after operator &quot; </font><font color="#000080">+ </font>operator<font color="#000080">)
+                    </font><font color="#0000FF">RETURN </font><b>0
+</b>                <font color="#0000FF">ENDIF
+                
+                </font><font color="#008000"><b><i>'calculate the left and the right part
+</i></b>                </font>value1 <font color="#000080">= </font>Eval<font color="#000080">(</font>part1<font color="#000080">, </font>msg<font color="#000080">)
+                </font>value2 <font color="#000080">= </font>Eval<font color="#000080">(</font>part2<font color="#000080">, </font>msg<font color="#000080">)
+                
+                </font><font color="#008000"><b><i>'now execute the operation between left and right
+</i></b>                <b><i>'part, and return the answer
+</i></b>                </font><font color="#0000FF">SELECT </font>operator
+                    <font color="#0000FF">CASE </font><font color="#800080">&quot;-&quot;
+                        </font><font color="#0000FF">RETURN </font>value1 <font color="#000080">- </font>value2
+                    <font color="#0000FF">CASE </font><font color="#800080">&quot;+&quot;
+                        </font><font color="#0000FF">RETURN </font>value1 <font color="#000080">+ </font>value2
+                    <font color="#0000FF">CASE </font><font color="#800080">&quot;/&quot;
+                        </font><font color="#008000"><b><i>'If value2 is zero, return an error message
+</i></b>                        </font><font color="#0000FF">IF </font>value2<font color="#000080">=</font><b>0
+</b>                            errSet<font color="#000080">(</font>msg<font color="#000080">, </font>MSG_DOMAINERROR<font color="#000080">, </font><font color="#800080">&quot;Error: Divide by zero&quot;</font><font color="#000080">)
+                            </font><font color="#0000FF">RETURN </font><b>0
+</b>                        <font color="#0000FF">ENDIF
+                        RETURN </font>value1 <font color="#000080">/ </font>value2
+                    <font color="#0000FF">CASE </font><font color="#800080">&quot;*&quot;
+                        </font><font color="#0000FF">RETURN </font>value1 <font color="#000080">* </font>value2
+                    <font color="#0000FF">CASE </font><font color="#800080">&quot;^&quot;
+                        </font><font color="#0000FF">RETURN </font>value1 <font color="#000080">^ </font>value2
+                    <font color="#0000FF">CASE </font><font color="#800080">&quot;E&quot;
+                        </font><font color="#0000FF">RETURN </font>value1 <font color="#000080">* </font><b>10</b> <font color="#000080">^ </font>value2
+                <font color="#0000FF">ENDSELECT
+            ENDIF
+            
+            </font><font color="#008000"><b><i>'the found operator was no operator,
+</i></b>            <b><i>'search if there is another operator before this one
+</i></b>            </font><font color="#0000FF">IF </font>pos<font color="#000080">&gt;</font><b>0</b> <font color="#0000FF">THEN </font>pos <font color="#000080">= </font>instrP<font color="#000080">(</font><font color="#0000FF">UCASE$</font><font color="#000080">(</font>expr<font color="#000080">), </font>operator<font color="#000080">, </font>pos<font color="#000080">-</font><b>1</b><font color="#000080">)
+        </font><font color="#0000FF">WEND
+    NEXT </font>n
+    
+    <font color="#008000"><b><i>'check if the expression starts and ends with parentheses
+</i></b>    </font><font color="#0000FF">IF LEFT$</font><font color="#000080">(</font>expr<font color="#000080">,</font><b>1</b><font color="#000080">)=</font><font color="#800080">&quot;(&quot; </font><font color="#0000FF">AND RIGHT$</font><font color="#000080">(</font>expr<font color="#000080">,</font><b>1</b><font color="#000080">)=</font><font color="#800080">&quot;)&quot;
+        </font><font color="#008000"><b><i>'remove parentheses at start and end of the expression,
+</i></b>        <b><i>'for example &quot;(2+3)&quot; -&gt; &quot;2+3&quot;
+</i></b>        </font>expr <font color="#000080">= </font><font color="#0000FF">MID$</font><font color="#000080">(</font>expr<font color="#000080">,</font><b>2</b><font color="#000080">,</font><font color="#0000FF">LEN</font><font color="#000080">(</font>expr<font color="#000080">)-</font><b>2</b><font color="#000080">)
+        </font><font color="#0000FF">RETURN </font>Eval<font color="#000080">(</font>expr<font color="#000080">, </font>msg<font color="#000080">)
+    </font><font color="#0000FF">ENDIF
+    
+    </font><font color="#008000"><b><i>'there are no more operators left in the expression, and the
+</i></b>    <b><i>'expression is not solved yet so the expression should be a value
+</i></b>    <b><i>'If expr is indeed a legal value, return the value
+</i></b>    </font><font color="#0000FF">IF </font>isValue<font color="#000080">(</font>expr<font color="#000080">) </font><font color="#0000FF">THEN RETURN VAL</font><font color="#000080">(</font>expr<font color="#000080">)
+    
+    </font><font color="#008000"><b><i>'something unsupported happend. return an error message
+</i></b>    </font>errSet<font color="#000080">(</font>msg<font color="#000080">, </font>MSG_SYNTAXERROR<font color="#000080">, </font><font color="#800080">&quot;Error: Syntax error in part \&quot;&quot; + expr + &quot;</font><font color="#000080">\</font><font color="#800080">&quot;&quot;</font><font color="#000080">)
+    </font><font color="#0000FF">RETURN </font><b>0
+</b><font color="#0000FF">ENDSUB
+
+</font><font color="#008000"><b><i>'_____________________________________________________________________
+</i></b></font><font color="#0000FF">SUB </font>instrP<font color="#000080">(</font>source<font color="#000080">:</font><font color="#FF0000">STRING</font><font color="#000080">, </font>search<font color="#000080">:</font><font color="#FF0000">STRING</font><font color="#000080">, </font>start<font color="#000080">:</font><font color="#FF0000">INT</font><font color="#000080">), </font><font color="#FF0000">INT
+    </font><font color="#008000"><b><i>'this sub searches for the LAST string search in the string
+</i></b>    <b><i>'source, reverse of the function instr(). The sub returns 0 if
+</i></b>    <b><i>'the search could not be found. Also this function neglects
+</i></b>    <b><i>'content between parenthesis () in source
+</i></b>    </font><font color="#FF0000">INT </font>n<font color="#000080">, </font>bopen<font color="#000080">, </font>bclose
+    <font color="#FF0000">STRING </font>sign
+    
+    n<font color="#000080">=</font>start
+    <font color="#0000FF">IF </font>n<font color="#000080">&gt;</font><font color="#0000FF">LEN</font><font color="#000080">(</font>source<font color="#000080">) </font><font color="#0000FF">THEN </font>n<font color="#000080">=</font><font color="#0000FF">LEN</font><font color="#000080">(</font>source<font color="#000080">)-</font><font color="#0000FF">LEN</font><font color="#000080">(</font>search<font color="#000080">)+</font><b>1
+</b>    bopen<font color="#000080">=</font><b>0</b>     <font color="#000080">:</font><font color="#008000"><b><i>'number of parenthesis open (
+</i></b>    </font>bclose<font color="#000080">=</font><b>0</b>    <font color="#000080">:</font><font color="#008000"><b><i>'number of parenthesis close )
+</i></b>    </font><font color="#0000FF">DO
+        </font>sign <font color="#000080">= </font><font color="#0000FF">MID$</font><font color="#000080">(</font>source<font color="#000080">, </font>n<font color="#000080">, </font><font color="#0000FF">LEN</font><font color="#000080">(</font>search<font color="#000080">))
+        </font><font color="#008000"><b><i>'if search is found and outside parentheses then return n
+</i></b>        </font><font color="#0000FF">IF </font><font color="#000080">(</font>sign<font color="#000080">=</font>search<font color="#000080">) </font><font color="#0000FF">AND </font><font color="#000080">(</font>bopen<font color="#000080">=</font>bclose<font color="#000080">) </font><font color="#0000FF">THEN RETURN </font>n
+        <font color="#0000FF">IF LEFT$</font><font color="#000080">(</font>sign<font color="#000080">,</font><b>1</b><font color="#000080">)=</font><font color="#800080">&quot;(&quot; </font><font color="#0000FF">THEN </font>bopen<font color="#000080">++
+        </font><font color="#0000FF">IF LEFT$</font><font color="#000080">(</font>sign<font color="#000080">,</font><b>1</b><font color="#000080">)=</font><font color="#800080">&quot;)&quot; </font><font color="#0000FF">THEN </font>bclose<font color="#000080">++
+        </font>n<font color="#000080">--
+    </font><font color="#0000FF">UNTIL </font><font color="#000080">(</font>n <font color="#000080">&lt;= </font><b>0</b><font color="#000080">)
+    
+    </font><font color="#008000"><b><i>'if the string search is not found, then return 0
+</i></b>    </font><font color="#0000FF">RETURN </font><b>0
+</b><font color="#0000FF">ENDSUB
+
+</font><font color="#008000"><b><i>'_______________________________________________________________
+</i></b></font><font color="#0000FF">SUB </font>isOperator<font color="#000080">(</font>expr<font color="#000080">:</font><font color="#FF0000">STRING</font><font color="#000080">, </font>op<font color="#000080">:</font><font color="#FF0000">CHAR</font><font color="#000080">, </font>n<font color="#000080">:</font><font color="#FF0000">INT</font><font color="#000080">), </font><font color="#FF0000">INT
+    </font><font color="#008000"><b><i>'This sub checks of the operator at postion n in expr is a
+</i></b>    <b><i>'legal operator. For example the &quot;+&quot; in &quot;2.3E+3&quot; is no operator,
+</i></b>    <b><i>'and the &quot;-&quot; in &quot;3 * -2.5&quot; is no operator but a unary minus
+</i></b>    </font><font color="#FF0000">STRING </font>sign
+    
+    <font color="#0000FF">IF </font>op<font color="#000080">=</font><font color="#800080">&quot;+&quot;
+        </font><font color="#0000FF">IF UCASE$</font><font color="#000080">(</font><font color="#0000FF">MID$</font><font color="#000080">(</font>expr<font color="#000080">,</font>n<font color="#000080">-</font><b>1</b><font color="#000080">,</font><b>1</b><font color="#000080">))=</font><font color="#800080">&quot;E&quot;
+            </font><font color="#0000FF">IF </font>n<font color="#000080">&gt;</font><b>2
+</b>                <font color="#0000FF">IF INSTR</font><font color="#000080">(</font><font color="#800080">&quot;1234567890.&quot;</font><font color="#000080">, </font><font color="#0000FF">MID$</font><font color="#000080">(</font>expr<font color="#000080">,</font>n<font color="#000080">-</font><b>2</b><font color="#000080">,</font><b>1</b><font color="#000080">))&gt;</font><b>0
+</b>                    <font color="#008000"><b><i>'for example &quot;2.52E+4&quot;
+</i></b>                    </font><font color="#0000FF">RETURN </font><font color="#FF8000">FALSE
+                </font><font color="#0000FF">ENDIF
+            ENDIF
+        ENDIF
+        <font color="#0000FF">RETURN </font><font color="#FF8000">TRUE</font>
+    ENDIF
+    
+    IF </font>op<font color="#000080">=</font><font color="#800080">&quot;-&quot;
+        </font><font color="#0000FF">IF </font>n<font color="#000080">=</font><b>1
+</b>            <font color="#008000"><b><i>'this is an unary minus, at the first position of the expr
+</i></b>            <b><i>'for example &quot;-3.4 / 6&quot;
+</i></b>            </font><font color="#0000FF">RETURN </font><font color="#FF8000">FALSE
+        </font><font color="#0000FF">ELSE
+            </font><font color="#008000"><b><i>'check for an unary minus (for example 2*-3  or  2.5E-6)
+</i></b>            <b><i>'check the characters before the minus
+</i></b>            </font>sign <font color="#000080">= </font><font color="#0000FF">LEFT$</font><font color="#000080">(</font>expr<font color="#000080">,</font>n<font color="#000080">-</font><b>1</b><font color="#000080">)
+            </font>sign <font color="#000080">= </font><font color="#0000FF">RIGHT$</font><font color="#000080">(</font><font color="#0000FF">RTRIM$</font><font color="#000080">(</font>sign<font color="#000080">),</font><b>1</b><font color="#000080">)
+            </font><font color="#0000FF">IF INSTR</font><font color="#000080">(</font><font color="#800080">&quot;+-/*^&quot;</font><font color="#000080">, </font>sign<font color="#000080">)&gt;</font><b>0
+</b>                <font color="#008000"><b><i>'For example &quot;3.5 * -2&quot;
+</i></b>                </font><font color="#0000FF">RETURN </font><font color="#FF8000">FALSE
+            </font><font color="#0000FF">ENDIF
+            IF UCASE$</font><font color="#000080">(</font><font color="#0000FF">MID$</font><font color="#000080">(</font>expr<font color="#000080">,</font>n<font color="#000080">-</font><b>1</b><font color="#000080">,</font><b>1</b><font color="#000080">))=</font><font color="#800080">&quot;E&quot; </font><font color="#0000FF">AND </font>n<font color="#000080">&gt;</font><b>2
+</b>                <font color="#0000FF">IF INSTR</font><font color="#000080">(</font><font color="#800080">&quot;1234567890.&quot;</font><font color="#000080">, </font><font color="#0000FF">MID$</font><font color="#000080">(</font>expr<font color="#000080">,</font>n<font color="#000080">-</font><b>2</b><font color="#000080">,</font><b>1</b><font color="#000080">))&gt;</font><b>0
+</b>                    <font color="#008000"><b><i>'for example &quot;2.3E-4&quot;
+</i></b>                    </font><font color="#0000FF">RETURN </font><font color="#FF8000">FALSE
+                </font><font color="#0000FF">ENDIF
+            ENDIF
+        ENDIF
+        <font color="#0000FF">RETURN </font><font color="#FF8000">TRUE</font>
+    ENDIF
+    
+    </font><font color="#008000"><b><i>'no problems found, the operator is indeed an operator.
+</i></b>    </font><font color="#0000FF">RETURN </font><font color="#FF8000">TRUE
+</font><font color="#0000FF">ENDSUB
+
+</font><font color="#008000"><b><i>'_______________________________________________________________
+</i></b></font><font color="#0000FF">SUB </font>isValue<font color="#000080">(</font>value<font color="#000080">:</font><font color="#FF0000">STRING</font><font color="#000080">), </font><font color="#FF0000">INT
+    </font><font color="#008000"><b><i>'This sub checks if value is a legal value. if so, returns True.
+</i></b>    <b><i>'If not, returns False
+</i></b>    </font><font color="#FF0000">INT </font>i
+    <font color="#FF0000">STRING </font>sign
+    
+    <font color="#0000FF">FOR </font>i<font color="#000080">=</font><b>1</b> <font color="#0000FF">TO LEN</font><font color="#000080">(</font>value<font color="#000080">)
+        </font><font color="#008000"><b><i>'check each character one by one
+</i></b>        </font>sign <font color="#000080">= </font><font color="#0000FF">UCASE$</font><font color="#000080">(</font><font color="#0000FF">MID$</font><font color="#000080">(</font>value<font color="#000080">,</font>i<font color="#000080">,</font><b>1</b><font color="#000080">))
+        
+        </font><font color="#008000"><b><i>'check for legal signs in the string
+</i></b>        </font><font color="#0000FF">IF INSTR</font><font color="#000080">(</font><font color="#800080">&quot;1234567890.-&quot;</font><font color="#000080">, </font>sign<font color="#000080">)=</font><b>0</b> <font color="#0000FF">THEN RETURN </font><font color="#FF8000">FALSE
+        
+        </font><font color="#008000"><b><i>'check if there is max. 1 point in the string
+</i></b>        </font><font color="#0000FF">IF </font>sign<font color="#000080">=</font><font color="#800080">&quot;.&quot; </font><font color="#0000FF">THEN IF INSTR</font><font color="#000080">(</font>value<font color="#000080">,</font><font color="#800080">&quot;.&quot;</font><font color="#000080">,</font>i<font color="#000080">+</font><b>1</b><font color="#000080">)&gt;</font><b>0</b> <font color="#0000FF">THEN RETURN </font><font color="#FF8000">FALSE
+        
+        </font><font color="#008000"><b><i>'check for correct use of minus: only at position 1
+</i></b>        </font><font color="#0000FF">IF </font>sign<font color="#000080">=</font><font color="#800080">&quot;-&quot; </font><font color="#0000FF">THEN IF </font>i<font color="#000080">&lt;&gt;</font><b>1</b> <font color="#0000FF">THEN RETURN </font><font color="#FF8000">FALSE
+    </font><font color="#0000FF">NEXT </font>i
+    
+    <font color="#0000FF">RETURN </font><font color="#FF8000">TRUE
+</font><font color="#0000FF">ENDSUB
+
+</font><font color="#008000"><b><i>'_______________________________________________________________
+</i></b></font><font color="#0000FF">SUB </font>errSet<font color="#000080">(</font>msg<font color="#000080">:</font><font color="#FF0000">MESSAGE</font><font color="#000080">, </font>newType<font color="#000080">:</font><font color="#FF0000">INT</font><font color="#000080">, </font>newMessage<font color="#000080">:</font><font color="#FF0000">STRING</font><font color="#000080">)
+    </font><font color="#008000"><b><i>'if msg is empty, then fill in the new type and message.
+</i></b>    <b><i>'don't overwrite an existing message
+</i></b>    </font><font color="#0000FF">IF </font>msg<font color="#000080">.</font>t <font color="#000080">= </font>MSG_EMPTY
+        msg<font color="#000080">.</font>t <font color="#000080">= </font>newType
+        msg<font color="#000080">.</font>desc <font color="#000080">= </font>newMessage
+    <font color="#0000FF">ENDIF
+    RETURN
+ENDSUB
+
+</font><font color="#008000"><b><i>'_______________________________________________________________
+</i></b></font><font color="#0000FF">SUB </font>errClear<font color="#000080">(</font>msg<font color="#000080">:</font><font color="#FF0000">MESSAGE</font><font color="#000080">)
+    </font><font color="#008000"><b><i>'clear the given message
+</i></b>    </font>msg<font color="#000080">.</font>t <font color="#000080">= </font>MSG_EMPTY
+    msg<font color="#000080">.</font>desc <font color="#000080">= </font><font color="#800080">&quot;&quot;
+    </font><font color="#0000FF">RETURN
+ENDSUB</font>
+<pre></div>
+<!-- Example4 - END -->
+
+<br>
+<br>
+<div class="bottom"></div>
+<font face="verdana" size=-2>Copyright © 2006 <a href="http://www.speqmath.com" style="text-decoration:none;" TARGET="_blank">SpeQ Mathematics</a></font><br>
+<br>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
+    "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg width="400" 
+     height="400" 
+     onload="init(); draw(evt);"
+     xmlns="http://www.w3.org/2000/svg"> 
+<!-- -->
+<script type="text/javascript" src="../functions.js"></script>
+<!-- -->
+<script type="text/javascript" ><![CDATA[
+  var svgns = "http://www.w3.org/2000/svg";
+
+  // Example usage:
+  // graph.svg?func=sin(x)&var=x
+
+  // TODO: load functions from separate javascript file
+   // define mathematical constants
+  var pi = Math.PI;
+  var e  = Math.E;
+
+  // define mathematical functions
+  pow  = Math.pow;
+  exp  = Math.exp;
+  function epower(x, power) {return x * Math.pow(10,power)}   //returns x * 10^power
+  sqrt = Math.sqrt;
+  ln   = Math.log;
+  log  = Math.log;
+  function log10(x) {return Math.log(x) * Math.LOG10E;}
+  abs = Math.abs;
+  ceil = Math.ceil;
+  floor = Math.floor;
+  max = Math.max;
+  min = Math.min;
+
+  function sin(x) {return Math.sin(x);}
+  function cos(x) {return Math.cos(x);}
+  function tan(x) {return Math.tan(x);}
+  function asin(x) {return Math.asin(x);}
+  function acos(x) {return Math.acos(x);}
+  function atan(x) {return Math.atan(x);}
+  function atan2(y,x) {return Math.atan2(y,x);}
+
+  function csc(x) {return 1/Math.sin(x);}
+  function sec(x) {return 1/Math.cos(x);}
+  function cot(x) {return 1/Math.tan(x);}
+
+  function sinh(x) {return (Math.exp(x) - Math.exp(-x)) / 2;}
+  function cosh(x) {return (Math.exp(x) + Math.exp(-x)) / 2;}
+  function tanh(x) {return sinh(x) / cosh(x);}
+
+  function csch(x) {return 1/sinh(x);}
+  function sech(x) {return 1/cosh(x);}
+  function coth(x) {return 1/tanh(x);}
+
+  function gup( name )
+  {
+    name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+    var regexS = "[\\?&]"+name+"=([^&#]*)";
+    var regex = new RegExp( regexS );
+    var results = regex.exec( window.location.href );
+    if( results == null )
+      return "";
+    else
+      return results[1];
+  }
+
+  var graphLeft = 0;
+  var graphRight = 400;
+  var graphTop = 0;
+  var graphBottom = 400;
+
+  var xmin = -5;
+  var xmax = 10;
+  var ymin = -2;
+  var ymax = 2;
+
+  var xscale = 0;
+  var xshift = 0;
+  var yscale = 0;
+  var yshift = 0;
+  var axisXstep = 0;
+  var axisYstep = 0; 
+  var xstep = 1;
+
+  var mouseX = 0;
+  var mouseY = 0;
+  var mouseDown = false;
+
+  var canvas;  
+  var func;
+  var param;
+
+  function makeShape(evt) 
+  {
+    if ( window.svgDocument == null )
+        svgDocument = evt.target.ownerDocument;
+
+    shape = svgDocument.createElementNS(svgns, "polyline");
+    shape.setAttributeNS(null, "points", getPoly());
+    shape.setAttributeNS(null, "fill", "none");
+    shape.setAttributeNS(null, "stroke", "blue");
+    
+    svgDocument.documentElement.appendChild(shape);
+  }
+
+  function init()
+  {
+    // get function and variable from url
+    func = gup("func");
+    param = gup("var");
+
+    // evaluate the function
+    var expr = "f=function(" + param + ") {return " + func + ";}";
+    eval(expr);
+
+    /* TODO
+    // get the size of the graph 
+    graphLeft = 0;
+    graphRight = document.width;
+    graphTop = 0;
+    graphBottom = document.height;
+    */
+  }
+
+  function init_scale()
+  {
+    // calculate scaling
+    xscale = (graphRight - graphLeft) / (xmax - xmin);
+    xshift = graphLeft - xmin * xscale;
+    yscale = (graphTop - graphBottom) / (ymax - ymin);
+    yshift = graphBottom - ymin * yscale;
+    xstep = 1 / xscale;  // every step equals one pixel on the screen
+    xstep *= 2;  // half the number of steps to make drawing faster
+    
+    // todo intelligent axis numbering
+    axisXstep = 1;
+    axisYstep = 1;
+  }
+
+  function draw(evt) 
+  {
+    init_scale();
+
+    // clear current drawing
+    if ( window.svgDocument == null )
+        svgDocument = evt.target.ownerDocument;
+    while (svgDocument.documentElement.hasChildNodes()) 
+    {
+      svgDocument.documentElement.removeChild(svgDocument.documentElement.firstChild);
+    }    
+
+    drawAxes(evt);
+    drawGraph(evt);
+  }
+
+  function drawAxes(evt)
+  {
+    if ( window.svgDocument == null )
+        svgDocument = evt.target.ownerDocument;
+    
+    // ctx.lineWidth = 0.5; // TODO
+
+    // x-axis
+    var xaxis = svgDocument.createElementNS(svgns, "line");
+    xaxis.setAttributeNS(null, "x1", xmin * xscale + xshift);
+    xaxis.setAttributeNS(null, "y1", 0 * yscale + yshift);
+    xaxis.setAttributeNS(null, "x2", xmax * xscale + xshift);
+    xaxis.setAttributeNS(null, "y2", 0 * yscale + yshift);
+    xaxis.setAttributeNS(null, "stroke", "black");
+    svgDocument.documentElement.appendChild(xaxis);
+
+    var x = ceil(xmin / axisXstep) * axisXstep;
+    do
+    {
+      // x-axis
+      var line = svgDocument.createElementNS(svgns, "line");
+      line.setAttributeNS(null, "x1", x * xscale + xshift);
+      line.setAttributeNS(null, "y1", 0 * yscale + yshift);
+      line.setAttributeNS(null, "x2", x * xscale + xshift);
+      line.setAttributeNS(null, "y2", 0 * yscale + yshift + 5);
+      line.setAttributeNS(null, "stroke", "black");
+      svgDocument.documentElement.appendChild(line);
+      
+      if (abs(x) > 0.1 * axisXstep)
+      {
+        var textHeight = 12;
+
+        var data = svgDocument.createTextNode(x);
+        var text = svgDocument.createElementNS(svgns, "text");
+        text.setAttributeNS(null, "x", x * xscale + xshift);
+        text.setAttributeNS(null, "y", yshift + 8 + textHeight);
+        text.setAttributeNS(null, "fill", "black");
+        text.setAttributeNS(null, "font-size", textHeight + "pt");        
+        text.setAttributeNS(null, "text-anchor", "middle");
+        text.appendChild(data);
+        svgDocument.documentElement.appendChild(text);        
+      }
+      
+      x += axisXstep;
+    }
+    while (x <= xmax);
+
+    // y-axis
+    var yaxis = svgDocument.createElementNS(svgns, "line");
+    yaxis.setAttributeNS(null, "x1", 0 * xscale + xshift);
+    yaxis.setAttributeNS(null, "y1", ymin * yscale + yshift);
+    yaxis.setAttributeNS(null, "x2", 0 * xscale + xshift);
+    yaxis.setAttributeNS(null, "y2", ymax * yscale + yshift);
+    yaxis.setAttributeNS(null, "stroke", "black");
+    svgDocument.documentElement.appendChild(yaxis);
+
+    var y = ceil(ymin / axisYstep) * axisYstep;
+    do
+    {
+      var line = svgDocument.createElementNS(svgns, "line");
+      line.setAttributeNS(null, "x1", 0 * xscale + xshift);
+      line.setAttributeNS(null, "y1", y * yscale + yshift);
+      line.setAttributeNS(null, "x2", 0 * xscale + xshift - 5);
+      line.setAttributeNS(null, "y2", y * yscale + yshift);
+      line.setAttributeNS(null, "stroke", "black");
+      svgDocument.documentElement.appendChild(line);
+            
+      if (abs(y) > 0.1 * axisXstep)
+      {
+        var textHeight = 12;
+
+        var data = svgDocument.createTextNode(y);
+        var text = svgDocument.createElementNS(svgns, "text");
+        text.setAttributeNS(null, "x", xshift - 8);
+        text.setAttributeNS(null, "y", y * yscale + yshift + 0.5 * textHeight);
+        text.setAttributeNS(null, "fill", "black");
+        text.setAttributeNS(null, "font-size", textHeight + "pt");
+        text.setAttributeNS(null, "text-anchor", "end");
+        text.appendChild(data);
+        svgDocument.documentElement.appendChild(text);        
+      }      
+      
+      y += axisYstep;
+    }
+    while (y <= ymax);  
+  }
+
+  function drawGraph(evt) 
+  {
+    // draw graph
+    if ( window.svgDocument == null )
+        svgDocument = evt.target.ownerDocument;
+
+    var poly = "";
+    for (x = xmin; x < xmax; x += xstep)
+    {
+      poly += (x * xscale + xshift) + "," + (f(x) * yscale + yshift) + " ";  
+    }    
+
+    graph = svgDocument.createElementNS(svgns, "polyline");
+    graph.setAttributeNS(null, "points", poly);
+    graph.setAttributeNS(null, "fill", "none");
+    graph.setAttributeNS(null, "stroke", "red");
+    svgDocument.documentElement.appendChild(graph);
+  }
+
+  function mousedown(evt)
+  {
+    if (evt.which == 1)
+    {
+      // left mouse button pressed
+      mouseX = evt.pageX;
+      mouseY = evt.pageY;
+      mouseDown = true;
+    }
+  }
+
+  function mousemove(evt)
+  {
+    if (mouseDown)
+    {
+      var diffX = evt.pageX - mouseX;
+      var diffY = evt.pageY - mouseY;
+      
+      xmin -= diffX / xscale;
+      xmax -= diffX / xscale;
+
+      ymin -= diffY / yscale;
+      ymax -= diffY / yscale;
+
+      mouseX = evt.pageX;
+      mouseY = evt.pageY;
+          
+      draw();
+    }
+  }
+
+  function mouseup(evt)
+  {
+    mouseDown = false;
+  }
+
+  document.addEventListener("mousedown", mousedown, false);
+  document.addEventListener("mouseup", mouseup, false);
+  document.addEventListener("mousemove", mousemove, false);
+
+]]></script> 
+</svg> 
+ 

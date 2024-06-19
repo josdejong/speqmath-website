@@ -1,0 +1,52 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Tutorial on how to create an expression parser -->
+<!-- Created by Jos de Jong, May 2006 -->
+<!-- wjosdejong@hotmail.com, www.speqmath.com -->
+
+<!-- Todo: add links to the sourcecode and executables of the examples, and a zipfile with everything -->
+
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=windows-1250">
+  <meta name="generator" content="PSPad editor, www.pspad.com">
+  <meta name="keywords" content="Tutorial, create, expression, parser, recursive, math, speq, ibasic">
+  <meta name="description" content="Tutorial on how to create an expression parser">
+  <link rel="stylesheet" href="layout.css">
+  <title>Chapter 1. Introduction</title>
+  
+  <SCRIPT TYPE="text/javascript" SRC="events.js"></SCRIPT>
+</head>
+<body>
+<div class="content">
+
+<h2>1. Introduction</h2>
+A parser is a program or a function that can interpret the contents of an expression.
+Parsers are for example used in mathematical applications and programming languages.
+For mathematical applications a parser must be able to evaluate expressions like "2+3*(5.3-2.1)" and return the answer.
+And in programming languages a parser must be able to recognize commands like "IF" and "THEN" and handle them.<br>
+<br>
+Normally an expression is entered as a string (a list of characters) into the computer.
+There are different methods on how to analyse and interpret and expression,
+see fow example <a href="http://en.wikipedia.org/wiki/Parsing" target="_blank">Wikipedia.org</a> for more background information.
+I will explain here a recursive parsing method for expressions as used for the math program <a href="http://www.speqmath.com/" target="_blank">SpeQ</a>.
+The examples in this tutorial are written with <a href="http://www.pyxia.com/" target="_blank">IBasic</a> and therefore use IBasic syntax.
+It is recommended to have a basic knowledge of IBasic or programming in general.
+<br><br>
+When facing the problem you can consider expressions like the following:<br>
+"2 + 3"<br>
+"2 + 3 + 4 + 5"<br>
+"2 + 3 - 4 - 5"<br>
+"4.2 * (2 + 3.5) ^ 2"<br>
+<br>
+And when the parser is more advanced it can be able to evaluate mathematical functions and variables also:<br>
+"2 * Sin(0.25 * Pi)"<br>
+"Sqrt(36) / 2"<br>
+<br>
+<br>
+<div class="bottom"></div>
+<font face="verdana" size=-2>Copyright © 2006 <a href="http://www.speqmath.com" style="text-decoration:none;" TARGET="_blank">SpeQ Mathematics</a></font><br>
+<br>
+
+</div>
+</body>
+</html>

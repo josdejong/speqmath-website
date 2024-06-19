@@ -1,0 +1,41 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Tutorial on how to create an Java expression parser -->
+<!-- Created by Jos de Jong, Jan 2010 -->
+<!-- www.speqmath.com -->
+
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=windows-1250">
+  <meta name="generator" content="Gedit">
+  <meta name="keywords" content="Tutorial, create, expression, parser, recursive, math, speq, java">
+  <meta name="description" content="A Java expression parser">
+  <link rel="stylesheet" href="layout.css">
+  <title>Java expression parser</title>
+</head>
+
+<body>
+<div class="content">
+<h2>Source code</h2>
+<p>
+This page briefly describes the contents of the source files.
+</p>
+
+
+<p>
+<b>Parser.java</b> <br> 
+The class <i>Parser</i> is the core of the expression parser. This class contains the code required for parsing a string containing a mathematical expression, and evaluating the contents. This class contains a main routine, so you can run this class from a command line by entering "java Parser"
+</p>
+
+<p>
+<b>Functions.java</b> <br>
+These files contain two mathematical functions which are not pre-defined in Java, and therefore had to be written by hand: factorial and sign.
+</p>
+
+<p>
+<b>Error.java</b> <br> 
+When an error occurs when parsing an expression, an error of class <i>Error</i> is thrown. All possible error messages are stored in the class Error, to make it easy to extend the parser to support multiple languages. All errors have a unique number.
+</p>
+
+</div>
+</body>
+</html>

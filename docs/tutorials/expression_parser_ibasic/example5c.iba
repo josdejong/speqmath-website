@@ -1,0 +1,11 @@
+'check if the E at position pos is an operator
+IF op="E" OR op="e"
+    'If the E is at first or last postition in the expr, then it
+    'is no operator but the variable E. If left or right from E
+    'is no number or point, then it is no operator but the variable E
+    IF n=1 THEN RETURN FALSE
+    IF n=LEN(expr) THEN RETURN FALSE
+    IF INSTR("1234567890.", MID$(expr,n-1,1))=0 THEN RETURN FALSE
+    IF INSTR("1234567890.-+", MID$(expr,n+1,1))=0 THEN RETURN FALSE
+    RETURN TRUE
+ENDIF

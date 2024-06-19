@@ -1,0 +1,21 @@
+[SFO]
+ExeName=C:\Documents and Settings\Jos\Mijn documenten\IBasic Pro\IBstart\imagelist_v2.exe
+BuildType=1
+UseDefRes=1
+DebugBuild=0
+UseUserRes=0
+UserResName=
+StackSize=1048576
+CommitStack=32768
+BaseAddress=0x10000000
+[Bookmarks]
+Bookmark0=-1
+Bookmark1=-1
+Bookmark2=-1
+Bookmark3=-1
+Bookmark4=-1
+Bookmark5=-1
+Bookmark6=-1
+Bookmark7=-1
+Bookmark8=-1
+Bookmark9=-1

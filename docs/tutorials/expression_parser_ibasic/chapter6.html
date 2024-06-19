@@ -1,0 +1,395 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Tutorial on how to create an expression parser -->
+<!-- Created by Jos de Jong, May 2006 -->
+<!-- wjosdejong@hotmail.com, www.speqmath.com -->
+
+<!-- Todo: add links to the sourcecode and executables of the examples, and a zipfile with everything -->
+
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=windows-1250">
+  <meta name="generator" content="PSPad editor, www.pspad.com">
+  <meta name="keywords" content="Tutorial, create, expression, parser, recursive, math, speq, ibasic">
+  <meta name="description" content="Tutorial on how to create an expression parser">
+  <link rel="stylesheet" href="layout.css">
+  <title>Chapter 6. Parentheses, scientific notation and unary minus</title>
+  
+  <SCRIPT TYPE="text/javascript" SRC="events.js"></SCRIPT>
+</head>
+<body>
+<div class="content">
+
+<h2>6. Parentheses, scientific notation and unary minus</h2>
+The following important mathematical issues are parentheses and the unary minus. 
+Parentheses are easy to implement because of the evaluator structure we are using.
+The function Eval will need to do the following.
+First it has to search only for operators <i>outside parentheses</i> and evaluate the expression parts if found.
+If not, the Eval function must check whether the expression is enclosed by parentheses, remove them and evaluate the expression.
+<br><br>
+<b>Parentheses</b><br>
+To check only for operators outside parameters, we will create a modified version of the function InstrREV, called InstrP.
+This function counts the number of parentheses open and close that it encounters while searching for an operator.
+If there are more parentheses open than close, we are inside parentheses. 
+If there are just as much parentheses open as close, we are outside parentheses.
+And if there are less parentheses open than close, there is a syntax error in the expression.
+<br>
+<br>
+<!-- InstrP - START -->
+<div class="codeheader" >
+Function instrP
+<SCRIPT TYPE="text/javascript">
+  createCodeHeader("instrP", "150px")    // if javascript is available, add the options <Select> and <Expand>
+</SCRIPT>
+<br>
+</div>
+<div class="code" id="instrP" style="height:150px;"><pre>
+<font color="#0000FF">SUB </font>instrP<font color="#000080">(</font>source<font color="#000080">:</font><font color="#FF0000">STRING</font><font color="#000080">, </font>search<font color="#000080">:</font><font color="#FF0000">STRING</font><font color="#000080">, </font>start<font color="#000080">:</font><font color="#FF0000">INT</font><font color="#000080">), </font><font color="#FF0000">INT
+    </font><font color="#008000"><b><i>'this sub searches for the LAST string search in the string
+</i></b>    <b><i>'source, reverse of the function instr(). The sub returns 0 if
+</i></b>    <b><i>'the search could not be found. Also this function neglects
+</i></b>    <b><i>'content between parenthesis () in source
+</i></b>    </font><font color="#FF0000">INT </font>n<font color="#000080">, </font>bopen<font color="#000080">, </font>bclose
+    <font color="#FF0000">STRING </font>sign
+
+    n<font color="#000080">=</font>start
+    <font color="#0000FF">IF </font>n<font color="#000080">&gt;</font><font color="#0000FF">LEN</font><font color="#000080">(</font>source<font color="#000080">) </font><font color="#0000FF">THEN </font>n<font color="#000080">=</font><font color="#0000FF">LEN</font><font color="#000080">(</font>source<font color="#000080">)-</font><font color="#0000FF">LEN</font><font color="#000080">(</font>search<font color="#000080">)+</font><b>1
+</b>    bopen<font color="#000080">=</font><b>0</b>     <font color="#000080">:</font><font color="#008000"><b><i>'number of parenthesis open (
+</i></b>    </font>bclose<font color="#000080">=</font><b>0</b>    <font color="#000080">:</font><font color="#008000"><b><i>'number of parenthesis close )
+</i></b>    </font><font color="#0000FF">DO
+        </font>sign <font color="#000080">= </font><font color="#0000FF">MID$</font><font color="#000080">(</font>source<font color="#000080">, </font>n<font color="#000080">, </font><font color="#0000FF">LEN</font><font color="#000080">(</font>search<font color="#000080">))
+        </font><font color="#008000"><b><i>'if search is found and outside parentheses then return n
+</i></b>        </font><font color="#0000FF">IF </font><font color="#000080">(</font>sign<font color="#000080">=</font>search<font color="#000080">) </font><font color="#0000FF">AND </font><font color="#000080">(</font>bopen<font color="#000080">=</font>bclose<font color="#000080">) </font><font color="#0000FF">THEN RETURN </font>n
+        <font color="#0000FF">IF LEFT$</font><font color="#000080">(</font>sign<font color="#000080">,</font><b>1</b><font color="#000080">)=</font><font color="#800080">&quot;(&quot; </font><font color="#0000FF">THEN </font>bopen<font color="#000080">++
+        </font><font color="#0000FF">IF LEFT$</font><font color="#000080">(</font>sign<font color="#000080">,</font><b>1</b><font color="#000080">)=</font><font color="#800080">&quot;)&quot; </font><font color="#0000FF">THEN </font>bclose<font color="#000080">++
+        </font>n<font color="#000080">--
+    </font><font color="#0000FF">UNTIL </font><font color="#000080">(</font>n <font color="#000080">&lt;= </font><b>0</b><font color="#000080">)
+    
+    </font><font color="#008000"><b><i>'if the string search is not found, then return 0
+</i></b>    </font><font color="#0000FF">RETURN </font><b>0
+</b><font color="#0000FF">ENDSUB
+</font>
+<pre></div>
+<br>
+<!-- InstrP - END -->
+
+
+If there are no operators outside parentheses in the expression but there are parentheses at start and end of the expression,
+then we have to remove these and evaluate the remaining expression.<br>
+<br>
+<div class="code"><pre>
+<font color="#0000FF">IF LEFT$</font><font color="#000080">(</font>expr<font color="#000080">,</font><b>1</b><font color="#000080">)=</font><font color="#800080">&quot;(&quot; </font><font color="#0000FF">AND RIGHT$</font><font color="#000080">(</font>expr<font color="#000080">,</font><b>1</b><font color="#000080">)=</font><font color="#800080">&quot;)&quot;
+    </font><font color="#008000"><b><i>'remove parentheses at start and end of the expression,
+</i></b>    <b><i>'for example &quot;(2+3)&quot; -&gt; &quot;2+3&quot;
+</i></b>    </font>expr <font color="#000080">= </font><font color="#0000FF">MID$</font><font color="#000080">(</font>expr<font color="#000080">,</font><b>2</b><font color="#000080">,</font><font color="#0000FF">LEN</font><font color="#000080">(</font>expr<font color="#000080">)-</font><b>2</b><font color="#000080">)
+    </font><font color="#0000FF">RETURN </font>Eval<font color="#000080">(</font>expr<font color="#000080">)
+</font><font color="#0000FF">ENDIF
+</font>
+<pre></div>
+<br>
+
+<b>Scientific notation</b><br>
+When values are becoming larger and larger, it is handy to use the scientific notation.
+For example "200000000" can be written as "2E8", what means <i>2 times ten to the power 8</i>.
+With the scientific notation, we encounter the unary plus and minus, like in "1.22E-4" and "3.0E+4".
+In the next code example we will add the scientific notation "E".
+<br><br>
+
+<b>Unary minus</b><br>
+The unary minus is a special case of the minus.
+A unary minus is no operator but just the sign of a negative value.
+For example in the expression "2 * -4.5" the minus belongs to the value "-4.5", and is no operator.
+Our current evaluator will evaluate this expression as "(2 * ) - (4.5)" what will give a wrong answer.
+<br><br>
+Therefore, if we we find an operator "+" or "-", we have to check whether this is indeed an operator,
+or an unary plus or minus. In the last case it must be neglected.
+We will create a function called isOperator() that will check if a found "+" or "-" is an operator or and unary plus or minus.
+<br><br>
+<!-- isOperator - START -->
+<div class="codeheader" >
+Function isOperator
+<SCRIPT TYPE="text/javascript">
+  createCodeHeader("isOp", "150px")    // if javascript is available, add the options <Select> and <Expand>
+</SCRIPT>
+<br>
+</div>
+<div class="code" id="isOp" style="height:150px;"><pre>
+<font color="#0000FF">SUB </font>isOperator<font color="#000080">(</font>expr<font color="#000080">:</font><font color="#FF0000">STRING</font><font color="#000080">, </font>op<font color="#000080">:</font><font color="#FF0000">CHAR</font><font color="#000080">, </font>n<font color="#000080">:</font><font color="#FF0000">INT</font><font color="#000080">), </font><font color="#FF0000">INT
+    </font><font color="#008000"><b><i>'This sub checks of the operator at postion n in expr is a
+</i></b>    <b><i>'legal operator. For example the &quot;+&quot; in &quot;2.3E+3&quot; is no operator,
+</i></b>    <b><i>'and the &quot;-&quot; in &quot;3 * -2.5&quot; is no operator but a unary minus
+</i></b>    </font><font color="#FF0000">STRING </font>sign
+    
+    <font color="#0000FF">IF </font>op<font color="#000080">=</font><font color="#800080">&quot;+&quot;
+        </font><font color="#0000FF">IF UCASE$</font><font color="#000080">(</font><font color="#0000FF">MID$</font><font color="#000080">(</font>expr<font color="#000080">,</font>n<font color="#000080">-</font><b>1</b><font color="#000080">,</font><b>1</b><font color="#000080">))=</font><font color="#800080">&quot;E&quot;
+            </font><font color="#0000FF">IF </font>n<font color="#000080">&gt;</font><b>2
+</b>                <font color="#0000FF">IF INSTR</font><font color="#000080">(</font><font color="#800080">&quot;1234567890.&quot;</font><font color="#000080">, </font><font color="#0000FF">MID$</font><font color="#000080">(</font>expr<font color="#000080">,</font>n<font color="#000080">-</font><b>2</b><font color="#000080">,</font><b>1</b><font color="#000080">))&gt;</font><b>0
+</b>                    <font color="#008000"><b><i>'for example &quot;2.52E+4&quot;
+</i></b>                    </font><font color="#0000FF">RETURN </font><font color="#FF8000">FALSE
+                </font><font color="#0000FF">ENDIF
+            ENDIF
+        ENDIF
+        <font color="#0000FF">RETURN </font><font color="#FF8000">TRUE</font>
+    ENDIF
+    
+    IF </font>op<font color="#000080">=</font><font color="#800080">&quot;-&quot;
+        </font><font color="#0000FF">IF </font>n<font color="#000080">=</font><b>1
+</b>            <font color="#008000"><b><i>'this is an unary minus, at the first position of the expr
+</i></b>            <b><i>'for example &quot;-3.4 / 6&quot;
+</i></b>            </font><font color="#0000FF">RETURN </font><font color="#FF8000">FALSE
+        </font><font color="#0000FF">ELSE
+            </font><font color="#008000"><b><i>'check for an unary minus (for example 2*-3  or  2.5E-6)
+</i></b>            <b><i>'check the characters before the minus
+</i></b>            </font>sign <font color="#000080">= </font><font color="#0000FF">LEFT$</font><font color="#000080">(</font>expr<font color="#000080">,</font>n<font color="#000080">-</font><b>1</b><font color="#000080">)
+            </font>sign <font color="#000080">= </font><font color="#0000FF">RIGHT$</font><font color="#000080">(</font><font color="#0000FF">RTRIM$</font><font color="#000080">(</font>sign<font color="#000080">),</font><b>1</b><font color="#000080">)
+            </font><font color="#0000FF">IF INSTR</font><font color="#000080">(</font><font color="#800080">&quot;+-/*^&quot;</font><font color="#000080">, </font>sign<font color="#000080">)&gt;</font><b>0
+</b>                <font color="#008000"><b><i>'For example &quot;3.5 * -2&quot;
+</i></b>                </font><font color="#0000FF">RETURN </font><font color="#FF8000">FALSE
+            </font><font color="#0000FF">ENDIF
+            IF UCASE$</font><font color="#000080">(</font><font color="#0000FF">MID$</font><font color="#000080">(</font>expr<font color="#000080">,</font>n<font color="#000080">-</font><b>1</b><font color="#000080">,</font><b>1</b><font color="#000080">))=</font><font color="#800080">&quot;E&quot; </font><font color="#0000FF">AND </font>n<font color="#000080">&gt;</font><b>2
+</b>                <font color="#0000FF">IF INSTR</font><font color="#000080">(</font><font color="#800080">&quot;1234567890.&quot;</font><font color="#000080">, </font><font color="#0000FF">MID$</font><font color="#000080">(</font>expr<font color="#000080">,</font>n<font color="#000080">-</font><b>2</b><font color="#000080">,</font><b>1</b><font color="#000080">))&gt;</font><b>0
+</b>                    <font color="#008000"><b><i>'for example &quot;2.3E-4&quot;
+</i></b>                    </font><font color="#0000FF">RETURN </font><font color="#FF8000">FALSE
+                </font><font color="#0000FF">ENDIF
+            ENDIF
+        ENDIF
+        <font color="#0000FF">RETURN </font><font color="#FF8000">TRUE</font>
+    ENDIF
+    
+    </font><font color="#008000"><b><i>'no problems found, the operator is indeed an operator.
+</i></b>    </font><font color="#0000FF">RETURN </font><font color="#FF8000">TRUE
+</font><font color="#0000FF">ENDSUB
+</font>
+<pre></div>
+<br>
+<!-- isOperator - END -->
+
+Because there is now an option that a found operator not really is an operator, we also need an extra loop.
+If an operator is found that is no operator, we have to check again if there is another one.
+The loop looks like:<br>
+<br>
+<div class="code"><pre>
+<font color="#0000FF">FOR </font>n<font color="#000080">=</font><b>1</b> <font color="#0000FF">TO </font><b>6
+</b>    operator <font color="#000080">= </font><font color="#0000FF">MID$</font><font color="#000080">(</font><font color="#800080">&quot;-+/*^E&quot;</font><font color="#000080">, </font>n<font color="#000080">, </font><b>1</b><font color="#000080">)
+    
+    </font><font color="#008000"><b><i>'search for this operator in expr
+</i></b>    </font>pos <font color="#000080">= </font>InstrP<font color="#000080">(</font><font color="#0000FF">UCASE$</font><font color="#000080">(</font>expr<font color="#000080">), </font>operator<font color="#000080">, </font><b>255</b><font color="#000080">)
+    </font><font color="#0000FF">WHILE </font>pos<font color="#000080">&gt;</font><b>0
+</b>        <font color="#0000FF">IF </font>isOperator<font color="#000080">(</font>expr<font color="#000080">, </font>operator<font color="#000080">, </font>pos<font color="#000080">)=</font><font color="#FF8000">TRUE
+        
+            </font><font color="#008000"><b><i>'... evaluate it and return
+</i></b>            
+        </font><font color="#0000FF">ENDIF
+        
+        </font><font color="#008000"><b><i>'if this operator is not evaluated, search for another one
+</i></b>        </font><font color="#0000FF">IF </font>pos<font color="#000080">&gt;</font><b>0</b> <font color="#0000FF">THEN </font>pos<font color="#000080">=</font>instrP<font color="#000080">(</font><font color="#0000FF">UCASE$</font><font color="#000080">(</font>expr<font color="#000080">), </font>operator<font color="#000080">, </font>pos<font color="#000080">-</font><b>1</b><font color="#000080">)
+    </font><font color="#0000FF">WEND
+NEXT </font>n
+<pre></div>
+<br>
+
+<b>Example 3</b><br>
+The complete source code for the third example is now as follows.
+This evaluator supports the operators + - * / ^ E and parentheses ( ).
+<br><br>
+
+<!-- Example3 - START -->
+<div class="codeheader" >
+Example 3
+<SCRIPT TYPE="text/javascript">
+  createCodeHeader("ex3", "300px")    // if javascript is available, add the options <Select> and <Expand>
+</SCRIPT>
+<br>
+</div>
+<div class="code" id="ex3" style="height:300px;"><pre>
+<font color="#008000"><b><i>/*
+Recursive expression parser, Example 3.
+Written with IBasic Professional
+By Jos de Jong, may 2006
+
+Supports expressions with operators + - * / ^ E and parentheses ( )
+*/
+</i></b></font><font color="#0000FF">AUTODEFINE </font><font color="#800080">&quot;Off&quot;
+</font><font color="#0000FF">SETPRECISION </font><b>5
+</b><font color="#0000FF">DEF </font>inputexpr<font color="#000080">:</font><font color="#FF0000">STRING
+
+</font><font color="#0000FF">OPENCONSOLE
+
+</font><font color="#008000"><b><i>'print some examples of expressions with their answers
+</i></b></font><font color="#0000FF">PRINT </font><font color="#800080">&quot;Expression Calculator&quot;
+</font><font color="#0000FF">PRINT </font><font color="#800080">&quot;&quot;
+</font><font color="#0000FF">PRINT </font><font color="#800080">&quot;You can use + - * / ^ E and parentheses ( )&quot;
+</font><font color="#0000FF">PRINT </font><font color="#800080">&quot;Enter an expression and press Enter to calculate it.&quot;
+</font><font color="#0000FF">PRINT </font><font color="#800080">&quot;Enter an empty expression to quit&quot;
+</font><font color="#0000FF">PRINT </font><font color="#800080">&quot;&quot;
+</font><font color="#0000FF">PRINT </font><font color="#800080">&quot;Examples:&quot;
+</font><font color="#0000FF">PRINT </font><font color="#800080">&quot;2 + 3 * -4 = &quot;</font><font color="#000080">, </font>Eval<font color="#000080">(</font><font color="#800080">&quot;2 + 3 * -4&quot;</font><font color="#000080">)
+</font><font color="#0000FF">PRINT </font><font color="#800080">&quot;2 + 3 / 4 - 5= &quot;</font><font color="#000080">, </font>Eval<font color="#000080">(</font><font color="#800080">&quot;2 + 3 / 4 - 5&quot;</font><font color="#000080">)
+</font><font color="#0000FF">PRINT </font><font color="#800080">&quot;2.5 ^ 3.25 - 5E2 / 100 = &quot;</font><font color="#000080">, </font>Eval<font color="#000080">(</font><font color="#800080">&quot;2.5 ^ 3.25 - 5E2 / 100 &quot;</font><font color="#000080">)
+</font><font color="#0000FF">PRINT </font><font color="#800080">&quot;(1.5+2.5) * (3+4) = &quot;</font><font color="#000080">, </font>Eval<font color="#000080">(</font><font color="#800080">&quot;(1.5+2.5) * (3+4)&quot;</font><font color="#000080">)
+</font><font color="#0000FF">PRINT </font><font color="#800080">&quot;&quot;
+</font><font color="#0000FF">DO
+    </font><font color="#008000"><b><i>'ask the user to enter an expression. After this the expression
+</i></b>    <b><i>'will be evaluated and the answer will be printed
+</i></b>    </font><font color="#0000FF">INPUT </font><font color="#800080">&quot;&gt;&gt;&quot;</font><font color="#000080">, </font>inputexpr
+    <font color="#0000FF">IF RTRIM$</font><font color="#000080">(</font>inputexpr<font color="#000080">)&lt;&gt;</font><font color="#800080">&quot;&quot;
+        </font><font color="#0000FF">PRINT </font><font color="#800080">&quot;    Ans = &quot;</font><font color="#000080">, </font>Eval<font color="#000080">(</font>inputexpr<font color="#000080">)
+        </font><font color="#0000FF">PRINT </font><font color="#800080">&quot;&quot;
+    </font><font color="#0000FF">ENDIF
+UNTIL RTRIM$</font><font color="#000080">(</font>inputexpr<font color="#000080">)=</font><font color="#800080">&quot;&quot;
+
+</font><font color="#008000"><b><i>'end the program
+</i></b></font><font color="#0000FF">CLOSECONSOLE
+END
+
+</font><font color="#008000"><b><i>'_____________________________________________________________________
+</i></b></font><font color="#0000FF">SUB </font>Eval<font color="#000080">(</font>Expression<font color="#000080">:</font><font color="#FF0000">STRING</font><font color="#000080">), </font><font color="#FF0000">DOUBLE
+    </font><font color="#0000FF">DEF </font>pos<font color="#000080">, </font>n<font color="#000080">:</font><font color="#FF0000">INT
+    </font><font color="#0000FF">DEF </font>expr<font color="#000080">:</font><font color="#FF0000">STRING
+    </font><font color="#0000FF">DEF </font>part1<font color="#000080">, </font>part2<font color="#000080">:</font><font color="#FF0000">STRING
+    </font><font color="#0000FF">DEF </font>operator<font color="#000080">:</font><font color="#FF0000">STRING
+    
+    </font><font color="#008000"><b><i>'remove spaces at start and end of the expression
+</i></b>    </font>expr <font color="#000080">= </font><font color="#0000FF">LTRIM$</font><font color="#000080">(</font><font color="#0000FF">RTRIM$</font><font color="#000080">(</font>Expression<font color="#000080">))
+    
+    </font><font color="#0000FF">FOR </font>n<font color="#000080">=</font><b>1</b> <font color="#0000FF">TO </font><b>6
+</b>        <font color="#008000"><b><i>'choose an operator
+</i></b>        <b><i>'(for each loop choose the following of the five operators)
+</i></b>        </font>operator <font color="#000080">= </font><font color="#0000FF">MID$</font><font color="#000080">(</font><font color="#800080">&quot;-+/*^E&quot;</font><font color="#000080">, </font>n<font color="#000080">, </font><b>1</b><font color="#000080">)
+        
+        </font><font color="#008000"><b><i>'search for the last occurance of this operator outside
+</i></b>        <b><i>'parentheses
+</i></b>        </font>pos <font color="#000080">= </font>InstrP<font color="#000080">(</font><font color="#0000FF">UCASE$</font><font color="#000080">(</font>expr<font color="#000080">), </font>operator<font color="#000080">, </font><b>255</b><font color="#000080">)
+        </font><font color="#0000FF">WHILE </font>pos<font color="#000080">&gt;</font><b>0
+</b>            <font color="#008000"><b><i>'Check if the found operator realy is an operator
+</i></b>            <b><i>'(and not a unary plus or minus)
+</i></b>            </font><font color="#0000FF">IF </font>isOperator<font color="#000080">(</font>expr<font color="#000080">, </font>operator<font color="#000080">, </font>pos<font color="#000080">)=</font><font color="#FF8000">TRUE
+                </font><font color="#008000"><b><i>'there is an operator found at position pos. Split up
+</i></b>                <b><i>'the expression in two parts and calculate the result
+</i></b>                <b><i>'of that two parts. Then calculate the result for the
+</i></b>                <b><i>'complete expression.
+</i></b>                </font>part1 <font color="#000080">= </font><font color="#0000FF">LEFT$</font><font color="#000080">(</font>expr<font color="#000080">, </font>pos<font color="#000080">-</font><b>1</b><font color="#000080">)
+                </font>part2 <font color="#000080">= </font><font color="#0000FF">RIGHT$</font><font color="#000080">(</font>expr<font color="#000080">, </font><font color="#0000FF">LEN</font><font color="#000080">(</font>expr<font color="#000080">)-</font>pos<font color="#000080">)
+                
+                </font><font color="#008000"><b><i>'now execute the calculation between left and right
+</i></b>                <b><i>'part, and return the answer
+</i></b>                </font><font color="#0000FF">SELECT </font>operator
+                    <font color="#0000FF">CASE </font><font color="#800080">&quot;-&quot;
+                        </font><font color="#0000FF">RETURN </font>Eval<font color="#000080">(</font>part1<font color="#000080">) - </font>Eval<font color="#000080">(</font>part2<font color="#000080">)
+                    </font><font color="#0000FF">CASE </font><font color="#800080">&quot;+&quot;
+                        </font><font color="#0000FF">RETURN </font>Eval<font color="#000080">(</font>part1<font color="#000080">) + </font>Eval<font color="#000080">(</font>part2<font color="#000080">)
+                    </font><font color="#0000FF">CASE </font><font color="#800080">&quot;/&quot;
+                        </font><font color="#0000FF">RETURN </font>Eval<font color="#000080">(</font>part1<font color="#000080">) / </font>Eval<font color="#000080">(</font>part2<font color="#000080">)
+                    </font><font color="#0000FF">CASE </font><font color="#800080">&quot;*&quot;
+                        </font><font color="#0000FF">RETURN </font>Eval<font color="#000080">(</font>part1<font color="#000080">) * </font>Eval<font color="#000080">(</font>part2<font color="#000080">)
+                    </font><font color="#0000FF">CASE </font><font color="#800080">&quot;^&quot;
+                        </font><font color="#0000FF">RETURN </font>Eval<font color="#000080">(</font>part1<font color="#000080">) ^ </font>Eval<font color="#000080">(</font>part2<font color="#000080">)
+                    </font><font color="#0000FF">CASE </font><font color="#800080">&quot;E&quot;
+                        </font><font color="#0000FF">RETURN </font>Eval<font color="#000080">(</font>part1<font color="#000080">) * </font><b>10</b> <font color="#000080">^ </font>Eval<font color="#000080">(</font>part2<font color="#000080">)
+                </font><font color="#0000FF">ENDSELECT
+            ENDIF
+            
+            </font><font color="#008000"><b><i>'the found operator was no operator,
+</i></b>            <b><i>'search if there is another operator before this one
+</i></b>            </font><font color="#0000FF">IF </font>pos<font color="#000080">&gt;</font><b>0</b> <font color="#0000FF">THEN </font>pos<font color="#000080">=</font>instrP<font color="#000080">(</font><font color="#0000FF">UCASE$</font><font color="#000080">(</font>expr<font color="#000080">), </font>operator<font color="#000080">, </font>pos<font color="#000080">-</font><b>1</b><font color="#000080">)
+        </font><font color="#0000FF">WEND
+    NEXT </font>n
+    
+    <font color="#008000"><b><i>'check if the expression starts and ends with parentheses
+</i></b>    </font><font color="#0000FF">IF LEFT$</font><font color="#000080">(</font>expr<font color="#000080">,</font><b>1</b><font color="#000080">)=</font><font color="#800080">&quot;(&quot; </font><font color="#0000FF">AND RIGHT$</font><font color="#000080">(</font>expr<font color="#000080">,</font><b>1</b><font color="#000080">)=</font><font color="#800080">&quot;)&quot;
+        </font><font color="#008000"><b><i>'remove parentheses at start and end of the expression,
+</i></b>        <b><i>'for example &quot;(2+3)&quot; -&gt; &quot;2+3&quot;
+</i></b>        </font>expr <font color="#000080">= </font><font color="#0000FF">MID$</font><font color="#000080">(</font>expr<font color="#000080">,</font><b>2</b><font color="#000080">,</font><font color="#0000FF">LEN</font><font color="#000080">(</font>expr<font color="#000080">)-</font><b>2</b><font color="#000080">)
+        </font><font color="#0000FF">RETURN </font>Eval<font color="#000080">(</font>expr<font color="#000080">)
+    </font><font color="#0000FF">ENDIF
+    
+    </font><font color="#008000"><b><i>'there are no more operators left in the expression, and the
+</i></b>    <b><i>'expression is not solved yet so the expression must be a value
+</i></b>    <b><i>'return the value
+</i></b>    </font><font color="#0000FF">RETURN VAL</font><font color="#000080">(</font>expr<font color="#000080">)
+</font><font color="#0000FF">ENDSUB
+
+</font><font color="#008000"><b><i>'_____________________________________________________________________
+</i></b></font><font color="#0000FF">SUB </font>instrP<font color="#000080">(</font>source<font color="#000080">:</font><font color="#FF0000">STRING</font><font color="#000080">, </font>search<font color="#000080">:</font><font color="#FF0000">STRING</font><font color="#000080">, </font>start<font color="#000080">:</font><font color="#FF0000">INT</font><font color="#000080">), </font><font color="#FF0000">INT
+    </font><font color="#008000"><b><i>'this sub searches for the LAST string search in the string
+</i></b>    <b><i>'source, reverse of the function instr(). The sub returns 0 if
+</i></b>    <b><i>'the search could not be found. Also this function neglects
+</i></b>    <b><i>'content between parenthesis () in source
+</i></b>    </font><font color="#FF0000">INT </font>n<font color="#000080">, </font>bopen<font color="#000080">, </font>bclose
+    <font color="#FF0000">STRING </font>sign
+    
+    n<font color="#000080">=</font>start
+    <font color="#0000FF">IF </font>n<font color="#000080">&gt;</font><font color="#0000FF">LEN</font><font color="#000080">(</font>source<font color="#000080">) </font><font color="#0000FF">THEN </font>n<font color="#000080">=</font><font color="#0000FF">LEN</font><font color="#000080">(</font>source<font color="#000080">)-</font><font color="#0000FF">LEN</font><font color="#000080">(</font>search<font color="#000080">)+</font><b>1
+</b>    bopen<font color="#000080">=</font><b>0</b>     <font color="#000080">:</font><font color="#008000"><b><i>'number of parenthesis open (
+</i></b>    </font>bclose<font color="#000080">=</font><b>0</b>    <font color="#000080">:</font><font color="#008000"><b><i>'number of parenthesis close )
+</i></b>    </font><font color="#0000FF">DO
+        </font>sign <font color="#000080">= </font><font color="#0000FF">MID$</font><font color="#000080">(</font>source<font color="#000080">, </font>n<font color="#000080">, </font><font color="#0000FF">LEN</font><font color="#000080">(</font>search<font color="#000080">))
+        </font><font color="#008000"><b><i>'if search is found and outside parentheses then return n
+</i></b>        </font><font color="#0000FF">IF </font><font color="#000080">(</font>sign<font color="#000080">=</font>search<font color="#000080">) </font><font color="#0000FF">AND </font><font color="#000080">(</font>bopen<font color="#000080">=</font>bclose<font color="#000080">) </font><font color="#0000FF">THEN RETURN </font>n
+        <font color="#0000FF">IF LEFT$</font><font color="#000080">(</font>sign<font color="#000080">,</font><b>1</b><font color="#000080">)=</font><font color="#800080">&quot;(&quot; </font><font color="#0000FF">THEN </font>bopen<font color="#000080">++
+        </font><font color="#0000FF">IF LEFT$</font><font color="#000080">(</font>sign<font color="#000080">,</font><b>1</b><font color="#000080">)=</font><font color="#800080">&quot;)&quot; </font><font color="#0000FF">THEN </font>bclose<font color="#000080">++
+        </font>n<font color="#000080">--
+    </font><font color="#0000FF">UNTIL </font><font color="#000080">(</font>n <font color="#000080">&lt;= </font><b>0</b><font color="#000080">)
+    
+    </font><font color="#008000"><b><i>'if the string search is not found, then return 0
+</i></b>    </font><font color="#0000FF">RETURN </font><b>0
+</b><font color="#0000FF">ENDSUB
+
+</font><font color="#008000"><b><i>'_______________________________________________________________
+</i></b></font><font color="#0000FF">SUB </font>isOperator<font color="#000080">(</font>expr<font color="#000080">:</font><font color="#FF0000">STRING</font><font color="#000080">, </font>op<font color="#000080">:</font><font color="#FF0000">CHAR</font><font color="#000080">, </font>n<font color="#000080">:</font><font color="#FF0000">INT</font><font color="#000080">), </font><font color="#FF0000">INT
+    </font><font color="#008000"><b><i>'This sub checks of the operator at postion n in expr is a
+</i></b>    <b><i>'legal operator. For example the &quot;+&quot; in &quot;2.3E+3&quot; is no operator,
+</i></b>    <b><i>'and the &quot;-&quot; in &quot;3 * -2.5&quot; is no operator but a unary minus
+</i></b>    </font><font color="#FF0000">STRING </font>sign
+    
+    <font color="#0000FF">IF </font>op<font color="#000080">=</font><font color="#800080">&quot;+&quot;
+        </font><font color="#0000FF">IF UCASE$</font><font color="#000080">(</font><font color="#0000FF">MID$</font><font color="#000080">(</font>expr<font color="#000080">,</font>n<font color="#000080">-</font><b>1</b><font color="#000080">,</font><b>1</b><font color="#000080">))=</font><font color="#800080">&quot;E&quot;
+            </font><font color="#0000FF">IF </font>n<font color="#000080">&gt;</font><b>2
+</b>                <font color="#0000FF">IF INSTR</font><font color="#000080">(</font><font color="#800080">&quot;1234567890.&quot;</font><font color="#000080">, </font><font color="#0000FF">MID$</font><font color="#000080">(</font>expr<font color="#000080">,</font>n<font color="#000080">-</font><b>2</b><font color="#000080">,</font><b>1</b><font color="#000080">))&gt;</font><b>0
+</b>                    <font color="#008000"><b><i>'for example &quot;2.52E+4&quot;
+</i></b>                    </font><font color="#0000FF">RETURN </font><font color="#FF8000">FALSE
+                </font><font color="#0000FF">ENDIF
+            ENDIF
+        ENDIF
+        <font color="#0000FF">RETURN </font><font color="#FF8000">TRUE</font>
+    ENDIF
+    
+    IF </font>op<font color="#000080">=</font><font color="#800080">&quot;-&quot;
+        </font><font color="#0000FF">IF </font>n<font color="#000080">=</font><b>1
+</b>            <font color="#008000"><b><i>'this is an unary minus, at the first position of the expr
+</i></b>            <b><i>'for example &quot;-3.4 / 6&quot;
+</i></b>            </font><font color="#0000FF">RETURN </font><font color="#FF8000">FALSE
+        </font><font color="#0000FF">ELSE
+            </font><font color="#008000"><b><i>'check for an unary minus (for example 2*-3  or  2.5E-6)
+</i></b>            <b><i>'check the characters before the minus
+</i></b>            </font>sign <font color="#000080">= </font><font color="#0000FF">LEFT$</font><font color="#000080">(</font>expr<font color="#000080">,</font>n<font color="#000080">-</font><b>1</b><font color="#000080">)
+            </font>sign <font color="#000080">= </font><font color="#0000FF">RIGHT$</font><font color="#000080">(</font><font color="#0000FF">RTRIM$</font><font color="#000080">(</font>sign<font color="#000080">),</font><b>1</b><font color="#000080">)
+            </font><font color="#0000FF">IF INSTR</font><font color="#000080">(</font><font color="#800080">&quot;+-/*^&quot;</font><font color="#000080">, </font>sign<font color="#000080">)&gt;</font><b>0
+</b>                <font color="#008000"><b><i>'For example &quot;3.5 * -2&quot;
+</i></b>                </font><font color="#0000FF">RETURN </font><font color="#FF8000">FALSE
+            </font><font color="#0000FF">ENDIF
+            IF UCASE$</font><font color="#000080">(</font><font color="#0000FF">MID$</font><font color="#000080">(</font>expr<font color="#000080">,</font>n<font color="#000080">-</font><b>1</b><font color="#000080">,</font><b>1</b><font color="#000080">))=</font><font color="#800080">&quot;E&quot; </font><font color="#0000FF">AND </font>n<font color="#000080">&gt;</font><b>2
+</b>                <font color="#0000FF">IF INSTR</font><font color="#000080">(</font><font color="#800080">&quot;1234567890.&quot;</font><font color="#000080">, </font><font color="#0000FF">MID$</font><font color="#000080">(</font>expr<font color="#000080">,</font>n<font color="#000080">-</font><b>2</b><font color="#000080">,</font><b>1</b><font color="#000080">))&gt;</font><b>0
+</b>                    <font color="#008000"><b><i>'for example &quot;2.3E-4&quot;
+</i></b>                    </font><font color="#0000FF">RETURN </font><font color="#FF8000">FALSE
+                </font><font color="#0000FF">ENDIF
+            ENDIF
+        ENDIF
+        <font color="#0000FF">RETURN </font><font color="#FF8000">TRUE</font>
+    ENDIF
+    
+    </font><font color="#008000"><b><i>'no problems found, the operator is indeed an operator.
+</i></b>    </font><font color="#0000FF">RETURN </font><font color="#FF8000">TRUE
+</font><font color="#0000FF">ENDSUB
+</font>
+<pre></div>
+<!-- Example3 - END -->
+
+<br>
+<br>
+<div class="bottom"></div>
+<font face="verdana" size=-2>Copyright © 2006 <a href="http://www.speqmath.com" style="text-decoration:none;" TARGET="_blank">SpeQ Mathematics</a></font><br>
+<br>
+
+</div>
+</body>
+</html>

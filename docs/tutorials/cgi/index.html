@@ -1,0 +1,123 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=windows-1250">
+  <meta name="generator" content="PSPad editor, www.pspad.com">
+  <title>CGI Tutorial</title>
+  <link rel="stylesheet" href="layout.css">
+</head>
+<body>
+
+<h1>CGI programming on Linux</h1>
+<p>
+Here a short tutorial on CGI programming.
+</p>
+
+<h2>1. Write a program</h2>
+<p>
+Write the following c++ program, and save it as helloname.cpp in the folder /cgi-bin/ on your site. In this program the GET parameter of the url are filled in in the string data. With the function sscanf the parameter value is gathered.
+</p>
+<p>
+<b>File: helloname.cpp</b>
+<div class="code"><code><pre>/**
+Hello name! CGI application written with C++
+
+You can provide a parameter to the program by entering an url like
+   http://www.mysite.com/cgi-bin/helloname.cgi?name=jos
+The program will output:
+   Hello, jos!
+
+Documentation on CGI programming with C++:
+   http://www.cs.tut.fi/~jkorpela/forms/cgic.html
+   http://www.yolinux.com/TUTORIALS/LinuxTutorialC++CGI.html
+   http://www.linuxjournal.com/article/6863
+*/
+
+#include <cstdlih2>
+#include <cstdio>
+
+using namespace std;
+
+int main(int argc, char *argv[])
+{
+  // tell the server what kind of content you are sending
+  printf("Content-Type: text/html\n\n");
+
+  // get data.
+  // the data is posted in an url like:
+  //   http://www.mysite.com/cgi-bin/helloname.cgi?name=jos
+  char* data = getenv("QUERY_STRING");
+  if (data != 0)
+  {
+    // now get the entered name from the data.
+    // if you have multiple parameters you can get something like:
+    //    char name[255] = "";
+    //    int age = 0;
+    //    if(sscanf(data,"age=%d&name=254s", &age, &name) == 2)
+    //    ...
+    // (Important: when using sscanf with strings, only the last parameter
+    // can may be a string, as there is no space after the string and the string
+    // will thus be identified wrongly!)
+
+    char name[255] = "";
+    if(sscanf(data,"name=%254s", &name) == 1)
+    {
+      // print something on the screen
+      // you can make a complete html file here.
+      printf("Hello, %s!\n", name);
+    }
+    else
+    {
+      printf("Error: Invalid data. Data must be a string.\n");
+    }
+  }
+  else
+  {
+    printf("Error: No name provided.\n");
+  }
+
+  return EXIT_SUCCESS;
+}
+</pre></code></div>
+</p>
+
+<h2>2. Compile the program</h2>
+<p>
+To compile the program, write a bash script and name it helloname_compile.sh, and save this in the folder /cgi-bin/ too. Give the file permissions 755 (so it can be executed), as explained earlier.
+</p>
+<p>
+<b>File: helloname_compile.sh</b>
+<div class="code"><code><pre>
+#!/bin/sh
+
+echo "Content-type: text/html"
+echo ""
+
+# compile the program
+g++ -O helloname.cpp -o helloname.cgi
+
+# show some info on the screen
+echo "Compiling finished.<br>"
+echo "&lt;a href='helloname.cgi?name=jos'&gt;Click here&lt;/a&gt; to run the program."
+</pre></code></div>
+
+Now you can compile the program by opening the url<br>
+<div class="code"><code><pre>
+http://www.yoursite.com/cgi-bin/helloname_compile.sh
+</pre></code></div>
+
+If everything is correct, a program named helloname.cgi is now created in your cgi-bin folder.
+</p>
+
+<h2>3. Run the program</h2>
+<p>
+To run the program, open the url
+<div class="code"><code><pre>
+http://www.yoursite.com/cgi-bin/helloname.cgi?name=jos
+</pre></code></div>
+
+where you can fill in your own name of course. The program should give output "Hello, jos!".
+</p>
+
+</body>
+</html>

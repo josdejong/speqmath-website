@@ -1,0 +1,19 @@
+SUB evalLine(expression:STRING), STRING
+    'this sub evaluates the expression and returns a string that
+    'can contain the answer or an (error) message. The expression
+    'may contain values, operators + - * / ^ E and parentheses ( )
+    DOUBLE ans
+    MESSAGE msg
+
+    'make the error message empty (ready for use)
+    errClear(msg)
+
+    'evaluate the expression
+    ans = eval(expression, msg)
+
+    'return (error) message if not empty
+    IF msg.t<>MSG_EMPTY THEN RETURN msg.desc
+
+    'if no error occured, return the answer
+    RETURN "Ans = " + USING("#.#####", ans)
+ENDSUB

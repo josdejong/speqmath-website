@@ -1,0 +1,22 @@
+SUB isValue(value:STRING), INT
+    'This sub checks if value is a legal value. if so, returns True.
+    'If not, returns False
+    INT i
+    STRING sign
+
+    FOR i=1 TO LEN(value)
+        'check each character one by one
+        sign = UCASE$(MID$(value,i,1))
+
+        'check for legal signs in the string
+        IF INSTR("1234567890.-", sign)=0 THEN RETURN FALSE
+
+        'check if there is max. 1 point in the string
+        IF sign="." THEN IF INSTR(value,".",i+1)>0 THEN RETURN FALSE
+
+        'check for correct use of minus: only at position 1
+        IF sign="-" THEN IF i<>1 THEN RETURN FALSE
+    NEXT i
+
+    RETURN TRUE
+ENDSUB

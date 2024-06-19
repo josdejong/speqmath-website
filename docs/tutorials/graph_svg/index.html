@@ -1,0 +1,45 @@
+<html>
+<head>
+  <title>SVG Graph demo</title>
+  <script type="text/javascript">
+    function apply()
+    {
+      document.getElementById('graph').src = 
+        "graph.svg?" +
+        "func=" + document.getElementById('function').value + 
+        "&var=" + document.getElementById('variable').value;
+      
+        // TODO: does not yet work in Chrome
+    }
+  </script>
+  <style>
+    body {font-family: verdana; font-size:10pt;}
+  </style>
+</head>
+
+<body>
+  <h1>SVG Graph demo</h1>
+  <p>
+  This demo shows how to make a dragable graph using SVG.
+  </p>
+  <p>
+  You can find an extensive SVG tutorial here: 
+  <a href="https://developer.mozilla.org/en/SVG/Tutorial" target="_blank">SVG Tutorial</a>.
+  </p>
+  <p>
+    Function <input type="text" id="function" value="sin(x*2)*abs(x)/3">
+    Variable <input type="text" id="variable" value="x" size=3> 
+    <input type="button" value="Apply" onclick="apply();">
+  </p>
+  <p>
+  Drag the graph around to move it.
+  </p>
+  <embed src="graph.svg?func=sin(x*2)*abs(x)/3&var=x" 
+         id="graph"
+         type="image/svg+xml" 
+         width=400
+         height=400 
+         style="border:1px solid black;" /><br>
+
+</body>
+</html>

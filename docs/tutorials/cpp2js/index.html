@@ -1,0 +1,184 @@
+<DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"> 
+<html> 
+<head> 
+  <meta name='author' content='Jos de Jong'> 
+  <title>Inline C++ functions in Javascript</title> 
+  
+  <style>
+    body {
+      width: 700px;
+      margin-bottom: 50px;
+    }
+    blockquote {
+      background-color: #F2F2F2;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Inline C++ functions in Javascript</h1>
+
+<p>
+Author: Jos de Jong, 2011<br>
+License: <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License, Version 2.0</a> 
+</p>
+
+<h2>Introduction</h2>
+<p>
+  cpp2js is a tool which allows you to embed native C++ 
+  methods inside javascript. The tool is able to compile and execute embedded
+  C++ code on the server side.
+</p>
+<p>
+  Defining and calling C++ methods can be done both via synchronous and 
+  asynchronous calls to the server.
+</p>
+
+<h2>Why?</h2>
+<p>
+There are various reasons why inline c++ code can be useful.
+<ul>
+  <li>Execute heavy calculations faster by compiling and running algorithms 
+  in native C++ on the server side.</li>
+  <li>Keep the client application responsive while performing heavy
+  calculations, by evaluating code asynchronous on the server side.</li>
+  <li>Computational requirements on the client side are low because the heavy
+  lifting can be done on the server side.</li>
+  <li>Perform calculations in parallel on the server side.</li>
+  <li>Total load of a web application can be reduced by caching results on the 
+  server side.</li>
+</ul>
+</p>
+
+<h2>Risks</h2>
+<p>
+Yes, this is very risky: allowing to compile and run <i>any</i> kind of code
+on the server via a client side call... (Well, there is <i>some</i> safety: 
+the limitations imposed by CGI)
+</p>
+<p style="color: red;">
+The tool cpp2js is just a concept and is not safe to use on the real world
+wide web. <b>Use this on your own risk</b>.
+</p>
+
+<h2>Requirements</h2>
+<p>
+<ul>
+  <li>CGI enabled webserver.</li>
+  <li>The CGI program <code>cpp2js</code> must be copied into the 
+  folder /cgi-bin/, and this program must have read and write rights in this 
+  folder.</li>
+  <li>The Javascript file <code>cpp2js.js</code> must be located somewhere
+  on the webserver, and must be included in the HTML page that wants to 
+  use inline C++ code.</li>
+</ul>  
+</p>  
+
+<h2>Download</h2>
+<p>Click the following link to download a zipped file containing 
+sourcecode, executable, examples, and documentation.</p>
+<p>
+<a href="cpp2js.tar.gz">cpp2js.tar.gz</a>
+</p>  
+
+
+
+<h2>Usage</h2>
+<p>
+To make it easy to use inline C++ code in your javascript, a method 
+<code>cpp2js(code {, callback})</code> is provided in the file cpp2js.js. 
+Include this file in your webpage:
+<blockquote>
+  <code>&lt;script type='text/javascript' src="cpp2js.js"&gt;&lt;/script&gt;</code>
+</blockquote>
+
+To create an inline c++ function, the function need to be defined. This can 
+be done in two ways: synchroneously or asynchronously (preferred).
+</p>
+
+<h3>Synchronous</h3>
+<p>
+Creating a function in a synchronous way. This is <i>not</i> the preferred usage,
+as the browser will be blocked while a call to the server is being made, i.e.
+during compilation of the code and during evaluation of a function.
+<blockquote>
+  <code><pre>var code = "double sum(double a, double b) {return a+b;}";
+var sum = cpp2js(code);    // compile the code on the server side
+var ans = sum(2.3, 6.2);   // evaluate on the server side, returns 8.5
+alert(ans);</pre></code>
+  </blockquote>
+
+See <a href="javascript: alert('Sorry, example is not enabled on this site.\n\nPlease download cpp2js and try it on your own (localhost) server');">cpp2js_example_synchroneous.html</a>
+for a fully working example.
+</p>
+
+<h3>Asynchronous</h3>
+<p>
+The best approach is to compile and evaluate inline c++ functions in an 
+asynchronous way. The browser will stay responsive while compiling and 
+evaluating code on the server side.
+
+<blockquote>
+  <code><pre>var code = "double sum(double a, double b) {return a+b;}";
+
+function evaluateCallback(ans) {
+  alert(ans);
+}
+
+function compileCallback(factorial, error) {
+  if (factorial != undefined) {
+    factorial(2.3, 6.2, evaluateCallback); // evaluate on the server side
+  }
+  else 
+    alert(error);
+}
+cpp2js(code, compileCallback); // compile the code on the server side</pre></code>
+</blockquote>
+
+See <a href="javascript: alert('Sorry, example is not enabled on this site.\n\nPlease download cpp2js and try it on your own (localhost) server');">cpp2js_example_asynchroneous.html</a>
+for a fully working example.
+</p>
+
+
+<h2>How does it work?</h2>
+
+<p>
+The GCI program <b>cpp2js</b> can be called with the code of a c++ 
+function as argument in the url, for example:
+<blockquote>
+ <code>/cgi-bin/cpp2js?double sum(double a, double b) {return a+b;}</code> 
+</blockquote>
+<b>cpp2js</b> parses the function and creates 
+a compilable c++ program from it. This code is
+compiled and stored as a standalone executable in the same folder as the 
+program <b>cpp2js</b> itself. 
+The compiled code gets a name cpp2js_xxx.cgi, where xxx is the MD5 hash
+of the code. This name is thus uniquely determined from the provided code.
+Before compiling code, <b>cpp2js</b> checks if this code is already
+compiled before, and if so, does not compile again but directly returns the
+result. So, only the first time a request with some specific code is made, 
+the processing actually takes some time. 
+</p>
+
+<p>
+In the case of the above example, <b>cpp2js</b> returns the following
+filename for the compiled code:
+<blockquote>
+ <code>cpp2js_e6c9eb22819190965f64f46ffd2490b6</code> 
+</blockquote>     
+From now on, this name can be used as url to execute the compiled function. 
+The function parameters are passed in the url.
+For example:
+<blockquote>
+  <code>/cgi-bin/cpp2js_e6c9eb22819190965f64f46ffd2490b6?a=2.1&amp;b=4.5</code> 
+</blockquote>
+Which returns:
+<blockquote>
+  <code>6.600000</code> 
+</blockquote>
+ Note that all special characters in parameter values should be encoded 
+ (space, &amp;, etc.).
+</p>
+
+</body>
+</html>

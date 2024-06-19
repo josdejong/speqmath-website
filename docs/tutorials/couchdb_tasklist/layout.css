@@ -1,0 +1,34 @@
+body {
+  font:10pt verdana;
+  font-family: verdana, arial;
+}
+
+h1 {
+  font: bold 18pt verdana;
+  font-family: verdana, arial;
+  margin: 0px;
+}
+
+div.content {
+  width:680;
+}
+
+li {
+  margin-bottom: 10px;
+}
+
+th, td {
+  font:10pt verdana;
+  text-align: left;
+  vertical-align: top;
+  border: 1px solid black;
+  padding: 5px;
+}
+th {
+  font-weight: bold;
+  background-color: #C3DFFF;
+}
+
+table {
+  border-collapse: collapse;
+}

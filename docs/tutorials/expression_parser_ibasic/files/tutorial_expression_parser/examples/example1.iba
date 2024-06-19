@@ -1,0 +1,60 @@
+/*
+Recursive expression parser, Example 1.
+Written with IBasic Professional
+By Jos de Jong, may 2006
+
+Supports expressions with additions
+*/
+AUTODEFINE "Off"
+DEF inputexpr:STRING
+
+OPENCONSOLE
+
+'print some examples of expressions with their answers
+PRINT "Examples:"
+PRINT "2 + 3 = ", Eval("2 + 3")
+PRINT "2 + 3 + 4 + 5 = ", Eval("2 + 3 + 4 + 5")
+PRINT "2.5 + 3.25 = ", Eval("2.5 + 3.25")
+
+PRINT ""
+PRINT "Enter an expression and press Enter to calculate it."
+PRINT "Enter an empty expression to quit"
+DO
+    'ask the user to enter an expression. After this the expression
+    'will be evaluated and the answer will be printed
+    INPUT ">>", inputexpr
+    IF RTRIM$(inputexpr)<>""
+        PRINT "    Ans = ", Eval(inputexpr)
+    ENDIF
+UNTIL RTRIM$(inputexpr)=""
+
+'end the program
+CLOSECONSOLE
+END
+
+'_____________________________________________________________________
+SUB Eval(Expression:STRING), DOUBLE
+    DEF pos:INT
+    DEF expr:STRING
+    DEF part1, part2:STRING
+    
+    'remove spaces at start and end of the expression
+    expr = LTRIM$(RTRIM$(Expression))
+    
+    'search for an operator
+    pos = INSTR(expr, "+")
+    IF pos
+        'there is an operator found at position pos. Split up the
+        'expression in two parts and calculate the result of that two
+        'parts. Then calculate the result for the complete expression.
+        part1 = LEFT$(expr, pos-1)
+        part2 = RIGHT$(expr, LEN(expr)-pos)
+        
+        'calculate the result and return the answer
+        RETURN Eval(part1) + Eval(part2)
+    ENDIF
+
+    'there are no more operators left in the expression. so the
+    'expression must be a value. return the value of the expression
+    RETURN VAL(expr)
+ENDSUB

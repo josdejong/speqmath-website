@@ -1,0 +1,9 @@
+SUB errSet(msg:MESSAGE, newType:INT, newMessage:STRING)
+    'if msg is empty, then fill in the new type and message.
+    'don't overwrite an existing message
+    IF msg.t = MSG_EMPTY
+        msg.t = newType
+        msg.desc = newMessage
+    ENDIF
+    RETURN
+ENDSUB

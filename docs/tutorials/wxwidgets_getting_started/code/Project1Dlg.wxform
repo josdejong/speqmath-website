@@ -1,0 +1,134 @@
+object frmNewForm: TfrmNewForm
+  Left = 8
+  Top = 8
+  AutoScroll = False
+  BorderIcons = [biSystemMenu, biMinimize]
+  Caption = 'Project1'
+  ClientHeight = 300
+  ClientWidth = 312
+  Color = clBtnFace
+  OldCreateOrder = True
+  PopupMenu = MainForm.DesignerPopup
+  Visible = True
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnResize = FormResize
+  EVT_CLOSE = 'OnClose'
+  Wx_ICON.Data = {07544269746D617000000000}
+  Wx_Name = 'Project1Dlg'
+  Wx_IDName = 'ID_DIALOG1'
+  Wx_IDValue = 1000
+  Wx_Class = 'wxDialog'
+  Wx_Center = True
+  Wx_Hidden = False
+  Wx_SizeToContents = True
+  Wx_GeneralStyle = []
+  Wx_DialogStyle = [wxCAPTION, wxSYSTEM_MENU, wxDIALOG_NO_PARENT, wxMINIMIZE_BOX, wxCLOSE_BOX]
+  Wx_Border = 0
+  Wx_BorderAlignment = []
+  PixelsPerInch = 96
+  TextHeight = 13
+  object WxStaticText1: TWxStaticText
+    Left = 16
+    Top = 20
+    Width = 31
+    Height = 17
+    Caption = 'Name'
+    TabOrder = 0
+    Wx_BGColor = clBlack
+    Wx_Class = 'wxStaticText'
+    Wx_ControlOrientation = wxControlVertical
+    Wx_FGColor = clBlack
+    Wx_GeneralStyle = []
+    Wx_Hidden = False
+    Wx_IDName = 'ID_WXSTATICTEXT1'
+    Wx_IDValue = 1001
+    Wx_LabelStyle = []
+  end
+  object lblAge: TWxStaticText
+    Left = 16
+    Top = 49
+    Width = 23
+    Height = 17
+    Caption = 'Age'
+    TabOrder = 1
+    Wx_BGColor = clBlack
+    Wx_Class = 'wxStaticText'
+    Wx_ControlOrientation = wxControlVertical
+    Wx_FGColor = clBlack
+    Wx_GeneralStyle = []
+    Wx_Hidden = False
+    Wx_IDName = 'ID_LBLAGE'
+    Wx_IDValue = 1002
+    Wx_LabelStyle = []
+  end
+  object txtName: TWxEdit
+    Left = 65
+    Top = 18
+    Width = 200
+    Height = 20
+    BevelInner = bvNone
+    BevelOuter = bvNone
+    Modified = False
+    AutoSize = False
+    TabOrder = 2
+    Text = '<enter your name here>'
+    Wx_BGColor = clBlack
+    Wx_Class = 'wxTextCtrl'
+    Wx_ControlOrientation = wxControlVertical
+    Wx_EditStyle = []
+    Wx_FGColor = clBlack
+    Wx_GeneralStyle = []
+    Wx_Hidden = False
+    Wx_IDName = 'ID_TXTNAME'
+    Wx_IDValue = 1003
+    Wx_MaxLength = 0
+  end
+  object txtAge: TWxEdit
+    Left = 65
+    Top = 48
+    Width = 200
+    Height = 20
+    BevelInner = bvNone
+    BevelOuter = bvNone
+    Modified = False
+    AutoSize = False
+    TabOrder = 3
+    Text = '<enter your age here>'
+    Wx_BGColor = clBlack
+    Wx_Class = 'wxTextCtrl'
+    Wx_ControlOrientation = wxControlVertical
+    Wx_EditStyle = []
+    Wx_FGColor = clBlack
+    Wx_GeneralStyle = []
+    Wx_Hidden = False
+    Wx_IDName = 'ID_TXTAGE'
+    Wx_IDValue = 1004
+    Wx_MaxLength = 0
+  end
+  object btnClick: TWxButton
+    Left = 141
+    Top = 85
+    Width = 125
+    Height = 25
+    Caption = 'Click here'
+    TabOrder = 4
+    EVT_BUTTON = 'btnClickClick'
+    Wx_BKColor = clBlack
+    Wx_ButtonStyle = []
+    Wx_Class = 'wxButton'
+    Wx_ControlOrientation = wxControlVertical
+    Wx_Default = False
+    Wx_EventList.Strings = (
+      'EVT_BUTTON:OnClick'
+      'EVT_UPDATE_UI:OnUpdateUI')
+    Wx_FGColor = clBlack
+    Wx_GeneralStyle = []
+    Wx_Hidden = False
+    Wx_IDName = 'ID_BTNCLICK'
+    Wx_IDValue = 1006
+    Wx_Height = 25
+    Wx_Width = 125
+  end
+end

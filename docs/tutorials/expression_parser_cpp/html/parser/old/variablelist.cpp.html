@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Untitled</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="generator" content="SynEdit HTML exporter" />
+<style type="text/css">
+<!--
+body { color: #000000; background-color: #FFFFFF; }
+.cpp1-assembler { }
+.cpp1-character { }
+.cpp1-comment { color: #000080; font-style: italic; }
+.cpp1-float { color: #800040; }
+.cpp1-hexadecimal { color: #800040; }
+.cpp1-identifier { }
+.cpp1-illegalchar { }
+.cpp1-number { color: #800040; }
+.cpp1-octal { color: #800040; }
+.cpp1-preprocessor { color: #008000; }
+.cpp1-reservedword { font-weight: bold; }
+.cpp1-space { color: #008080; }
+.cpp1-string { color: #FF0000; }
+.cpp1-symbol { }
+-->
+</style>
+</head>
+<body>
+<pre>
+<code><span style="font: 10pt Courier New;">
+<span class="cpp1-preprocessor">#include &quot;variablelist.h&quot;
+
+</span><span class="cpp1-comment">/*
+ * Returns true if the given name already exists in the variable list
+ */
+</span><span class="cpp1-reservedword">bool</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Variablelist::exist(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">char</span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">name)
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(get_id(name)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">!=</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-</span><span class="cpp1-number">1</span><span class="cpp1-symbol">);
+}
+
+
+</span><span class="cpp1-comment">/*
+ * Add a name and value to the variable list
+ */
+</span><span class="cpp1-reservedword">bool</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Variablelist::add(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">char</span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">name,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">value)
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">VAR</span><span class="cpp1-space"> </span><span class="cpp1-identifier">new_var;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">strncpy(new_var.name,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">name,</span><span class="cpp1-space"> </span><span class="cpp1-number">30</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">new_var.value</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">value;
+
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">get_id(name);
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-</span><span class="cpp1-number">1</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-comment">// variable does not yet exist
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">var.push_back(new_var);
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">else
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-comment">// variable already exists. overwrite it
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">var[id]</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">new_var;
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">true</span><span class="cpp1-symbol">;
+}
+
+</span><span class="cpp1-comment">/*
+ * Delete given variablename from the variable list
+ */
+</span><span class="cpp1-reservedword">bool</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Variablelist::del(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">char</span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">name)
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">get_id(name);
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">!=</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-</span><span class="cpp1-number">1</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">var[id]</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">var[var.size()-</span><span class="cpp1-number">1</span><span class="cpp1-symbol">];</span><span class="cpp1-space"> </span><span class="cpp1-comment">// move last item to deleted item
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">var.pop_back();</span><span class="cpp1-space">              </span><span class="cpp1-comment">// remove last item
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">true</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">false</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> 
+</span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-comment">/*
+ * Get value of variable with given name
+ */
+</span><span class="cpp1-reservedword">bool</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Variablelist::get_value(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">char</span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">name,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">value)
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">get_id(name);
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">!=</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-</span><span class="cpp1-number">1</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">*value</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">var[id].value;
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">true</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">false</span><span class="cpp1-symbol">;
+}
+
+
+</span><span class="cpp1-comment">/*
+ * Get value of variable with given id
+ */
+</span><span class="cpp1-reservedword">bool</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Variablelist::get_value(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">id,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">value)
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&gt;=</span><span class="cpp1-number">0</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">var.size())
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">*value</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">var[id].value;
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">true</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">false</span><span class="cpp1-symbol">;
+}
+
+
+</span><span class="cpp1-reservedword">bool</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Variablelist::set_value(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">char</span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">name,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">value)
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">add(name,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">value);
+}
+
+</span><span class="cpp1-comment">/*
+ * Returns the id of the given name in the variable list. Returns -1 if name
+ * is not present in the list. Name is case insensitive
+ */
+</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Variablelist::get_id(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">char</span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">name)
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// first make the name uppercase
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">char</span><span class="cpp1-space"> </span><span class="cpp1-identifier">nameU[NAME_LEN_MAX+</span><span class="cpp1-number">1</span><span class="cpp1-symbol">];
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">char</span><span class="cpp1-space"> </span><span class="cpp1-identifier">varU[NAME_LEN_MAX+</span><span class="cpp1-number">1</span><span class="cpp1-symbol">];
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">toupper(nameU,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">name);
+</span><span class="cpp1-space">    
+    </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">i</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">i</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">var.size();</span><span class="cpp1-space"> </span><span class="cpp1-identifier">i++)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">toupper(varU,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">var[i].name);
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(strcmp(nameU,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">varU)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">            </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">i;
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-</span><span class="cpp1-number">1</span><span class="cpp1-symbol">;
+}
+
+
+</span><span class="cpp1-comment">/*
+ * str is copied to upper and made uppercase
+ * upper is the returned string
+ * str should be null-terminated
+ */
+</span><span class="cpp1-reservedword">void</span><span class="cpp1-space"> </span><span class="cpp1-identifier">toupper(</span><span class="cpp1-reservedword">char</span><span class="cpp1-space"> </span><span class="cpp1-identifier">upper[],</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">char</span><span class="cpp1-space"> </span><span class="cpp1-identifier">str[])
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">i</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-</span><span class="cpp1-number">1</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">do
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">i++;
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">upper[i]</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">toupper(str[i]);
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">while</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(str[i]</span><span class="cpp1-space"> </span><span class="cpp1-symbol">!=</span><span class="cpp1-space"> </span><span class="cpp1-character">'\0');
+
+}
+
+</span></span>
+</code></pre>
+</body>
+</html>

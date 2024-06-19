@@ -1,0 +1,13 @@
+TYPE MESSAGE        'this type can store an error message
+    INT t           'type of the error
+    STRING desc     'description of the error
+ENDTYPE
+
+'the following error types are available for error messages
+CONST MSG_EMPTY = 0
+CONST MSG_SYNTAXERROR = 1
+CONST MSG_DOMAINERROR = 2
+CONST MSG_INFO = 3
+CONST MSG_MEMERROR = 4
+CONST MSG_SYSTEMERROR = 5
+CONST MSG_OVERFLOW = 6

@@ -1,0 +1,207 @@
+<html>
+
+<head>
+  <title>CSV to Array</title>
+
+  <link rel="stylesheet" href="layout.css">
+  <script type="text/javascript" src="csv2array.js"></script>
+  
+  <link href="prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="prettify/prettify.js"></script>  
+  
+  <script type="text/javascript">
+    function get() {
+      // retrieve data
+      var data = document.getElementById("data").value;
+      
+      // convert data to array
+      var array = csv2array(data);
+
+      // convert the array back to a string
+      var arrayStr = "";
+      for (row = 0; row < array.length; row++) {
+        for (col = 0; col < array[row].length; col++) {
+          if (col > 0) {
+            arrayStr += ", ";
+          }
+          arrayStr += array[row][col];
+        }
+        arrayStr += "\n";
+      }
+      
+      // show the data in an alert
+      alert(arrayStr)
+    }
+  </script>
+</head>
+
+<body onload="prettyPrint();">
+
+<h1>CSV to Array</h1>
+
+<p>
+Convert data in CSV (comma separated value) format to a javascript array.
+</p>
+
+<p>
+Columns are separated by a comma or a custom delimeter.
+Rows are separated by a new line character "\n".
+Values can be enclosed by single quotes ' or double quotes ".
+Inside a quoted value, the escape character \ can be used.
+</p>
+
+<p>
+Note that this code can be easily ported to C++, Java, or your own favorite
+programming language.
+</p>
+
+<p>
+Author: Jos de Jong, 2010
+</p>
+
+<h2>Try it yourself</h2>
+<p>
+<textarea id="data" style="width: 400px; height: 240px;">
+"x", "y", "value"
+0, 0, 50
+0, 10.47, 50
+0, 20.93, 50
+0, 31.4, 50
+0, 41.87, 50
+0, 52.33, 50
+0, 62.8, 50
+0, 73.27, 50
+0, 83.73, 50
+0, 94.2, 50
+</textarea>
+</p>
+<p>
+<input type="button" value="Get Array from CSV" onclick="get();">
+</p>
+
+<h2>Sourcecode</h2>
+
+<p>
+You can download the sourcecode from <a href="csv2array.js"> here</a>, 
+or by copying the following code.
+</p>
+
+<p>
+<pre class="prettyprint lang-js">
+/**
+ * Convert data in CSV (comma separated value) format to a javascript array.
+ * Columns are separated by a comma or a custom delimeter.
+ * Rows are separated by a new line character "\n".
+ *
+ * Values can be enclosed by single quotes ' or double quotes ".
+ * Inside a quoted value, the escape character \ can be used.
+ *
+ * Example usage:
+ *   var csv = '"x", "y", "z"\n12.3, 2.3, 8.7\n4.5, 1.2, -5.6\n';
+ *   var array = csv2array(csv);
+ * 
+ * Author: Jos de Jong, 2010
+ * 
+ * @param {string} data      The data in CSV format.
+ * @param {string} delimeter [optional] a custom delimeter. Comma ',' by default
+ *                           The Delimeter must be a single character.
+ * @return {Array} array     A two dimensional array containing the data
+ */ 
+function csv2array(data, delimeter) {
+  // Retrieve the delimeter
+  if (delimeter == undefined) 
+    delimeter = ',';
+  if (delimeter && delimeter.length &gt; 1)
+    delimeter = ',';
+
+  // initialize variables
+  var newline = '\n';
+  var eof = '';
+  var i = 0;
+  var c = data.charAt(i);
+  var row = 0;
+  var col = 0;
+  var array = new Array();
+  
+  /**
+   * Set the pointer to the next character
+   */ 
+  var next = function() {
+    c = data.charAt(++i);
+  }
+  
+  while (c != eof) {
+    // skip whitespaces
+    while (c == ' ' || c == '\t') {
+      next();
+    }
+    
+    // get value
+    var value = "";
+    if (c == '\'') {
+      // value enclosed by single quotes
+      next();
+      while (c != eof && c != '\'') {
+        // check for escape character
+        if (c == '\\')
+          next();
+          
+        value += c;
+        next();
+      }      
+      next();
+    } 
+    else if (c == '\"') {
+      // value enclosed by double quotes
+      next();
+      while (c != eof && c != '\"') {
+        // check for escape character
+        if (c == '\\')
+          next();
+
+        value += c;
+        next();
+      }      
+      next();      
+    }
+    else {
+      // value without quotes
+      while (c != eof && c != delimeter && c!= newline && c != ' ' && c != '\t') {
+        value += c;
+        next();
+      }
+    }
+
+    // add the value to the array
+    if (array.length &lt;= row) 
+      array.push(new Array());
+    array[row].push(value);
+    
+    // skip whitespaces
+    while (c == ' ' || c == '\t') {
+      next();
+    }
+
+    // go to the next row or column
+    if (c == delimeter) {
+      // to the next column
+      col++;
+    }
+    else if (c == newline) {
+      // to the next row
+      col = 0;
+      row++;
+    }
+    else {
+      // eof reached
+    }
+    next();
+  }  
+  
+  return array;
+}
+</pre>
+
+</p>
+
+</body>

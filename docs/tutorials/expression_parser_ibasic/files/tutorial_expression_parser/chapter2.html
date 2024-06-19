@@ -1,0 +1,60 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Tutorial on how to create an expression parser -->
+<!-- Created by Jos de Jong, May 2006 -->
+<!-- wjosdejong@hotmail.com, www.speqmath.com -->
+
+<!-- Todo: add links to the sourcecode and executables of the examples, and a zipfile with everything -->
+
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=windows-1250">
+  <meta name="generator" content="PSPad editor, www.pspad.com">
+  <meta name="keywords" content="Tutorial, create, expression, parser, recursive, math, speq, ibasic">
+  <meta name="description" content="Tutorial on how to create an expression parser">
+  <link rel="stylesheet" href="layout.css">
+  <title>Chapter 2. Recursive parsing</title>
+  
+  <SCRIPT TYPE="text/javascript" SRC="events.js"></SCRIPT>
+</head>
+<body>
+<div class="content">
+
+<h2>2. Recursive parsing</h2>
+Ok, so how to analyse an expression?
+First of all you have to distinct between operators (like +, -, *, /, ^ and parentheses) and values.
+In the expressions below all operators are colored red, all values blue and the parentheses green:<br>
+"<font color="blue">2</font> <font color="red">*</font> <font color="blue">3</font> <font color="red">*</font> <font color="blue">4</font>"<br>
+"<font color="blue">2</font> <font color="red">*</font> <font color="green">(</font><font color="blue">3</font> <font color="red">*</font> <font color="blue">4</font><font color="green">)</font>"<br>
+"<font color="blue">4.2</font> <font color="red">*</font> <font color="green">(</font><font color="blue">2</font> <font color="red">*</font> <font color="blue">3.5</font><font color="green">)</font> <font color="red">^</font> <font color="blue">2</font>"<br>
+<br>
+You have to unravel the expression by taking in account the mathematical rules.
+In order to calculate for example "4.2 * (2 + 3.5) ^ 2" you get a recursive tree stucture as presented in figure 1.<br>
+<br>
+<div class="figure">
+  <img src="gfx/figure1.gif" alt="Recursive tree" border=1><br>
+  Figure 1: Recursive tree for calculating<br>the expression "4.2 * (2 + 3.5) ^ 2"
+</div>
+<br>
+In order to write a program routine that can evaluate an expression we will make an function called eval, that will be used recursively. The input for this function is a string that contains the expression. The output will be a double value containing the answer of the expression.<br>
+<br>
+
+<!-- Example 0 - START -->
+<div class="code"><pre>
+<font color="#0000FF">SUB </font>Eval<font color="#000080">(</font>expression<font color="#000080">:</font><font color="#FF0000">STRING</font><font color="#000080">), </font><font color="#FF0000">DOUBLE
+</font><font color="#0000FF">DEF </font>ans<font color="#000080">:</font><font color="#FF0000">DOUBLE
+
+</font>	<font color="#008000"><b><i>' ... code here ...
+
+</i></b></font>	<font color="#0000FF">RETURN </font>ans
+<font color="#0000FF">ENDSUB</font>
+</pre></div>
+<!-- Example 0 - END -->
+<br>
+<br>
+<div class="bottom"></div>
+<font face="verdana" size=-2>Copyright © 2006 <a href="http://www.speqmath.com" style="text-decoration:none;" TARGET="_blank">SpeQ Mathematics</a></font><br>
+<br>
+
+</div>
+</body>
+</html>

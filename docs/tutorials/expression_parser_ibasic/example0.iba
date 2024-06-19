@@ -1,0 +1,7 @@
+SUB Eval(expression:STRING), DOUBLE
+DEF ans:DOUBLE
+
+	' ... code here ...
+
+	RETURN ans
+ENDSUB

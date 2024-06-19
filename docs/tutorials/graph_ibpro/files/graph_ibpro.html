@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>graph_ibpro.iba</title>
+<meta http-equiv="Content-Type" content="text/html; charset=win-1251" />
+<meta name="generator" content="SynEdit HTML exporter" />
+<style type="text/css">
+<!--
+body { color: #000000; background-color: #FFFFFF; }
+.general1-comment { color: #008000; }
+.general1-id { color: #800000; }
+.general1-identifier { color: #000000; }
+.general1-internal { color: #000080; }
+.general1-number { color: #000000; }
+.general1-preprocessor { color: #FF0000; }
+.general1-reservedword { color: #000080; }
+.general1-space { }
+.general1-string { color: #800080; }
+.general1-symbol { color: #000080; }
+.general1-type { color: #FF0000; }
+.general1-udtype { color: #FF0000; }
+-->
+</style>
+</head>
+<body>
+<pre>
+<code><span style="font: 10pt Courier New;"><span class="general1-comment">' graph_ibpro.iba
+' by jos de jong, with help from the ibasic forums
+' ibasic pro code
+'
+' This graph demo shows how to draw graphs using low level Windows API
+' functions like MoveToEx, LineTo, TextOut. This results in very fast rendering.
+' To prevent the graph from flickering when redrawing, the graph is drawn in 
+' a bitmap in memory, and when ready it is copyied using BitBlt.
+'
+' http://www.catch22.net/tuts/flicker.asp
+' http://www.pyxia.com/community/viewtopic.php?t=7894
+' http://www.pyxia.com/community/viewtopic.php?t=10344
+
+'DECLARATIONS
+</span><span class="general1-internal">$INCLUDE</span><span class="general1-space"> </span><span class="general1-string">&quot;windows.inc&quot;
+</span><span class="general1-internal">DECLARE</span><span class="general1-space"> </span><span class="general1-internal">IMPORT,</span><span class="general1-space"> LoadCursor </span><span class="general1-internal">ALIAS</span><span class="general1-space"> LoadCursorA</span><span class="general1-symbol">(</span><span class="general1-identifier">hInstance </span><span class="general1-internal">AS</span><span class="general1-space"> </span><span class="general1-type">INT</span><span class="general1-symbol">,</span><span class="general1-identifier">lpCursorName </span><span class="general1-internal">AS</span><span class="general1-space"> </span><span class="general1-type">POINTER</span><span class="general1-symbol">),</span><span class="general1-type">INT
+</span><span class="general1-internal">DECLARE</span><span class="general1-space"> </span><span class="general1-internal">IMPORT,</span><span class="general1-space"> GetCursorPos</span><span class="general1-symbol">(</span><span class="general1-identifier">lppoint</span><span class="general1-symbol">:</span><span class="general1-type">POINTER</span><span class="general1-symbol">)
+DECLARE</span><span class="general1-space"> </span><span class="general1-internal">IMPORT,</span><span class="general1-space"> ScreenToClient</span><span class="general1-symbol">(</span><span class="general1-identifier">HWND</span><span class="general1-symbol">:</span><span class="general1-type">uint</span><span class="general1-symbol">,</span><span class="general1-space"> lppoint</span><span class="general1-symbol">:</span><span class="general1-type">POINTER</span><span class="general1-symbol">)</span><span class="general1-space"> 
+
+WINDOW figure</span><span class="general1-symbol">,</span><span class="general1-space"> plotwin
+</span><span class="general1-type">DOUBLE</span><span class="general1-space"> xmin</span><span class="general1-symbol">,</span><span class="general1-space"> xmax</span><span class="general1-symbol">,</span><span class="general1-space"> ymin</span><span class="general1-symbol">,</span><span class="general1-space"> ymax           	 </span><span class="general1-symbol">:</span><span class="general1-comment">'axes of the graphics screen
+</span><span class="general1-type">DOUBLE</span><span class="general1-space"> xfactor</span><span class="general1-symbol">,</span><span class="general1-space"> xshift</span><span class="general1-symbol">,</span><span class="general1-space"> yfactor</span><span class="general1-symbol">,</span><span class="general1-space"> yshift      </span><span class="general1-symbol">:</span><span class="general1-comment">'factors such that xscreen = x * xfactor + xshift and yscreen = y * yfactor + yshift
+
+</span><span class="general1-internal">DEF</span><span class="general1-space"> MouseDownL</span><span class="general1-symbol">,</span><span class="general1-space"> MouseDownR</span><span class="general1-symbol">,</span><span class="general1-space"> MouseStartX</span><span class="general1-symbol">,</span><span class="general1-space"> MouseStartY</span><span class="general1-symbol">:</span><span class="general1-type">INT
+</span><span class="general1-internal">CONST</span><span class="general1-space"> Black</span><span class="general1-symbol">=</span><span class="general1-number">0
+
+Figure_Load</span><span class="general1-symbol">()
+</span><span class="general1-identifier">Resize</span><span class="general1-symbol">()
+</span><span class="general1-identifier">Refresh_Scale</span><span class="general1-symbol">()
+</span><span class="general1-identifier">Plot_Graph</span><span class="general1-symbol">()
+WAITUNTIL</span><span class="general1-space"> figure</span><span class="general1-symbol">=</span><span class="general1-number">0
+</span><span class="general1-internal">END
+
+</span><span class="general1-comment">'_______________________________________________________________________
+</span><span class="general1-internal">SUB</span><span class="general1-space"> Figure_Load</span><span class="general1-symbol">()
+</span><span class="general1-comment">'load window figure with subwindow plotwin
+</span><span class="general1-space">   OPENWINDOW figure</span><span class="general1-symbol">,</span><span class="general1-space"> </span><span class="general1-symbol">-</span><span class="general1-number">600</span><span class="general1-symbol">,</span><span class="general1-number">100</span><span class="general1-symbol">,</span><span class="general1-number">500</span><span class="general1-symbol">,</span><span class="general1-number">400</span><span class="general1-symbol">,</span><span class="general1-space"> @MINBOX </span><span class="general1-symbol">|</span><span class="general1-space"> @MAXBOX </span><span class="general1-symbol">|</span><span class="general1-space"> @SIZE </span><span class="general1-symbol">|</span><span class="general1-space"> @NOAUTODRAW</span><span class="general1-symbol">,</span><span class="general1-space"> 0</span><span class="general1-symbol">,</span><span class="general1-space"> </span><span class="general1-string">&quot;Figure - Move by dragging mouse in window&quot;</span><span class="general1-symbol">,</span><span class="general1-space"> </span><span class="general1-symbol">&amp;</span><span class="general1-identifier">RoutineFigure
+   CENTERWINDOW figure
+
+   OPENWINDOW plotwin</span><span class="general1-symbol">,</span><span class="general1-space"> 0</span><span class="general1-symbol">,</span><span class="general1-number">0</span><span class="general1-symbol">,</span><span class="general1-number">200</span><span class="general1-symbol">,</span><span class="general1-number">200</span><span class="general1-symbol">,</span><span class="general1-space"> @NOCAPTION </span><span class="general1-symbol">|</span><span class="general1-space"> @NOAUTODRAW</span><span class="general1-symbol">,</span><span class="general1-space"> figure</span><span class="general1-symbol">,</span><span class="general1-space"> </span><span class="general1-string">&quot;plot&quot;</span><span class="general1-symbol">,</span><span class="general1-space"> </span><span class="general1-symbol">&amp;</span><span class="general1-identifier">RoutinePlotWin
+
+   </span><span class="general1-comment">'create this window with a sunken border
+</span><span class="general1-space">   _SetWindowLong</span><span class="general1-symbol">(</span><span class="general1-identifier">plotwin</span><span class="general1-symbol">.</span><span class="general1-identifier">hwnd</span><span class="general1-symbol">,-</span><span class="general1-number">20</span><span class="general1-symbol">,</span><span class="general1-number">512</span><span class="general1-symbol">)
+</span><span class="general1-space">   _SetWindowPos</span><span class="general1-symbol">(</span><span class="general1-identifier">plotwin</span><span class="general1-symbol">.</span><span class="general1-identifier">hwnd</span><span class="general1-symbol">,</span><span class="general1-identifier">NULL</span><span class="general1-symbol">,</span><span class="general1-number">0</span><span class="general1-symbol">,</span><span class="general1-number">0</span><span class="general1-symbol">,</span><span class="general1-number">0</span><span class="general1-symbol">,</span><span class="general1-number">0</span><span class="general1-symbol">,</span><span class="general1-number">39</span><span class="general1-symbol">)
+
+</span><span class="general1-space">   CfgSetDefault</span><span class="general1-symbol">()
+
+</span><span class="general1-space">   </span><span class="general1-internal">RETURN
+ENDSUB
+
+</span><span class="general1-comment">'_______________________________________________________________________
+</span><span class="general1-internal">SUB</span><span class="general1-space"> RoutineFigure</span><span class="general1-symbol">()
+</span><span class="general1-comment">'handling of messages from window figure
+
+</span><span class="general1-space">   </span><span class="general1-internal">SELECT</span><span class="general1-space"> </span><span class="general1-id">@MESSAGE
+</span><span class="general1-space">      </span><span class="general1-internal">CASE</span><span class="general1-space"> @IDCLOSEWINDOW
+         </span><span class="general1-comment">'close the figure window
+</span><span class="general1-space">         CLOSEWINDOW plotwin
+         CLOSEWINDOW figure      
+
+      </span><span class="general1-internal">CASE</span><span class="general1-space"> @IDSIZECHANGED
+         Resize</span><span class="general1-symbol">()
+</span><span class="general1-space">         Refresh_Scale</span><span class="general1-symbol">()
+</span><span class="general1-space">         Plot_Graph</span><span class="general1-symbol">()
+
+</span><span class="general1-space">   </span><span class="general1-internal">ENDSELECT
+</span><span class="general1-space">   </span><span class="general1-internal">RETURN
+ENDSUB
+
+</span><span class="general1-comment">'_______________________________________________________________________
+</span><span class="general1-internal">SUB</span><span class="general1-space"> RoutinePlotwin</span><span class="general1-symbol">()
+</span><span class="general1-comment">'handling of messages from window plotwin
+</span><span class="general1-space">   </span><span class="general1-internal">SETTYPE</span><span class="general1-space"> @HITWINDOW</span><span class="general1-symbol">,</span><span class="general1-space"> WINDOW
+
+   </span><span class="general1-internal">SELECT</span><span class="general1-space"> </span><span class="general1-id">@MESSAGE
+</span><span class="general1-space">      </span><span class="general1-internal">CASE</span><span class="general1-space"> @IDPAINT
+         Refresh_Scale</span><span class="general1-symbol">()
+</span><span class="general1-space">         Plot_Graph</span><span class="general1-symbol">()
+
+</span><span class="general1-space">      </span><span class="general1-internal">CASE</span><span class="general1-space"> @IDLBUTTONDN
+         </span><span class="general1-comment">'move axes
+</span><span class="general1-space">         _SetCapture</span><span class="general1-symbol">(*</span><span class="general1-identifier">@HITWINDOW</span><span class="general1-symbol">.</span><span class="general1-identifier">hwnd</span><span class="general1-symbol">)
+</span><span class="general1-space">         GetCursorPos</span><span class="general1-symbol">(&amp;</span><span class="general1-identifier">@MOUSEX</span><span class="general1-symbol">)
+</span><span class="general1-space">         ScreenToClient</span><span class="general1-symbol">(*</span><span class="general1-identifier">@HITWINDOW</span><span class="general1-symbol">.</span><span class="general1-identifier">hwnd</span><span class="general1-symbol">,</span><span class="general1-space"> </span><span class="general1-symbol">&amp;</span><span class="general1-identifier">@MOUSEX</span><span class="general1-symbol">)
+</span><span class="general1-space">         MouseStartX </span><span class="general1-symbol">=</span><span class="general1-space"> @MOUSEX
+         MouseStartY </span><span class="general1-symbol">=</span><span class="general1-space"> @MOUSEY
+         SETCURSOR plotwin</span><span class="general1-symbol">,</span><span class="general1-space"> @CSCUSTOM</span><span class="general1-symbol">,</span><span class="general1-space"> LoadCursor</span><span class="general1-symbol">(</span><span class="general1-identifier">NULL</span><span class="general1-symbol">,</span><span class="general1-space"> IDC_SIZEALL</span><span class="general1-symbol">)</span><span class="general1-space">      </span><span class="general1-symbol">:</span><span class="general1-comment">'cursor &quot;move&quot;
+
+</span><span class="general1-space">      </span><span class="general1-internal">CASE</span><span class="general1-space"> @IDLBUTTONUP
+         _ReleaseCapture</span><span class="general1-symbol">()
+</span><span class="general1-space">         SETCURSOR plotwin</span><span class="general1-symbol">,</span><span class="general1-space"> @CSARROW               </span><span class="general1-symbol">:</span><span class="general1-comment">' cursor back to normal cursor
+
+</span><span class="general1-space">      </span><span class="general1-internal">CASE</span><span class="general1-space"> @IDMOUSEMOVE
+         </span><span class="general1-internal">if</span><span class="general1-space"> </span><span class="general1-symbol">(</span><span class="general1-identifier">_GetCapture</span><span class="general1-symbol">()</span><span class="general1-space"> </span><span class="general1-symbol">=</span><span class="general1-space"> </span><span class="general1-symbol">*</span><span class="general1-identifier">@HITWINDOW</span><span class="general1-symbol">.</span><span class="general1-identifier">hwnd</span><span class="general1-symbol">)
+</span><span class="general1-space">            GetCursorPos</span><span class="general1-symbol">(&amp;</span><span class="general1-identifier">@MOUSEX</span><span class="general1-symbol">)
+</span><span class="general1-space">            ScreenToClient</span><span class="general1-symbol">(*</span><span class="general1-identifier">@HITWINDOW</span><span class="general1-symbol">.</span><span class="general1-identifier">hwnd</span><span class="general1-symbol">,</span><span class="general1-space"> </span><span class="general1-symbol">&amp;</span><span class="general1-identifier">@MOUSEX</span><span class="general1-symbol">)
+</span><span class="general1-space">            </span><span class="general1-comment">'Left mousebutton down. move the plot with the mouse movement
+</span><span class="general1-space">            xmin </span><span class="general1-symbol">-=</span><span class="general1-space"> </span><span class="general1-symbol">(</span><span class="general1-identifier">@MOUSEX</span><span class="general1-symbol">-</span><span class="general1-identifier">MouseStartX</span><span class="general1-symbol">)</span><span class="general1-space"> </span><span class="general1-symbol">/</span><span class="general1-space"> xfactor
+            xmax </span><span class="general1-symbol">-=</span><span class="general1-space"> </span><span class="general1-symbol">(</span><span class="general1-identifier">@MOUSEX</span><span class="general1-symbol">-</span><span class="general1-identifier">MouseStartX</span><span class="general1-symbol">)</span><span class="general1-space"> </span><span class="general1-symbol">/</span><span class="general1-space"> xfactor
+            ymin </span><span class="general1-symbol">-=</span><span class="general1-space"> </span><span class="general1-symbol">(</span><span class="general1-identifier">@MOUSEY</span><span class="general1-symbol">-</span><span class="general1-identifier">MouseStartY</span><span class="general1-symbol">)</span><span class="general1-space"> </span><span class="general1-symbol">/</span><span class="general1-space"> yfactor
+            ymax </span><span class="general1-symbol">-=</span><span class="general1-space"> </span><span class="general1-symbol">(</span><span class="general1-identifier">@MOUSEY</span><span class="general1-symbol">-</span><span class="general1-identifier">MouseStartY</span><span class="general1-symbol">)</span><span class="general1-space"> </span><span class="general1-symbol">/</span><span class="general1-space"> yfactor
+            MouseStartX </span><span class="general1-symbol">=</span><span class="general1-space"> @MOUSEX
+            MouseStartY </span><span class="general1-symbol">=</span><span class="general1-space"> @MOUSEY
+
+            </span><span class="general1-comment">'replot
+</span><span class="general1-space">            Refresh_Scale</span><span class="general1-symbol">()
+</span><span class="general1-space">            Plot_Graph</span><span class="general1-symbol">()
+</span><span class="general1-space">         </span><span class="general1-internal">ENDIF
+</span><span class="general1-space">   
+   </span><span class="general1-internal">ENDSELECT
+</span><span class="general1-space">   </span><span class="general1-internal">RETURN
+ENDSUB
+
+</span><span class="general1-comment">'_______________________________________________________________________
+</span><span class="general1-internal">SUB</span><span class="general1-space"> Plot_Graph</span><span class="general1-symbol">()
+</span><span class="general1-space">   </span><span class="general1-comment">'this sub repaints the graph
+</span><span class="general1-space">   </span><span class="general1-type">INT</span><span class="general1-space"> L</span><span class="general1-symbol">,</span><span class="general1-identifier">T</span><span class="general1-symbol">,</span><span class="general1-identifier">W</span><span class="general1-symbol">,</span><span class="general1-identifier">H
+   </span><span class="general1-type">DOUBLE</span><span class="general1-space"> xscreen</span><span class="general1-symbol">,</span><span class="general1-space"> yscreen
+   </span><span class="general1-type">INT</span><span class="general1-space"> hdc</span><span class="general1-symbol">,</span><span class="general1-space"> hdcMem</span><span class="general1-symbol">,</span><span class="general1-space"> hbmMem
+   </span><span class="general1-type">INT</span><span class="general1-space"> oldBmp</span><span class="general1-symbol">,</span><span class="general1-space"> oldBrush</span><span class="general1-symbol">,</span><span class="general1-space"> oldPen</span><span class="general1-symbol">,</span><span class="general1-space"> oldFont
+   </span><span class="general1-comment">'get size of window
+</span><span class="general1-space">   GETCLIENTSIZE</span><span class="general1-symbol">(</span><span class="general1-identifier">plotwin</span><span class="general1-symbol">,</span><span class="general1-space"> L</span><span class="general1-symbol">,</span><span class="general1-identifier">T</span><span class="general1-symbol">,</span><span class="general1-identifier">W</span><span class="general1-symbol">,</span><span class="general1-identifier">H</span><span class="general1-symbol">)
+
+</span><span class="general1-space">   </span><span class="general1-comment">'Create an off-screen DC for double-buffering
+</span><span class="general1-space">   hdc </span><span class="general1-symbol">=</span><span class="general1-space"> _GetDC</span><span class="general1-symbol">(</span><span class="general1-identifier">plotwin</span><span class="general1-symbol">.</span><span class="general1-identifier">hwnd</span><span class="general1-symbol">)
+</span><span class="general1-space">   hdcMem </span><span class="general1-symbol">=</span><span class="general1-space"> _CreateCompatibleDC</span><span class="general1-symbol">(</span><span class="general1-number">0</span><span class="general1-symbol">)
+</span><span class="general1-space">   hbmMem </span><span class="general1-symbol">=</span><span class="general1-space"> _CreateCompatibleBitmap</span><span class="general1-symbol">(</span><span class="general1-identifier">hdc</span><span class="general1-symbol">,</span><span class="general1-space"> W</span><span class="general1-symbol">,</span><span class="general1-space"> H</span><span class="general1-symbol">)
+</span><span class="general1-space">   oldBmp </span><span class="general1-symbol">=</span><span class="general1-space"> _SelectObject</span><span class="general1-symbol">(</span><span class="general1-identifier">hdcMem</span><span class="general1-symbol">,</span><span class="general1-space"> hbmMem</span><span class="general1-symbol">)
+</span><span class="general1-space">   oldBrush </span><span class="general1-symbol">=</span><span class="general1-space"> _SelectObject</span><span class="general1-symbol">(</span><span class="general1-identifier">hdcMem</span><span class="general1-symbol">,</span><span class="general1-space"> _CreateSolidBrush</span><span class="general1-symbol">(</span><span class="general1-identifier">RGB</span><span class="general1-symbol">(</span><span class="general1-number">255</span><span class="general1-symbol">,</span><span class="general1-number">255</span><span class="general1-symbol">,</span><span class="general1-number">255</span><span class="general1-symbol">)))
+</span><span class="general1-space">   oldPen </span><span class="general1-symbol">=</span><span class="general1-space"> _SelectObject</span><span class="general1-symbol">(</span><span class="general1-identifier">hdcMem</span><span class="general1-symbol">,</span><span class="general1-space"> _CreatePen</span><span class="general1-symbol">(</span><span class="general1-identifier">PS_SOLID</span><span class="general1-symbol">,</span><span class="general1-number">1</span><span class="general1-symbol">,</span><span class="general1-identifier">RGB</span><span class="general1-symbol">(</span><span class="general1-number">255</span><span class="general1-symbol">,</span><span class="general1-number">255</span><span class="general1-symbol">,</span><span class="general1-number">255</span><span class="general1-symbol">)))
+
+</span><span class="general1-space">   </span><span class="general1-comment">'set specific font
+</span><span class="general1-space">   </span><span class="general1-type">INT</span><span class="general1-space"> textW</span><span class="general1-symbol">,</span><span class="general1-space"> textH
+   </span><span class="general1-type">INT</span><span class="general1-space"> fontsize</span><span class="general1-symbol">,</span><span class="general1-space"> fontweight
+   </span><span class="general1-type">STRING</span><span class="general1-space"> fontface
+   fontface </span><span class="general1-symbol">=</span><span class="general1-space"> </span><span class="general1-string">&quot;Courier New&quot;
+</span><span class="general1-space">   fontsize </span><span class="general1-symbol">=</span><span class="general1-space"> 10
+   fontweight </span><span class="general1-symbol">=</span><span class="general1-space"> 400
+   SETFONT plotwin</span><span class="general1-symbol">,</span><span class="general1-space"> fontface</span><span class="general1-symbol">,</span><span class="general1-space"> fontsize</span><span class="general1-symbol">,</span><span class="general1-space"> fontweight</span><span class="general1-symbol">,</span><span class="general1-space"> 0
+   GETTEXTSIZE</span><span class="general1-symbol">(</span><span class="general1-identifier">plotwin</span><span class="general1-symbol">,</span><span class="general1-space"> </span><span class="general1-string">&quot;A&quot;</span><span class="general1-symbol">,</span><span class="general1-space"> textW</span><span class="general1-symbol">,</span><span class="general1-space"> textH</span><span class="general1-symbol">)</span><span class="general1-space">		</span><span class="general1-symbol">:</span><span class="general1-comment">'find the desired text Height
+</span><span class="general1-space">   oldFont </span><span class="general1-symbol">=</span><span class="general1-space"> _SelectObject</span><span class="general1-symbol">(</span><span class="general1-identifier">hdcMem</span><span class="general1-symbol">,</span><span class="general1-space"> _CreateFont</span><span class="general1-symbol">(</span><span class="general1-identifier">textH</span><span class="general1-symbol">,</span><span class="general1-number">0</span><span class="general1-symbol">,</span><span class="general1-number">0</span><span class="general1-symbol">,</span><span class="general1-number">0</span><span class="general1-symbol">,</span><span class="general1-identifier">fontweight</span><span class="general1-symbol">,</span><span class="general1-space"> 0</span><span class="general1-symbol">,</span><span class="general1-number">0</span><span class="general1-symbol">,</span><span class="general1-number">0</span><span class="general1-symbol">,</span><span class="general1-number">0</span><span class="general1-symbol">,</span><span class="general1-number">0</span><span class="general1-symbol">,</span><span class="general1-number">0</span><span class="general1-symbol">,</span><span class="general1-number">0</span><span class="general1-symbol">,</span><span class="general1-number">0</span><span class="general1-symbol">,</span><span class="general1-space"> fontface</span><span class="general1-symbol">))
+</span><span class="general1-space">   _SetTextColor</span><span class="general1-symbol">(</span><span class="general1-identifier">hdcMem</span><span class="general1-symbol">,</span><span class="general1-space"> RGB</span><span class="general1-symbol">(</span><span class="general1-number">0</span><span class="general1-symbol">,</span><span class="general1-number">0</span><span class="general1-symbol">,</span><span class="general1-number">255</span><span class="general1-symbol">))
+</span><span class="general1-space">   _SetBkMode</span><span class="general1-symbol">(</span><span class="general1-identifier">hdcMem</span><span class="general1-symbol">,</span><span class="general1-space"> TRANSPARENT</span><span class="general1-symbol">)
+</span><span class="general1-space">   _SetTextAlign</span><span class="general1-symbol">(</span><span class="general1-identifier">hdcMem</span><span class="general1-symbol">,</span><span class="general1-identifier">TA_UPDATECP</span><span class="general1-symbol">)
+
+</span><span class="general1-space">   
+   </span><span class="general1-comment">'empty window -&gt; draw white, filled rectangle
+</span><span class="general1-space">   _Rectangle</span><span class="general1-symbol">(</span><span class="general1-identifier">hdcMem</span><span class="general1-symbol">,</span><span class="general1-space"> 0</span><span class="general1-symbol">,</span><span class="general1-space"> 0</span><span class="general1-symbol">,</span><span class="general1-space"> W</span><span class="general1-symbol">,</span><span class="general1-space"> H</span><span class="general1-symbol">)
+</span><span class="general1-space">   
+   </span><span class="general1-comment">'Paint axes with black frontpen
+</span><span class="general1-space">   _DeleteObject</span><span class="general1-symbol">(</span><span class="general1-identifier">_SelectObject</span><span class="general1-symbol">(</span><span class="general1-identifier">hdcMem</span><span class="general1-symbol">,</span><span class="general1-space"> _CreatePen</span><span class="general1-symbol">(</span><span class="general1-identifier">PS_SOLID</span><span class="general1-symbol">,</span><span class="general1-number">1</span><span class="general1-symbol">,</span><span class="general1-identifier">RGB</span><span class="general1-symbol">(</span><span class="general1-number">0</span><span class="general1-symbol">,</span><span class="general1-number">0</span><span class="general1-symbol">,</span><span class="general1-number">0</span><span class="general1-symbol">))))
+</span><span class="general1-space">   _MoveToEx</span><span class="general1-symbol">(</span><span class="general1-identifier">hdcMem</span><span class="general1-symbol">,</span><span class="general1-space"> xmin </span><span class="general1-symbol">*</span><span class="general1-space"> xfactor </span><span class="general1-symbol">+</span><span class="general1-space"> xshift</span><span class="general1-symbol">,</span><span class="general1-space"> 0 </span><span class="general1-symbol">*</span><span class="general1-space"> yfactor </span><span class="general1-symbol">+</span><span class="general1-space"> yshift</span><span class="general1-symbol">,</span><span class="general1-space"> NULL</span><span class="general1-symbol">)
+</span><span class="general1-space">   _LineTo</span><span class="general1-symbol">(</span><span class="general1-identifier">hdcMem</span><span class="general1-symbol">,</span><span class="general1-space"> xmax </span><span class="general1-symbol">*</span><span class="general1-space"> xfactor </span><span class="general1-symbol">+</span><span class="general1-space"> xshift</span><span class="general1-symbol">,</span><span class="general1-space"> 0 </span><span class="general1-symbol">*</span><span class="general1-space"> yfactor </span><span class="general1-symbol">+</span><span class="general1-space"> yshift</span><span class="general1-symbol">)
+</span><span class="general1-space">   _MoveToEx</span><span class="general1-symbol">(</span><span class="general1-identifier">hdcMem</span><span class="general1-symbol">,</span><span class="general1-space"> 0 </span><span class="general1-symbol">*</span><span class="general1-space"> xfactor </span><span class="general1-symbol">+</span><span class="general1-space"> xshift</span><span class="general1-symbol">,</span><span class="general1-space"> ymin </span><span class="general1-symbol">*</span><span class="general1-space"> yfactor </span><span class="general1-symbol">+</span><span class="general1-space"> yshift</span><span class="general1-symbol">,</span><span class="general1-space"> NULL</span><span class="general1-symbol">)
+</span><span class="general1-space">   _LineTo</span><span class="general1-symbol">(</span><span class="general1-identifier">hdcMem</span><span class="general1-symbol">,</span><span class="general1-space"> 0 </span><span class="general1-symbol">*</span><span class="general1-space"> xfactor </span><span class="general1-symbol">+</span><span class="general1-space"> xshift</span><span class="general1-symbol">,</span><span class="general1-space"> ymax </span><span class="general1-symbol">*</span><span class="general1-space"> yfactor </span><span class="general1-symbol">+</span><span class="general1-space"> yshift</span><span class="general1-symbol">)
+</span><span class="general1-space">   
+   </span><span class="general1-comment">'paint the function with red frontpen
+</span><span class="general1-space">   _DeleteObject</span><span class="general1-symbol">(</span><span class="general1-identifier">_SelectObject</span><span class="general1-symbol">(</span><span class="general1-identifier">hdcMem</span><span class="general1-symbol">,</span><span class="general1-space"> _CreatePen</span><span class="general1-symbol">(</span><span class="general1-identifier">PS_SOLID</span><span class="general1-symbol">,</span><span class="general1-number">1</span><span class="general1-symbol">,</span><span class="general1-identifier">RGB</span><span class="general1-symbol">(</span><span class="general1-number">255</span><span class="general1-symbol">,</span><span class="general1-number">0</span><span class="general1-symbol">,</span><span class="general1-number">0</span><span class="general1-symbol">))))
+</span><span class="general1-space">   xscreen </span><span class="general1-symbol">=</span><span class="general1-space"> 0
+   yscreen </span><span class="general1-symbol">=</span><span class="general1-space"> myfunction</span><span class="general1-symbol">((</span><span class="general1-identifier">xscreen</span><span class="general1-symbol">-</span><span class="general1-identifier">xshift</span><span class="general1-symbol">)/</span><span class="general1-identifier">xfactor</span><span class="general1-symbol">)</span><span class="general1-space"> </span><span class="general1-symbol">*</span><span class="general1-space"> yfactor </span><span class="general1-symbol">+</span><span class="general1-space"> yshift
+   _MoveToEx</span><span class="general1-symbol">(</span><span class="general1-identifier">hdcMem</span><span class="general1-symbol">,</span><span class="general1-space"> xscreen</span><span class="general1-symbol">,</span><span class="general1-space"> yscreen</span><span class="general1-symbol">,</span><span class="general1-space"> NULL</span><span class="general1-symbol">)
+</span><span class="general1-space">   </span><span class="general1-internal">FOR</span><span class="general1-space"> n</span><span class="general1-symbol">=</span><span class="general1-number">0 </span><span class="general1-internal">TO</span><span class="general1-space"> w</span><span class="general1-symbol">+</span><span class="general1-number">5 </span><span class="general1-internal">STEP</span><span class="general1-space"> 2
+      xscreen </span><span class="general1-symbol">=</span><span class="general1-space"> n
+      yscreen </span><span class="general1-symbol">=</span><span class="general1-space"> myfunction</span><span class="general1-symbol">((</span><span class="general1-identifier">xscreen</span><span class="general1-symbol">-</span><span class="general1-identifier">xshift</span><span class="general1-symbol">)/</span><span class="general1-identifier">xfactor</span><span class="general1-symbol">)</span><span class="general1-space"> </span><span class="general1-symbol">*</span><span class="general1-space"> yfactor </span><span class="general1-symbol">+</span><span class="general1-space"> yshift
+      _LineTo</span><span class="general1-symbol">(</span><span class="general1-identifier">hdcMem</span><span class="general1-symbol">,</span><span class="general1-space"> xscreen</span><span class="general1-symbol">,</span><span class="general1-space"> yscreen</span><span class="general1-symbol">)
+</span><span class="general1-space">   </span><span class="general1-internal">NEXT</span><span class="general1-space"> n
+
+   </span><span class="general1-comment">'Print some text with blue frontpen
+</span><span class="general1-space">   _DeleteObject</span><span class="general1-symbol">(</span><span class="general1-identifier">_SelectObject</span><span class="general1-symbol">(</span><span class="general1-identifier">hdcMem</span><span class="general1-symbol">,</span><span class="general1-space"> _CreatePen</span><span class="general1-symbol">(</span><span class="general1-identifier">PS_SOLID</span><span class="general1-symbol">,</span><span class="general1-number">1</span><span class="general1-symbol">,</span><span class="general1-identifier">RGB</span><span class="general1-symbol">(</span><span class="general1-number">0</span><span class="general1-symbol">,</span><span class="general1-number">0</span><span class="general1-symbol">,</span><span class="general1-number">255</span><span class="general1-symbol">))))
+</span><span class="general1-space">   </span><span class="general1-type">STRING</span><span class="general1-space"> mystring
+   mystring </span><span class="general1-symbol">=</span><span class="general1-space"> </span><span class="general1-string">&quot;4 * Sin(x*2) * Cos(x)&quot;
+</span><span class="general1-space">   _MoveToEx</span><span class="general1-symbol">(</span><span class="general1-identifier">hdcMem</span><span class="general1-symbol">,</span><span class="general1-space"> 10</span><span class="general1-symbol">,</span><span class="general1-number">10</span><span class="general1-symbol">,</span><span class="general1-space"> NULL</span><span class="general1-symbol">)
+</span><span class="general1-space">   _TextOut</span><span class="general1-symbol">(</span><span class="general1-identifier">hdcMem</span><span class="general1-symbol">,</span><span class="general1-space"> 0</span><span class="general1-symbol">,</span><span class="general1-space"> 0</span><span class="general1-symbol">,</span><span class="general1-space"> mystring</span><span class="general1-symbol">,</span><span class="general1-space"> </span><span class="general1-internal">len(</span><span class="general1-identifier">mystring</span><span class="general1-symbol">))
+
+</span><span class="general1-space">   </span><span class="general1-comment">'Transfer the off-screen DC to the screen
+</span><span class="general1-space">   _BitBlt</span><span class="general1-symbol">(</span><span class="general1-identifier">hdc</span><span class="general1-symbol">,</span><span class="general1-space"> 0</span><span class="general1-symbol">,</span><span class="general1-space"> 0</span><span class="general1-symbol">,</span><span class="general1-space"> W</span><span class="general1-symbol">,</span><span class="general1-space"> H</span><span class="general1-symbol">,</span><span class="general1-space"> hdcMem</span><span class="general1-symbol">,</span><span class="general1-space"> 0</span><span class="general1-symbol">,</span><span class="general1-space"> 0</span><span class="general1-symbol">,</span><span class="general1-space"> SRCCOPY</span><span class="general1-symbol">)
+</span><span class="general1-space">   
+   </span><span class="general1-comment">'Free-up the off-screen DC
+</span><span class="general1-space">   _DeleteObject</span><span class="general1-symbol">(</span><span class="general1-identifier">_SelectObject</span><span class="general1-symbol">(</span><span class="general1-identifier">hdcMem</span><span class="general1-symbol">,</span><span class="general1-space"> oldFont</span><span class="general1-symbol">))
+</span><span class="general1-space">   _DeleteObject</span><span class="general1-symbol">(</span><span class="general1-identifier">_SelectObject</span><span class="general1-symbol">(</span><span class="general1-identifier">hdcMem</span><span class="general1-symbol">,</span><span class="general1-space"> oldBrush</span><span class="general1-symbol">))
+</span><span class="general1-space">   _DeleteObject</span><span class="general1-symbol">(</span><span class="general1-identifier">_SelectObject</span><span class="general1-symbol">(</span><span class="general1-identifier">hdcMem</span><span class="general1-symbol">,</span><span class="general1-space"> oldPen</span><span class="general1-symbol">))
+</span><span class="general1-space">   _DeleteObject</span><span class="general1-symbol">(</span><span class="general1-identifier">_SelectObject</span><span class="general1-symbol">(</span><span class="general1-identifier">hdcMem</span><span class="general1-symbol">,</span><span class="general1-space"> oldBmp</span><span class="general1-symbol">))
+</span><span class="general1-space">   _DeleteDC</span><span class="general1-symbol">(</span><span class="general1-identifier">hdcMem</span><span class="general1-symbol">)
+</span><span class="general1-space">   _ReleaseDC</span><span class="general1-symbol">(</span><span class="general1-identifier">plotwin</span><span class="general1-symbol">.</span><span class="general1-identifier">hwnd</span><span class="general1-symbol">,</span><span class="general1-space"> hdc</span><span class="general1-symbol">)
+</span><span class="general1-space">   </span><span class="general1-internal">RETURN
+ENDSUB
+
+</span><span class="general1-comment">'_______________________________________________________________________
+</span><span class="general1-internal">SUB</span><span class="general1-space"> myfunction</span><span class="general1-symbol">(</span><span class="general1-identifier">value</span><span class="general1-symbol">:</span><span class="general1-type">DOUBLE</span><span class="general1-symbol">),</span><span class="general1-type">DOUBLE
+</span><span class="general1-comment">'calculate a functionvalue
+</span><span class="general1-space">   </span><span class="general1-internal">RETURN</span><span class="general1-space"> 4 </span><span class="general1-symbol">*</span><span class="general1-space"> Sin</span><span class="general1-symbol">(</span><span class="general1-identifier">value</span><span class="general1-symbol">*</span><span class="general1-number">2</span><span class="general1-symbol">)</span><span class="general1-space"> </span><span class="general1-symbol">*</span><span class="general1-space"> Cos</span><span class="general1-symbol">(</span><span class="general1-identifier">value</span><span class="general1-symbol">)
+ENDSUB
+
+</span><span class="general1-comment">'_______________________________________________________________________
+</span><span class="general1-internal">SUB</span><span class="general1-space"> Refresh_Scale</span><span class="general1-symbol">()
+</span><span class="general1-comment">'calculate the scale for painting in the screen plotwin
+'this depends on the scale of the graph: xmin, xmax, ymin, ymax
+'and the size of the window plotwin
+'factors such that    xscreen = x * xfactor + xshift
+'               yscreen = y * yfactor + yshift
+</span><span class="general1-type">INT</span><span class="general1-space"> L</span><span class="general1-symbol">,</span><span class="general1-identifier">T</span><span class="general1-symbol">,</span><span class="general1-identifier">W</span><span class="general1-symbol">,</span><span class="general1-identifier">H
+   GETCLIENTSIZE plotwin</span><span class="general1-symbol">,</span><span class="general1-space"> L</span><span class="general1-symbol">,</span><span class="general1-identifier">T</span><span class="general1-symbol">,</span><span class="general1-identifier">W</span><span class="general1-symbol">,</span><span class="general1-identifier">H
+   xfactor </span><span class="general1-symbol">=</span><span class="general1-space"> W </span><span class="general1-symbol">/</span><span class="general1-space"> </span><span class="general1-symbol">(</span><span class="general1-identifier">xmax </span><span class="general1-symbol">-</span><span class="general1-space"> xmin</span><span class="general1-symbol">)
+</span><span class="general1-space">   yfactor </span><span class="general1-symbol">=</span><span class="general1-space"> </span><span class="general1-symbol">-</span><span class="general1-identifier">H </span><span class="general1-symbol">/</span><span class="general1-space"> </span><span class="general1-symbol">(</span><span class="general1-identifier">ymax </span><span class="general1-symbol">-</span><span class="general1-space"> ymin</span><span class="general1-symbol">)
+</span><span class="general1-space">   xshift </span><span class="general1-symbol">=</span><span class="general1-space"> </span><span class="general1-symbol">-</span><span class="general1-identifier">xmin </span><span class="general1-symbol">*</span><span class="general1-space"> xfactor
+   yshift </span><span class="general1-symbol">=</span><span class="general1-space"> </span><span class="general1-symbol">-</span><span class="general1-identifier">ymax </span><span class="general1-symbol">*</span><span class="general1-space"> yfactor
+   </span><span class="general1-internal">RETURN
+ENDSUB
+
+</span><span class="general1-comment">'_______________________________________________________________________
+</span><span class="general1-internal">SUB</span><span class="general1-space"> Resize</span><span class="general1-symbol">()
+</span><span class="general1-comment">'resize figure window with its subwindow
+</span><span class="general1-type">INT</span><span class="general1-space"> L</span><span class="general1-symbol">,</span><span class="general1-identifier">T</span><span class="general1-symbol">,</span><span class="general1-identifier">W</span><span class="general1-symbol">,</span><span class="general1-identifier">H
+   GETCLIENTSIZE figure</span><span class="general1-symbol">,</span><span class="general1-space"> L</span><span class="general1-symbol">,</span><span class="general1-identifier">T</span><span class="general1-symbol">,</span><span class="general1-identifier">W</span><span class="general1-symbol">,</span><span class="general1-identifier">H
+   SETSIZE plotwin</span><span class="general1-symbol">,</span><span class="general1-space"> 0</span><span class="general1-symbol">,</span><span class="general1-number">0</span><span class="general1-symbol">,</span><span class="general1-identifier">W</span><span class="general1-symbol">,</span><span class="general1-identifier">H
+
+   </span><span class="general1-internal">RETURN
+ENDSUB
+
+</span><span class="general1-comment">'_______________________________________________________________________
+</span><span class="general1-internal">SUB</span><span class="general1-space"> CfgSetDefault</span><span class="general1-symbol">()
+</span><span class="general1-comment">'set default values for the properties of the figure
+</span><span class="general1-space">   xmin</span><span class="general1-symbol">=-</span><span class="general1-number">5
+   xmax</span><span class="general1-symbol">=</span><span class="general1-number">5
+   ymin</span><span class="general1-symbol">=-</span><span class="general1-number">5
+   ymax</span><span class="general1-symbol">=</span><span class="general1-number">5
+
+   </span><span class="general1-internal">RETURN
+ENDSUB
+</span></span>
+</code></pre>
+</body>
+</html>

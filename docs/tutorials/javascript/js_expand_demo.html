@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Created by Jos de Jong, 2007. www.speqmath.com -->
+
+<html>
+	<head>
+	<title>
+		Javascript demo - expand/collapse text
+	</title>
+
+	<script language="JavaScript" type="text/javascript">
+		
+		function blocking(nr)
+		// for displaying or hiding parts of the page
+		// different code is neccessary for different browsers.
+		{
+			if (document.layers)
+			{
+				current = (document.layers[nr].display == 'none') ? 'block' : 'none';
+				document.layers[nr].display = current;
+			}
+			else if (document.all)
+			{
+				current = (document.all[nr].style.display == 'none') ? 'block' : 'none';
+				document.all[nr].style.display = current;
+			}
+			else if (document.getElementById)
+			{
+				vista = (document.getElementById(nr).style.display == 'none') ? 'block' : 'none';
+				document.getElementById(nr).style.display = vista;
+			}
+		}
+	
+	</script>
+</head>
+
+<!-- initially hide the contents of whatItIs and background -->
+<body onload="blocking('whatItIs'); blocking('background');">
+	
+	<h1>Expand / Collapse text</h1>
+	This demo shows how to expand or collapse some text
+	<br><br>
+	The text comes from wikipedia: <a href="http://en.wikipedia.org/wiki/Pardus_%28operating_system%29">http://en.wikipedia.org/wiki/Pardus_%28operating_system%29</a>
+	<br><br>
+	
+	
+	<h2>What it is</h2>
+	<a href="" onclick="blocking('whatItIs'); return false;">Click here to expand/collapse the text...</a>
+	<br><br>
+	<div id="whatItIs">
+	Pardus is a GNU/Linux distribution developed in Turkey, as a product of the Pardus Project. It was named after the Anatolian Leopard.
+	<br><br>
+	Pardus is an easy-to-install and -use operating system, with many enhancements to desktop usability, compatibility and security. With Pardus 1.0 (and the now-released Pardus 2007 version), users can connect to Internet, read e-mails, securely communicate with others and exploit the computer's multimedia capabilities by listening to music and watching movies.
+	<br><br>
+	Ladislav Bodnar, the creator of DistroWatch, wrote in his round-up of Linux/*nix in 2006 that Pardus is one of the distros he was most impressed by this year "...thanks to unique package management ideas, innovative start-up sequence and general desktop polish..."
+	<br><br>
+	Pardus is open source and freely distributed as a GPL (General Public License) product. It can be installed in Turkish, English, Spanish, German or Dutch.
+	<br><br>
+	</div>
+	
+	
+	<h2>Background</h2>
+	<a href="" onclick="blocking('background'); return false;">Click here to expand/collapse the text...</a>
+	<br><br>
+	<div id="background">
+	Pardus was started and is developed by TÜBİTAK - UEKAE. This project aims to develop a GNU/Linux, plans on answering the expectations and basic desktop requirements of people who are computer-literate by using the excellent means of a Linux distribution, and code or architecture with building tools that will make it easy to use and set up operation. The first version, Pardus 1.0, was released on December, 27, 2005.
+	<br><br>
+	</div>
+
+</body>
+</html>
+
+

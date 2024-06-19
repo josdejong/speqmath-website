@@ -1,0 +1,30 @@
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
+    "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd" [
+    <!ATTLIST svg
+              xmlns:a3 CDATA #IMPLIED
+              a3:scriptImplementation CDATA #IMPLIED> 
+    <!ATTLIST script 
+              a3:scriptImplementation CDATA #IMPLIED> 
+]>
+<svg onload="makeShape(evt)"
+     xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     xmlns:a3="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
+     a3:scriptImplementation="Adobe"> 
+    <script type="text/ecmascript" a3:scriptImplementation="Adobe"><![CDATA[
+        var svgns = "http://www.w3.org/2000/svg";
+ 
+        function makeShape(evt) {
+            if ( window.svgDocument == null )
+                svgDocument = evt.target.ownerDocument;
+ 
+            shape = svgDocument.createElementNS(svgns, "polyline");
+            shape.setAttributeNS(null, "points", "5,5 45,45 5,45 45,5");
+            shape.setAttributeNS(null, "fill", "none");
+            shape.setAttributeNS(null, "stroke", "red");
+            
+            svgDocument.documentElement.appendChild(shape);
+        }
+    ]]></script> 
+</svg> 
+ 

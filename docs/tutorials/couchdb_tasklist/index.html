@@ -1,0 +1,219 @@
+<html>
+<head>
+    <title>A simple Task-list application in CouchDB</title>
+    <style>
+        body {
+            width: 800px;
+        }
+    </style>
+    
+    <link href="layout.css" type="text/css" rel="stylesheet" />
+    <link href="google-code-prettify/prettify.css" type="text/css" rel="stylesheet" />
+    <script type="text/javascript" src="google-code-prettify/prettify.js"></script>
+</head>
+
+<body onload="prettyPrint();">
+<h1>A simple Task-list application in CouchDB</h1>
+<p>
+<i>Author: Jos de Jong, 2011-07-09</i>
+</p>
+
+<p>
+Here a small demo on how to use CouchDB. 
+It is an application which stores a task list in CouchDB. 
+Tasks can be listed, added, edited, and deleted.
+The demo consists of a single index.html file of only 120 lines of code,
+and demonstrates how to create, update, and delete documents in CouchDB, 
+and how to create a simple view.
+</p>
+
+<h2>Installation</h2>
+<p>
+To get the demo up and running:
+<ul>
+<li>
+Install CouchDB on your computer. On Linux, you can enter the following on the 
+command line:
+<blockquote>
+    <code>sudo apt-get install couchdb</code>
+</blockquote>
+</li>
+
+<li>
+Download the demo file <code>index.html</code> and save it somewhere on your
+computer (see download below).
+</li>
+
+<li>
+Open the couchdb webinterface in your browser:
+<blockquote>
+    <code>http://localhost:5984/_utils</code>
+</blockquote>
+</li>
+
+<li>
+Click on "Create database..." in the upper left to create a new database, 
+and enter "tasks" as database name.
+</li>
+
+<li>
+In the new database, click "New document" in the upper left. Change the id of 
+the document to "webpage". Save the document by clicking "Save document" in the
+upper left.
+</li>
+
+<li>
+Click "Upload attachement..." in the just saved document. 
+Select the downloaded file <code>index.html</code>, and click "Upload". 
+On my computer, the upload starts but never ends. However, when you just 
+refresh the page, you will see that the file is attached correctly.
+</li>
+
+<li>
+Now, we can retrieve the uploaded attachement via its url.
+Open a new tab in your browser, and go to:
+<blockquote>
+    <code>http://localhost:5984/tasks/webpage/index.html</code>
+</blockquote>
+</li>
+
+
+
+</ul>
+
+</p>
+
+<h2>Source code</h2>
+<p>
+The source code for the demo is just one small index.html file.
+</p>
+
+<p>
+<a href="couchdb_tasklist_src.zip">Click here to download the sourcecode</a>
+</p>
+
+<pre class="prettyprint">
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Tasks&lt;/title&gt;
+
+    &lt;script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript"&gt;
+        // retrieve database name from url (for example "tasks")
+        var DATABASE = "/" + window.location.href.split("/")[3];
+        
+        function getTasks() {
+            $.ajax({
+                url: DATABASE + "/_design/tasks/_view/tasks",
+                success: function (data){
+                    var view = JSON.parse(data);
+                    var tasks = [];
+                    $(view.rows).each( function (index, item) {
+                        tasks.push (item.value);
+                    });
+                    displayTasks(tasks);
+                }
+             });
+        }
+        
+        function displayTasks(tasks) {
+            var html = "&lt;table&gt;";
+            $(tasks).each( function (index, task) {
+                var edit = "&lt;input type='button' value='Edit' " +
+                    "onclick='editTask(" + JSON.stringify(task) + ")' /&gt;";
+                var del = "&lt;input type='button' value='Delete' " +
+                    "onclick='deleteTask(" + JSON.stringify(task) + ")' /&gt;";
+
+                html += "&lt;tr&gt;";
+                html += "&lt;td&gt;" + task.task + "&lt;/td&gt;";
+                html += "&lt;td&gt;" + edit + "&lt;/td&gt;";
+                html += "&lt;td&gt;" + del + "&lt;/td&gt;";
+                html += "&lt;/tr&gt;";
+            });
+            html += "&lt;/table&gt;";
+            
+            $('#tasks').empty();            
+            $('#tasks').append(html);
+        }
+        
+        function addTask() {
+            var desc = prompt("Enter a task description");
+            if (desc) {
+                var task = {
+                    "task": desc
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: DATABASE,
+                    contentType: "application/json",
+                    data: JSON.stringify(task),
+                    success: function () {
+                        getTasks();
+                    }
+                 });
+            }
+        }
+        
+        function editTask(task) {
+            var desc = prompt("New task description", task.task);
+            if (desc) {
+                task.task = desc;
+
+                $.ajax({
+                    type: "PUT",
+                    url: DATABASE + "/" + task._id,
+                    contentType: "application/json",
+                    data: JSON.stringify(task),
+                    success: function () {
+                        getTasks();
+                    }
+                 });
+            }
+        }
+        
+        function deleteTask(task) {
+            var doit = confirm("Do you really want to delete the task '" + 
+                task.task + "'?");
+            if (doit) {
+                $.ajax({
+                    type: "DELETE",
+                    url: DATABASE + "/" + task._id + "?rev=" + task._rev,
+                    success: function () {
+                        getTasks();
+                    }
+                 });
+            }
+        }
+        
+        // create view (will fail if already existing)
+        function createView() {
+            var view = {
+               "language": "javascript",
+               "views": {
+                   "tasks": {
+                       "map": "function(doc) {if (doc.task) {emit(doc.task, doc);}}"
+                   }
+               }
+            }
+            $.ajax({
+                type: "PUT",
+                url: DATABASE + "/_design/tasks",
+                contentType: "application/json",
+                data: JSON.stringify(view)
+             });
+        }
+    &lt;/script&gt;
+&lt;/head&gt;
+
+&lt;body onload="createView(); getTasks();"&gt;
+    &lt;h1&gt;Tasks&lt;/h1&gt;    
+    &lt;input type="button" id="add" value="Add" onclick="addTask();" /&gt;
+    &lt;div id="tasks"&gt;&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+
+</body>
+</html>
+

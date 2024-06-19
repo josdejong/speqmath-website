@@ -1,0 +1,55 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Tutorial on how to create an c++ expression parser -->
+<!-- Created by Jos de Jong, Dec 2007, updated 2012 -->
+<!-- www.speqmath.com -->
+
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=windows-1250">
+  <meta name="generator" content="PSPad editor, www.pspad.com">
+  <meta name="keywords" content="Tutorial, create, expression, parser, recursive, math, speq, c++, cpp">
+  <meta name="description" content="A C++ expression parser">
+  <link rel="stylesheet" href="layout.css">
+  <title>C++ expression parser</title>
+</head>
+
+<body>
+<div class="content">
+<h2>Source code</h2>
+<p>
+This page describes the content of the source files briefly.
+</p>
+
+<p>
+<b>main.cpp</b><br>
+The main file contains the function <i>main</i> which is executed when the program is started. It contains a loop where the user can give an expression as input, then calculates and dispays the result. The loop is repeated until the user enters an empty expression, then the program is ended.
+</p>
+
+<p>
+<b>parser.h</b> <br> <b>parser.cpp</b><br>
+The class <i>Parser</i> which is declared in parser.h is the core of the expression parser. This class contains the code required for parsing a string containing a mathematical expression.
+</p>
+
+<p>
+<b>variablelist.h</b> <br> <b>variablelist.cpp</b><br>
+To store declared variables, a class <i>Variablelist</i> is used. The class <i>Parser</i> has (amongst others) one Variablelist as data. 
+</p>
+
+<p>
+<b>functions.h</b> <br> <b>functions.cpp</b><br>
+These files contain two mathematical functions which are not pre-defined in c++, and therefore had to be written by hand: factorial and sign.
+</p>
+
+<p>
+<b>error.h</b> <br> <b>error.cpp</b><br>
+When an error occurs when parsing an expression, an error of class <i>Error</i> is thrown. All possible error messages are stored in the class Error, to make it easy to extend the parser to support multiple languages. All errors have a unique number. 
+</p>
+
+<p>
+<b>constants.h</b><br>
+This file just contains some constants used in the parser, for the maximum length of expressions, function names, and variable names.
+</p>
+
+</div>
+</body>
+</html>

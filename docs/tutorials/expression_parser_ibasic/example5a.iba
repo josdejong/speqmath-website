@@ -1,0 +1,9 @@
+'Check if the expression is a value. If so, return the value
+IF isValue(expr) THEN RETURN VAL(expr)
+
+'Check if the expression is equal to a constant, for example "pi" or "e".
+'If so, return the value of this constant
+SELECT UCASE$(expr)
+    CASE "PI"   :RETURN 3.141592654
+    CASE "E"    :RETURN 2.718281828
+ENDSELECT

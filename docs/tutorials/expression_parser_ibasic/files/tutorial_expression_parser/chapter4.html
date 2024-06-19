@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Tutorial on how to create an expression parser -->
+<!-- Created by Jos de Jong, May 2006 -->
+<!-- wjosdejong@hotmail.com, www.speqmath.com -->
+
+<!-- Todo: add links to the sourcecode and executables of the examples, and a zipfile with everything -->
+
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=windows-1250">
+  <meta name="generator" content="PSPad editor, www.pspad.com">
+  <meta name="keywords" content="Tutorial, create, expression, parser, recursive, math, speq, ibasic">
+  <meta name="description" content="Tutorial on how to create an expression parser">
+  <link rel="stylesheet" href="layout.css">
+  <title>Chapter 4. Simple recursive parser</title>
+  
+  <SCRIPT TYPE="text/javascript" SRC="events.js"></SCRIPT>
+</head>
+<body>
+<div class="content">
+
+<h2>4. Simple recursive parser</h2>
+Now let's see a small example. We will create a parser that can evaluate expressions with additions.
+That means we only need to recognize one operator, "+".<br>
+<br>
+In the code below you can see that the function Eval calls itself twice by calculating the answers 
+of part1 and part2 of the expression. This is the recursive part of the parser.
+It does not matter if part1 and part2 are also expressions,
+in that case the function Eval will be called again and again until the expression is solved.
+That is when the end of all brances of the expression tree are reached.<br>
+<br>
+
+<!-- Example 1 - START -->
+<div class="codeheader" >
+Example 1 
+<SCRIPT TYPE="text/javascript">
+  createCodeHeader("ex1", "300px")    // if javascript is available, add the options <Select> and <Expand>
+</SCRIPT>
+<br>
+</div>
+<div class="code" id="ex1" style="height:300px;"><pre>
+<font color="#008000"><b><i>/*
+Recursive expression parser, Example 1.
+Written with IBasic Professional
+By Jos de Jong, may 2006
+
+Supports expressions with additions
+*/
+</i></b></font><font color="#0000FF">AUTODEFINE </font><font color="#800080">&quot;Off&quot;
+</font><font color="#0000FF">DEF </font>inputexpr<font color="#000080">:</font><font color="#FF0000">STRING
+
+</font><font color="#0000FF">OPENCONSOLE
+
+</font><font color="#008000"><b><i>'print some examples of expressions with their answers
+</i></b></font><font color="#0000FF">PRINT </font><font color="#800080">&quot;Examples:&quot;
+</font><font color="#0000FF">PRINT </font><font color="#800080">&quot;2 + 3 = &quot;</font><font color="#000080">, </font>Eval<font color="#000080">(</font><font color="#800080">&quot;2 + 3&quot;</font><font color="#000080">)
+</font><font color="#0000FF">PRINT </font><font color="#800080">&quot;2 + 3 + 4 + 5 = &quot;</font><font color="#000080">, </font>Eval<font color="#000080">(</font><font color="#800080">&quot;2 + 3 + 4 + 5&quot;</font><font color="#000080">)
+</font><font color="#0000FF">PRINT </font><font color="#800080">&quot;2.5 + 3.25 = &quot;</font><font color="#000080">, </font>Eval<font color="#000080">(</font><font color="#800080">&quot;2.5 + 3.25&quot;</font><font color="#000080">)
+
+</font><font color="#0000FF">PRINT </font><font color="#800080">&quot;&quot;
+</font><font color="#0000FF">PRINT </font><font color="#800080">&quot;Enter an expression and press Enter to calculate it.&quot;
+</font><font color="#0000FF">PRINT </font><font color="#800080">&quot;Enter an empty expression to quit&quot;
+</font><font color="#0000FF">DO
+    </font><font color="#008000"><b><i>'ask the user to enter an expression. After this the expression
+</i></b>    <b><i>'will be evaluated and the answer will be printed
+</i></b>    </font><font color="#0000FF">INPUT </font><font color="#800080">&quot;&gt;&gt;&quot;</font><font color="#000080">, </font>inputexpr
+    <font color="#0000FF">IF RTRIM$</font><font color="#000080">(</font>inputexpr<font color="#000080">)&lt;&gt;</font><font color="#800080">&quot;&quot;
+        </font><font color="#0000FF">PRINT </font><font color="#800080">&quot;    Ans = &quot;</font><font color="#000080">, </font>Eval<font color="#000080">(</font>inputexpr<font color="#000080">)
+    </font><font color="#0000FF">ENDIF
+UNTIL RTRIM$</font><font color="#000080">(</font>inputexpr<font color="#000080">)=</font><font color="#800080">&quot;&quot;
+
+</font><font color="#008000"><b><i>'end the program
+</i></b></font><font color="#0000FF">CLOSECONSOLE
+END
+
+</font><font color="#008000"><b><i>'_____________________________________________________________________
+</i></b></font><font color="#0000FF">SUB </font>Eval<font color="#000080">(</font>Expression<font color="#000080">:</font><font color="#FF0000">STRING</font><font color="#000080">), </font><font color="#FF0000">DOUBLE
+    </font><font color="#0000FF">DEF </font>pos<font color="#000080">:</font><font color="#FF0000">INT
+    </font><font color="#0000FF">DEF </font>expr<font color="#000080">:</font><font color="#FF0000">STRING
+    </font><font color="#0000FF">DEF </font>part1<font color="#000080">, </font>part2<font color="#000080">:</font><font color="#FF0000">STRING
+    
+    </font><font color="#008000"><b><i>'remove spaces at start and end of the expression
+</i></b>    </font>expr <font color="#000080">= </font><font color="#0000FF">LTRIM$</font><font color="#000080">(</font><font color="#0000FF">RTRIM$</font><font color="#000080">(</font>Expression<font color="#000080">))
+    
+    </font><font color="#008000"><b><i>'search for an operator
+</i></b>    </font>pos <font color="#000080">= </font><font color="#0000FF">INSTR</font><font color="#000080">(</font>expr<font color="#000080">, </font><font color="#800080">&quot;+&quot;</font><font color="#000080">)
+    </font><font color="#0000FF">IF </font>pos
+        <font color="#008000"><b><i>'there is an operator found at position pos. Split up the
+</i></b>        <b><i>'expression in two parts and calculate the result of that two
+</i></b>        <b><i>'parts. Then calculate the result for the complete expression.
+</i></b>        </font>part1 <font color="#000080">= </font><font color="#0000FF">LEFT$</font><font color="#000080">(</font>expr<font color="#000080">, </font>pos<font color="#000080">-</font><b>1</b><font color="#000080">)
+        </font>part2 <font color="#000080">= </font><font color="#0000FF">RIGHT$</font><font color="#000080">(</font>expr<font color="#000080">, </font><font color="#0000FF">LEN</font><font color="#000080">(</font>expr<font color="#000080">)-</font>pos<font color="#000080">)
+        
+        </font><font color="#008000"><b><i>'calculate the result and return the answer
+</i></b>        </font><font color="#0000FF">RETURN </font>Eval<font color="#000080">(</font>part1<font color="#000080">) + </font>Eval<font color="#000080">(</font>part2<font color="#000080">)
+    </font><font color="#0000FF">ENDIF
+
+    </font><font color="#008000"><b><i>'there are no more operators left in the expression. so the
+</i></b>    <b><i>'expression must be a value. return the value of the expression
+</i></b>    </font><font color="#0000FF">RETURN VAL</font><font color="#000080">(</font>expr<font color="#000080">)
+</font><font color="#0000FF">ENDSUB
+</font>
+<pre></div>
+<!-- Example 1 - END -->
+
+<br>
+<br>
+<div class="bottom"></div>
+<font face="verdana" size=-2>Copyright © 2006 <a href="http://www.speqmath.com" style="text-decoration:none;" TARGET="_blank">SpeQ Mathematics</a></font><br>
+<br>
+
+</div>
+</body>
+</html>

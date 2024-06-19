@@ -1,0 +1,32 @@
+TODO
+
+Version 1.0
+Test for memory leakages. (especially in the sockets and threads)
+improve and test decodeUrl
+neatly handle logfiles (and max.log size / age)
+
+Version 1.1
+Add an sqlite database for statistics, log, and the blacklist
+Add caching of files
+
+Version 1.2
+run as service on both linux and windows
+
+Version 1.3
+Enable cgi
+
+
+BUGS
+- does not work with 3GB files (does noet work for files above 2.14 GB, (2^32)/2 bytes)
+
+
+EXTRA
+
+add a header Last-Modified in the response
+Add connection:keep-alive?
+directory view: add icons, and add file size and date in a table view
+enable file uploads
+if the requests per second of one certain ip is above a limit, put it on the blacklist automatically
+create a second program or scripts to start/stop/restart the server, and to monitor status and statistics
+enable continuing a download (start halfway a download)
+give a nicer message in the log when a download cancelled (currently you see a "Error: Could not write to socket")

@@ -1,0 +1,32 @@
+<html>
+<head>
+<script language="javascript">
+function HighlightText(){
+
+if (document.selection) {
+ var r1 = document.body.createTextRange();
+ var r4 = document.body.createTextRange();
+ r1.moveToElementText(document.getElementById('myDiv1'));
+ r4.moveToElementText(document.getElementById('myDiv4'));
+ r1.setEndPoint("EndToEnd", r4);
+ r1.select();
+} else {
+ s = window.getSelection();
+ var r1 = document.createRange();
+ r1.setStartBefore(document.getElementById('myDiv1'));
+ r1.setEndAfter(document.getElementById('myDiv4'));
+ s.addRange(r1);
+}
+}
+</script>
+</head>
+<body>
+<form>
+<div id="myDiv1" class="something">text text text text text text</div>
+<div id="myDiv2" class="something">other text other text</div>
+<div id="myDiv3" class="something">new text new text new text </div>
+<div id="myDiv4" class="something">more text more text more</div>
+<input type="button" name="btn" value="Select All" onClick="HighlightText();">
+</form>
+</body>
+</html>

@@ -1,0 +1,13 @@
+SUB InstrREV(expr:STRING, search:STRING, posmax:INT), INT
+    'returns the position of the last string search in the string expr,
+    ' before position posmax
+    INT n, p
+    p=0	:n=0
+    DO
+        p = INSTR(expr, search, p+1)
+        p = p*(p<=posmax)
+        IF p>0 THEN n=p
+    UNTIL p=0
+    
+    RETURN n
+ENDSUB

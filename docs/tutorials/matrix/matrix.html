@@ -1,0 +1,957 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Untitled</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="generator" content="SynEdit HTML exporter" />
+<style type="text/css">
+<!--
+body { color: #000000; background-color: #FFFFFF; }
+.cpp1-assembler { }
+.cpp1-character { }
+.cpp1-comment { color: #000080; font-style: italic; }
+.cpp1-float { color: #800040; }
+.cpp1-hexadecimal { color: #800040; }
+.cpp1-identifier { }
+.cpp1-illegalchar { }
+.cpp1-number { color: #800040; }
+.cpp1-octal { color: #800040; }
+.cpp1-preprocessor { color: #008000; }
+.cpp1-reservedword { font-weight: bold; }
+.cpp1-space { color: #008080; }
+.cpp1-string { color: #FF0000; }
+.cpp1-symbol { }
+-->
+</style>
+</head>
+<body>
+<pre>
+<code><span style="font: 10pt Courier New;"><span class="cpp1-comment">/*
+A simple matrix class
+c++ code
+Author: Jos de Jong, Nov 2007. Updated March 2010
+
+With this class you can:
+  - create a 2D matrix with custom size
+  - get/set the cell values
+  - use operators +, -, *, /
+  - use functions Ones(), Zeros(), Diag(), Det(), Inv(), Size()
+  - print the content of the matrix
+
+Usage:
+  you can create a matrix by:
+    Matrix A;
+    Matrix A = Matrix(rows, cols);
+    Matrix A = B;
+
+  you can get and set matrix elements by:
+    A(2,3) = 5.6;    // set an element of Matix A
+    value = A(3,1);   // get an element of Matrix A
+    value = A.get(3,1); // get an element of a constant Matrix A
+    A = B;        // copy content of Matrix B to Matrix A
+
+  you can apply operations with matrices and doubles:
+    A = B + C;
+    A = B - C;
+    A = -B;
+    A = B * C;
+    A = B / C;
+
+  the following functions are available:
+    A = Ones(rows, cols);
+    A = Zeros(rows, cols);
+    A = Diag(n);
+    A = Diag(B);
+    d = Det(A);
+    A = Inv(B);
+    cols = A.GetCols();
+    rows = A.GetRows();
+    cols = Size(A, 1);
+    rows = Size(A, 2);
+
+  you can quick-print the content of a matrix in the console with:
+    A.Print();
+*/
+
+</span><span class="cpp1-preprocessor">#include &lt;cstdlib&gt;
+#include &lt;cstdio&gt;
+#include &lt;math.h&gt;
+
+#define PAUSE {printf(&quot;Press \&quot;Enter\&quot; to continue\n&quot;); fflush(stdin); getchar(); fflush(stdin);}
+
+</span><span class="cpp1-comment">// Declarations
+</span><span class="cpp1-reservedword">class</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix;
+</span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Det(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a);
+Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Diag(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">n);
+Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Diag(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">v);
+Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Inv(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a);
+Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Ones(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols);
+</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Size(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">i);
+Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Zeros(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols);
+
+
+</span><span class="cpp1-comment">/*
+ * a simple exception class
+ * you can create an exeption by entering
+ *   throw Exception(&quot;...Error description...&quot;);
+ * and get the error message from the data msg for displaying:
+ *   err.msg
+ */
+</span><span class="cpp1-reservedword">class</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Exception
+{
+</span><span class="cpp1-reservedword">public</span><span class="cpp1-symbol">:
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">char</span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">msg;
+</span><span class="cpp1-space">  </span><span class="cpp1-identifier">Exception(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">char</span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">arg)
+</span><span class="cpp1-space">   </span><span class="cpp1-symbol">:</span><span class="cpp1-space"> </span><span class="cpp1-identifier">msg(arg)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+};
+
+
+
+</span><span class="cpp1-reservedword">class</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix
+{
+</span><span class="cpp1-reservedword">public</span><span class="cpp1-symbol">:
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// constructor
+</span><span class="cpp1-space">  </span><span class="cpp1-identifier">Matrix()
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">//printf(&quot;Executing constructor Matrix() ...\n&quot;);
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// create a Matrix object without content
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">p</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">NULL;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">cols</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// constructor
+</span><span class="cpp1-space">  </span><span class="cpp1-identifier">Matrix(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">row_count,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">column_count)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// create a Matrix object with given number of rows and columns
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">p</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">NULL;
+
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(row_count</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&gt;</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">column_count</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&gt;</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">row_count;
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">cols</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">column_count;
+
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">p</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">new</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-symbol">*[rows];
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r++)
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">p[r]</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">new</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-symbol">[cols];
+
+</span><span class="cpp1-space">        </span><span class="cpp1-comment">// initially fill in zeros for all values in the matrix;
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c++)
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">          </span><span class="cpp1-identifier">p[r][c]</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// assignment operator
+</span><span class="cpp1-space">  </span><span class="cpp1-identifier">Matrix(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.rows;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">cols</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.cols;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">p</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">new</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-symbol">*[a.rows];
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.rows;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r++)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">p[r]</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">new</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-symbol">[a.cols];
+
+</span><span class="cpp1-space">      </span><span class="cpp1-comment">// copy the values from the matrix a
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.cols;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c++)
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">p[r][c]</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.p[r][c];
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// index operator. You can use this class like myMatrix(col, row)
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// the indexes are one-based, not zero based.
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">double</span><span class="cpp1-symbol">&amp;</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">operator</span><span class="cpp1-symbol">()(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(p</span><span class="cpp1-space"> </span><span class="cpp1-symbol">!=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">NULL</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&gt;</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&gt;</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">p[r-</span><span class="cpp1-number">1</span><span class="cpp1-symbol">][c-</span><span class="cpp1-number">1</span><span class="cpp1-symbol">];
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">else
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">throw</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Exception(</span><span class="cpp1-string">&quot;Subscript out of range&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// index operator. You can use this class like myMatrix.get(col, row)
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// the indexes are one-based, not zero based.
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// use this function get if you want to read from a const Matrix
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">get(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c)</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(p</span><span class="cpp1-space"> </span><span class="cpp1-symbol">!=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">NULL</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&gt;</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&gt;</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">p[r-</span><span class="cpp1-number">1</span><span class="cpp1-symbol">][c-</span><span class="cpp1-number">1</span><span class="cpp1-symbol">];
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">else
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">throw</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Exception(</span><span class="cpp1-string">&quot;Subscript out of range&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// assignment operator
+</span><span class="cpp1-space">  </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">operator</span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.rows;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">cols</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.cols;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">p</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">new</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-symbol">*[a.rows];
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.rows;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r++)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">p[r]</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">new</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-symbol">[a.cols];
+
+</span><span class="cpp1-space">      </span><span class="cpp1-comment">// copy the values from the matrix a
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.cols;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c++)
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">p[r][c]</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.p[r][c];
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*</span><span class="cpp1-reservedword">this</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// add a double value (elements wise)
+</span><span class="cpp1-space">  </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Add(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">v)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r++)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c++)
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">p[r][c]</span><span class="cpp1-space"> </span><span class="cpp1-symbol">+=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">v;
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">     </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*</span><span class="cpp1-reservedword">this</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// subtract a double value (elements wise)
+</span><span class="cpp1-space">  </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Subtract(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">v)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Add(-v);
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// multiply a double value (elements wise)
+</span><span class="cpp1-space">  </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Multiply(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">v)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r++)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c++)
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">p[r][c]</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">v;
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">     </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*</span><span class="cpp1-reservedword">this</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// divide a double value (elements wise)
+</span><span class="cpp1-space">  </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Divide(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">v)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">     </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Multiply(</span><span class="cpp1-number">1</span><span class="cpp1-symbol">/v);
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// addition of Matrix with Matrix
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">friend</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">operator</span><span class="cpp1-symbol">+(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// check if the dimensions match
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(a.rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b.rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.cols</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b.cols)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res(a.rows,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.cols);
+
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.rows;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r++)
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.cols;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c++)
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">          </span><span class="cpp1-identifier">res.p[r][c]</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.p[r][c]</span><span class="cpp1-space"> </span><span class="cpp1-symbol">+</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b.p[r][c];
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res;
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">else
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-comment">// give an error
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">throw</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Exception(</span><span class="cpp1-string">&quot;Dimensions does not match&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// return an empty matrix (this never happens but just for safety)
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix();
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// addition of Matrix with double
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">friend</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">operator</span><span class="cpp1-symbol">+</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">res.Add(b);
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res;
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// addition of double with Matrix
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">friend</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">operator</span><span class="cpp1-symbol">+</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">res.Add(b);
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res;
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// subtraction of Matrix with Matrix
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">friend</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">operator</span><span class="cpp1-symbol">-</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// check if the dimensions match
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(a.rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b.rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.cols</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b.cols)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res(a.rows,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.cols);
+
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.rows;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r++)
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.cols;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c++)
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">          </span><span class="cpp1-identifier">res.p[r][c]</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.p[r][c]</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b.p[r][c];
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res;
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">else
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-comment">// give an error
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">throw</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Exception(</span><span class="cpp1-string">&quot;Dimensions does not match&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// return an empty matrix (this never happens but just for safety)
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix();
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// subtraction of Matrix with double
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">friend</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">operator</span><span class="cpp1-symbol">-</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">res.Subtract(b);
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res;
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// subtraction of double with Matrix
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">friend</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">operator</span><span class="cpp1-symbol">-</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-a;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">res.Add(b);
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res;
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// operator unary minus
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">friend</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">operator</span><span class="cpp1-symbol">-</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res(a.rows,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.cols);
+
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.rows;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r++)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.cols;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c++)
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">res.p[r][c]</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-a.p[r][c];
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res;
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// operator multiplication
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">friend</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">operator</span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// check if the dimensions match
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(a.cols</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b.rows)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res(a.rows,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b.cols);
+
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.rows;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r++)
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c_res</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c_res</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b.cols;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c_res++)
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">          </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.cols;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c++)
+</span><span class="cpp1-space">          </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">            </span><span class="cpp1-identifier">res.p[r][c_res]</span><span class="cpp1-space"> </span><span class="cpp1-symbol">+=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.p[r][c]</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b.p[c][c_res];
+</span><span class="cpp1-space">          </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res;
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">else
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-comment">// give an error
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">throw</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Exception(</span><span class="cpp1-string">&quot;Dimensions does not match&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// return an empty matrix (this never happens but just for safety)
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix();
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// multiplication of Matrix with double
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">friend</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">operator</span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">res.Multiply(b);
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res;
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// multiplication of double with Matrix
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">friend</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">operator</span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">res.Multiply(b);
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res;
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// division of Matrix with Matrix
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">friend</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">operator</span><span class="cpp1-symbol">/</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// check if the dimensions match: must be square and equal sizes
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(a.rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.cols</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.cols</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b.rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b.cols)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res(a.rows,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.cols);
+
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">res</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Inv(b);
+
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res;
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">else
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-comment">// give an error
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">throw</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Exception(</span><span class="cpp1-string">&quot;Dimensions does not match&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// return an empty matrix (this never happens but just for safety)
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix();
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// division of Matrix with double
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">friend</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">operator</span><span class="cpp1-symbol">/</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">res.Divide(b);
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res;
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// division of double with Matrix
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">friend</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">operator</span><span class="cpp1-symbol">/</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b_matrix(</span><span class="cpp1-number">1</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">b_matrix(</span><span class="cpp1-number">1</span><span class="cpp1-symbol">,</span><span class="cpp1-number">1</span><span class="cpp1-symbol">)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b;
+
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b_matrix</span><span class="cpp1-space"> </span><span class="cpp1-symbol">/</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a;
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res;
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">/**
+   * returns the minor from the given matrix where
+   * the selected row and column are removed
+   */
+</span><span class="cpp1-space">  </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Minor(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">row,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">col)</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res;
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(row</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&gt;</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">row</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">col</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&gt;</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">col</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">res</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix(rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">);
+
+</span><span class="cpp1-space">      </span><span class="cpp1-comment">// copy the content of the matrix to the minor, except the selected
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;=</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(row</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&gt;=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows));</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r++)
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;=</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(cols</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(col</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&gt;=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols));</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c++)
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">          </span><span class="cpp1-identifier">res(r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&gt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">row),</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&gt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">col))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">p[r-</span><span class="cpp1-number">1</span><span class="cpp1-symbol">][c-</span><span class="cpp1-number">1</span><span class="cpp1-symbol">];
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">else
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">throw</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Exception(</span><span class="cpp1-string">&quot;Index for minor out of range&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res;
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">/*
+   * returns the size of the i-th dimension of the matrix.
+   * i.e. for i=1 the function returns the number of rows,
+   * and for i=2 the function returns the number of columns
+   * else the function returns 0
+   */
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Size(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">i)</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(i</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows;
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">else</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(i</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-number">2</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols;
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// returns the number of rows
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">GetRows()</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows;
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// returns the number of columns
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">GetCols()</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols;
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// print the contents of the matrix
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">void</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Print()</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(p</span><span class="cpp1-space"> </span><span class="cpp1-symbol">!=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">NULL)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;[&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r++)
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&gt;</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">          </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot; &quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols-</span><span class="cpp1-number">1</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c++)
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">          </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;%.2f, &quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">p[r][c]);
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows-</span><span class="cpp1-number">1</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">          </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;%.2f;\n&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">p[r][cols-</span><span class="cpp1-number">1</span><span class="cpp1-symbol">]);
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">else
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">          </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;%.2f]\n&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">p[r][cols-</span><span class="cpp1-number">1</span><span class="cpp1-symbol">]);
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">else
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-comment">// matrix is empty
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;[ ]\n&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-reservedword">public</span><span class="cpp1-symbol">:
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// destructor
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">~Matrix()
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// clean up allocated memory
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r++)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">delete</span><span class="cpp1-space"> </span><span class="cpp1-identifier">p[r];
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">delete</span><span class="cpp1-space"> </span><span class="cpp1-identifier">p;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">p</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">NULL;
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-reservedword">private</span><span class="cpp1-symbol">:
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows;
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols;
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">double</span><span class="cpp1-symbol">**</span><span class="cpp1-space"> </span><span class="cpp1-identifier">p;</span><span class="cpp1-space">     </span><span class="cpp1-comment">// pointer to a matrix with doubles
+</span><span class="cpp1-symbol">};
+
+</span><span class="cpp1-comment">/*
+ * i.e. for i=1 the function returns the number of rows,
+ * and for i=2 the function returns the number of columns
+ * else the function returns 0
+ */
+</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Size(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">i)
+{
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.Size(i);
+}
+
+
+</span><span class="cpp1-comment">/**
+ * returns a matrix with size cols x rows with ones as values
+ */
+</span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Ones(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols)
+{
+</span><span class="cpp1-space">  </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix(rows,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols);
+
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r++)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c++)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">res(r,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res;
+}
+
+</span><span class="cpp1-comment">/**
+ * returns a matrix with size cols x rows with zeros as values
+ */
+</span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Zeros(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols)
+{
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix(rows,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols);
+}
+
+
+</span><span class="cpp1-comment">/**
+ * returns a diagonal matrix with size n x n with ones at the diagonal
+ * @param  v a vector
+ * @return a diagonal matrix with ones on the diagonal
+ */
+</span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Diag(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">n)
+{
+</span><span class="cpp1-space">  </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix(n,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">n);
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">i</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">i</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">n;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">i++)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">res(i,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">i)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res;
+}
+
+</span><span class="cpp1-comment">/**
+ * returns a diagonal matrix
+ * @param  v a vector
+ * @return a diagonal matrix with the given vector v on the diagonal
+ */
+</span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Diag(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">v)
+{
+</span><span class="cpp1-space">  </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res;
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(v.GetCols()</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// the given matrix is a vector n x 1
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">v.GetRows();
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">res</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix(rows,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows);
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// copy the values of the vector to the matrix
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r=</span><span class="cpp1-number">1</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r++)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">res(r,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">v.get(r,</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">else</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(v.GetRows()</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// the given matrix is a vector 1 x n
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">v.GetCols();
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">res</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix(cols,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols);
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// copy the values of the vector to the matrix
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c=</span><span class="cpp1-number">1</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c++)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">res(c,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">v.get(</span><span class="cpp1-number">1</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c);
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">else
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">throw</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Exception(</span><span class="cpp1-string">&quot;Parameter for diag must be a vector&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res;
+}
+
+</span><span class="cpp1-comment">/*
+ * returns the determinant of Matrix a
+ */
+</span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Det(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a)
+{
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">d</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;</span><span class="cpp1-space">    </span><span class="cpp1-comment">// value of the determinant
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.GetRows();
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.GetRows();
+
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// this is a square matrix
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-comment">// this is a 1 x 1 matrix
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">d</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.get(</span><span class="cpp1-number">1</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">else</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-number">2</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-comment">// this is a 2 x 2 matrix
+</span><span class="cpp1-space">      </span><span class="cpp1-comment">// the determinant of [a11,a12;a21,a22] is det = a11*a22-a21*a12
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">d</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.get(</span><span class="cpp1-number">1</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.get(</span><span class="cpp1-number">2</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-number">2</span><span class="cpp1-symbol">)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.get(</span><span class="cpp1-number">2</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.get(</span><span class="cpp1-number">1</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-number">2</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">else
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-comment">// this is a matrix of 3 x 3 or larger
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c++)
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">M</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.Minor(</span><span class="cpp1-number">1</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c);
+</span><span class="cpp1-space">        </span><span class="cpp1-comment">//d += pow(-1, 1+c) * a(1, c) * Det(M);
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">d</span><span class="cpp1-space"> </span><span class="cpp1-symbol">+=</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(c%</span><span class="cpp1-number">2</span><span class="cpp1-space"> </span><span class="cpp1-symbol">+</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c%</span><span class="cpp1-number">2</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.get(</span><span class="cpp1-number">1</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Det(M);</span><span class="cpp1-space"> </span><span class="cpp1-comment">// faster than with pow()
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">else
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">throw</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Exception(</span><span class="cpp1-string">&quot;Matrix must be square&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">d;
+}
+
+</span><span class="cpp1-comment">// swap two values
+</span><span class="cpp1-reservedword">void</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Swap(</span><span class="cpp1-reservedword">double</span><span class="cpp1-symbol">&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-symbol">&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b)
+{
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">temp</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a;
+</span><span class="cpp1-space">  </span><span class="cpp1-identifier">a</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">b;
+</span><span class="cpp1-space">  </span><span class="cpp1-identifier">b</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">temp;
+}
+
+</span><span class="cpp1-comment">/*
+ * returns the inverse of Matrix a
+ */
+</span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Inv(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a)
+{
+</span><span class="cpp1-space">  </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res;
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">d</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;</span><span class="cpp1-space">    </span><span class="cpp1-comment">// value of the determinant
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.GetRows();
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.GetRows();
+
+</span><span class="cpp1-space">  </span><span class="cpp1-identifier">d</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Det(a);
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">d</span><span class="cpp1-space"> </span><span class="cpp1-symbol">!=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// this is a square matrix
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-comment">// this is a 1 x 1 matrix
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">res</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix(rows,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols);
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">res(</span><span class="cpp1-number">1</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-space"> </span><span class="cpp1-symbol">/</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.get(</span><span class="cpp1-number">1</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">else</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-number">2</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-comment">// this is a 2 x 2 matrix
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">res</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix(rows,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols);
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">res(</span><span class="cpp1-number">1</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.get(</span><span class="cpp1-number">2</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-number">2</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">res(</span><span class="cpp1-number">1</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-number">2</span><span class="cpp1-symbol">)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-a.get(</span><span class="cpp1-number">1</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-number">2</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">res(</span><span class="cpp1-number">2</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-a.get(</span><span class="cpp1-number">2</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">res(</span><span class="cpp1-number">2</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-number">2</span><span class="cpp1-symbol">)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a.get(</span><span class="cpp1-number">1</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">res</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-number">1</span><span class="cpp1-symbol">/d)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res;
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">else
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-comment">// this is a matrix of 3 x 3 or larger
+</span><span class="cpp1-space">      </span><span class="cpp1-comment">// calculate inverse using gauss-jordan elimination
+</span><span class="cpp1-space">      </span><span class="cpp1-comment">//   http://mathworld.wolfram.com/MatrixInverse.html
+</span><span class="cpp1-space">      </span><span class="cpp1-comment">//   http://math.uww.edu/~mcfarlat/inverse.htm
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">res</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Diag(rows);</span><span class="cpp1-space">   </span><span class="cpp1-comment">// a diagonal matrix with ones at the diagonal
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ai</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">a;</span><span class="cpp1-space">    </span><span class="cpp1-comment">// make a copy of Matrix a
+
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c++)
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-comment">// element (c, c) should be non zero. if not, swap content
+</span><span class="cpp1-space">        </span><span class="cpp1-comment">// of lower rows
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r;
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ai(r,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r++)
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">!=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c)
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">          </span><span class="cpp1-comment">// swap rows
+</span><span class="cpp1-space">          </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">s</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">s</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">s++)
+</span><span class="cpp1-space">          </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">            </span><span class="cpp1-identifier">Swap(ai(c,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">s),</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ai(r,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">s));
+</span><span class="cpp1-space">            </span><span class="cpp1-identifier">Swap(res(c,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">s),</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res(r,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">s));
+</span><span class="cpp1-space">          </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">        </span><span class="cpp1-comment">// eliminate non-zero values on the other rows at column c
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r++)
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">          </span><span class="cpp1-reservedword">if</span><span class="cpp1-symbol">(r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">!=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c)
+</span><span class="cpp1-space">          </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">            </span><span class="cpp1-comment">// eleminate value at column c and row r
+</span><span class="cpp1-space">            </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(ai(r,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">!=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">            </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">              </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">f</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ai(r,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">/</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ai(c,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c);
+
+</span><span class="cpp1-space">              </span><span class="cpp1-comment">// add (f * row c) to row r to eleminate the value
+</span><span class="cpp1-space">              </span><span class="cpp1-comment">// at column c
+</span><span class="cpp1-space">              </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">s</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">s</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">s++)
+</span><span class="cpp1-space">              </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">                </span><span class="cpp1-identifier">ai(r,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">s)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">+=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">f</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ai(c,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">s);
+</span><span class="cpp1-space">                </span><span class="cpp1-identifier">res(r,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">s)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">+=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">f</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res(c,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">s);
+</span><span class="cpp1-space">              </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">            </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">          </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">          </span><span class="cpp1-reservedword">else
+</span><span class="cpp1-space">          </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">            </span><span class="cpp1-comment">// make value at (c, c) one,
+</span><span class="cpp1-space">            </span><span class="cpp1-comment">// divide each value on row r with the value at ai(c,c)
+</span><span class="cpp1-space">            </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">f</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ai(c,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c);
+</span><span class="cpp1-space">            </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">s</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">s</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">s++)
+</span><span class="cpp1-space">            </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">              </span><span class="cpp1-identifier">ai(r,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">s)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">/=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">f;
+</span><span class="cpp1-space">              </span><span class="cpp1-identifier">res(r,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">s)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">/=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">f;
+</span><span class="cpp1-space">            </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">          </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">else
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">throw</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Exception(</span><span class="cpp1-string">&quot;Matrix must be square&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">else
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">throw</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Exception(</span><span class="cpp1-string">&quot;Determinant of matrix is zero&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">res;
+}
+
+
+</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">main(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">argc,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">char</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*argv[])
+{
+</span><span class="cpp1-space">  </span><span class="cpp1-comment">// below some demonstration of the usage of the Matrix class
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">try
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// create an empty matrix of 3x3 (will initially contain zeros)
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">3</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">3</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">A</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix(cols,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows);
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// fill in some values in matrix a
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">count</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r++)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c++)
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">count</span><span class="cpp1-space"> </span><span class="cpp1-symbol">++;
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">A(r,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">count;
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// adjust a value in the matrix (indexes are one-based)
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">A(</span><span class="cpp1-number">2</span><span class="cpp1-symbol">,</span><span class="cpp1-number">1</span><span class="cpp1-symbol">)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-float">1.23</span><span class="cpp1-symbol">;
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// read a value from the matrix (indexes are one-based)
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">centervalue</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">A(</span><span class="cpp1-number">2</span><span class="cpp1-symbol">,</span><span class="cpp1-number">2</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;centervalue = %f \n&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">centervalue);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;\n&quot;</span><span class="cpp1-symbol">);
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// print the whole matrix
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;A = \n&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">A.Print();
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;\n&quot;</span><span class="cpp1-symbol">);
+
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">B</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Ones(rows,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">+</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Diag(rows);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;B = \n&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">B.Print();
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;\n&quot;</span><span class="cpp1-symbol">);
+
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">B2</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix(rows,</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">);</span><span class="cpp1-space">    </span><span class="cpp1-comment">// a vector
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">count</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r++)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">count</span><span class="cpp1-space"> </span><span class="cpp1-symbol">++;
+</span><span class="cpp1-space">      </span><span class="cpp1-identifier">B2(r,</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">count</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-number">2</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;B2 = \n&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">B2.Print();
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;\n&quot;</span><span class="cpp1-symbol">);
+
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">C;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">C</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">A</span><span class="cpp1-space"> </span><span class="cpp1-symbol">+</span><span class="cpp1-space"> </span><span class="cpp1-identifier">B;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;A + B = \n&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">C.Print();
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;\n&quot;</span><span class="cpp1-symbol">);
+
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">C</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">A</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-</span><span class="cpp1-space"> </span><span class="cpp1-identifier">B;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;A - B = \n&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">C.Print();
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;\n&quot;</span><span class="cpp1-symbol">);
+
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">C</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">A</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">B2;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;A * B2 = \n&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">C.Print();
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;\n&quot;</span><span class="cpp1-symbol">);
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// create a diagonal matrix
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">E</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Diag(B2);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;E = \n&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">E.Print();
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;\n&quot;</span><span class="cpp1-symbol">);
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// calculate determinant
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">D</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix(</span><span class="cpp1-number">2</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-number">2</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">D(</span><span class="cpp1-number">1</span><span class="cpp1-symbol">,</span><span class="cpp1-number">1</span><span class="cpp1-symbol">)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">2</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">D(</span><span class="cpp1-number">1</span><span class="cpp1-symbol">,</span><span class="cpp1-number">2</span><span class="cpp1-symbol">)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">4</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">D(</span><span class="cpp1-number">2</span><span class="cpp1-symbol">,</span><span class="cpp1-number">1</span><span class="cpp1-symbol">)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">D(</span><span class="cpp1-number">2</span><span class="cpp1-symbol">,</span><span class="cpp1-number">2</span><span class="cpp1-symbol">)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-</span><span class="cpp1-number">2</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;D = \n&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">D.Print();
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;Det(D) = %f\n\n&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Det(D));
+
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;A = \n&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">A.Print();
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;\n&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;Det(A) = %f\n\n&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Det(A));
+
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">F;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">F</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">3</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-</span><span class="cpp1-space"> </span><span class="cpp1-identifier">A</span><span class="cpp1-space"> </span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;3 - A = \n&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">F.Print();
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;\n&quot;</span><span class="cpp1-symbol">);
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// test inverse
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">G</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix(</span><span class="cpp1-number">2</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-number">2</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">G(</span><span class="cpp1-number">1</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">G(</span><span class="cpp1-number">1</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-number">2</span><span class="cpp1-symbol">)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">2</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">G(</span><span class="cpp1-number">2</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">3</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">G(</span><span class="cpp1-number">2</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-number">2</span><span class="cpp1-symbol">)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">4</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;G = \n&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">G.Print();
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;\n&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">G_inv</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Inv(G);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;Inv(G) = \n&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">G_inv.Print();
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;\n&quot;</span><span class="cpp1-symbol">);
+
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">A_inv</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Inv(A);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;Inv(A) = \n&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">A_inv.Print();
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;\n&quot;</span><span class="cpp1-symbol">);
+
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">A_A_inv</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">A</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Inv(A);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;A * Inv(A) = \n&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">A_A_inv.Print();
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;\n&quot;</span><span class="cpp1-symbol">);
+
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">B_A</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">B</span><span class="cpp1-space"> </span><span class="cpp1-symbol">/</span><span class="cpp1-space"> </span><span class="cpp1-identifier">A;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;B / A = \n&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">B_A.Print();
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;\n&quot;</span><span class="cpp1-symbol">);
+
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">A_3</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">A</span><span class="cpp1-space"> </span><span class="cpp1-symbol">/</span><span class="cpp1-space"> </span><span class="cpp1-number">3</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;A / 3 = \n&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">A_3.Print();
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;\n&quot;</span><span class="cpp1-symbol">);
+
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">rows</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">2</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">cols</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">5</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">Matrix</span><span class="cpp1-space"> </span><span class="cpp1-identifier">H</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Matrix(rows,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols);
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rows;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">r++)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">for</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cols;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c++)
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">count</span><span class="cpp1-space"> </span><span class="cpp1-symbol">++;
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">H(r,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">count;
+</span><span class="cpp1-space">      </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;H = \n&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">H.Print();
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;\n&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">catch</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(Exception</span><span class="cpp1-space"> </span><span class="cpp1-identifier">err)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;Error: %s\n&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">err.msg);
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">catch</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(...)
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;An error occured...\n&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">  </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">  </span><span class="cpp1-identifier">printf(</span><span class="cpp1-string">&quot;\n&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">  </span><span class="cpp1-identifier">PAUSE;
+
+</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">EXIT_SUCCESS;
+}
+
+</span></span>
+</code></pre>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Tutorial on how to create an c++ expression parser -->
+<!-- Created by Jos de Jong, Dec 2007 -->
+<!-- www.speqmath.com -->
+
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=windows-1250">
+  <meta name="generator" content="PSPad editor, www.pspad.com">
+  <meta name="keywords" content="Tutorial, getting, started, wxwidgets, c++, cpp, windows">
+  <meta name="description" content="Tutorial on getting started with wxWidgets in Windows">
+  <link rel="stylesheet" href="layout.css">
+  <title>Getting started with wxWidgets in Windows - Tutorial</title>
+</head>
+
+<body>
+<div class="content">
+
+<h1>Getting started with wxWidgets in Windows</h1>
+<p>
+<img src="img/application.png" align="right" style="margin:0px; margin-left:30px;">
+This tutorial helps you getting started using wxWidgets in Windows. In this tutorial you learn how to create a graphical user interface with wxWidgets using the visual development tool wxDev-C++. 
+We develop a dialog with two statictext boxes, two edit boxes and a button. In the edit boxes you can fill in your name and age. When you press the button, a messagebox will be opened that welcomes you and calculates your year of birth.
+</p>
+
+<p>
+In this tutorial:
+<ul>
+<li><a href="#installation">Installing wxDev-C++</a></li>
+<li><a href="#creating_project">Creating a wxWidgets project</a></li>
+<li><a href="#creating_controls">Creating controls in the dialog</a></li>
+<li><a href="#creating_events">Creating an event for the button</a></li>
+<li><a href="#executable">The executable</a></li>
+<li><a href="#documentation">More documentation and tutorials</a></li>
+
+</ul>
+</p>
+
+<p>
+You can download the project created in this tutorial including executable <a href="files/project1.zip">here</a> (610 KB).
+</p>
+
+
+
+<a name="installation"></a>
+<h2>Installing wxDev-C++</h2>
+<p>
+First you have to install wxDev-C++ on your computer. wxDev-C++ is a visual development environment for C++ and wxWidgets. 
+You can download the program for free from the following site:<br>
+<blockquote>
+<a href="http://wxdsgn.sourceforge.net/" target="_blank">http://wxdsgn.sourceforge.net/</a>
+</blockquote>
+Just use the default setting when installing the program.
+</p>
+
+<a name="creating_project"></a>
+<h2>Creating a wxWidgets project</h2>
+<p>
+Start wxDev-C++. Then choose menu File, new, Project. A dialog opens where you can choose the type and name for the project. Select "wxWidgets Dialog", and enter "Project1" as name for the project. 
+
+<img src="img/new_project.png">
+
+Next, select the folder where you want to store the project file and the source files. Then, a dialog opens where you can choose options for the dialog. Leave everything default and click the button "Create".  
+
+<img src="img/dialog_options.png">
+
+Now the visual designer opens, where you can create controls for the Dialog. On the tab bar (and also in the Project inspector) you see six files made and opened for this project: Project1App.cpp, Project1App.h, Project1App.rc, Project1Dlg.h, Project1Dlg.cpp, Project1Dlg.wxform. All files contain a lot of pre-written code already. Don't get intimidated by that. 
+<br><br>
+To understand why there are six file necessary for only a simple dialog application you need to understand the basics of C++ and wxWidgets. To make a wxWidgets application, you need to create at least a wxApp object. After that you can create one or multiple classes of type wxDialog or wxFrame for your application. In this case we just make one wxDialog, to keep things simple.   
+<br>
+There are tree source files for the wxApp object: a header file Project1App.h where the definition of the class is described, a source file Project1App.cpp where the implementation of the class is done, and a resource file Project1App.rc where the images, icons and other resources for the application are stored.<br>
+Next, to make a dialog for the application, you need to create an object of type wxDialog. This also requires three files: a header file Project1Dlg.h where the definition of the class is described, a source file Project1Dlg.cpp where the implementation of the class is done, and a file Project1Dlg.wxform for the visual designer. In this last file you can design your dialog graphically, and this is what we are going to do next.
+<img src="img/dlg1.png">
+</p>
+
+<a name="creating_controls"></a>
+<h2>Creating controls in the dialog</h2>
+<p>
+In the visual designer, create two controls of type "StaticText" in the upper left of the Dialog, by clicking selecting this control in the list at the right of the screen, and then click and drag in the Dialog where you want to place the control. Change the properties of the two StaticText controls. Select the control, then change the properties in the Property inspector. Give the first the name "lblName" and label "Name"; give the second the name "lblAge" and label "Age". 
+Next, add two controls of type "Edit". Give the first the name "txtName" and text "&lt;enter your name here&gt;", and give the second the name "txtAge" and text "&lt;enter your age here&gt;".
+Finally, add a control of type "Button" to the dialog. Give it the name "btnClick" and label "Click here".
+
+<img src="img/dlg2.png">
+
+You can now compile the program by choosing menu "Execute", "Compile & Run (F9)". When the program is running, you can enter text in the two edit boxes, and you can click the button. However, nothing happens yet when you click the button, because we have to create an event that will be executed when we click the button.
+</p>
+
+
+<a name="creating_events"></a>
+<h2>Creating an event for the button</h2>
+<p>
+Close the program. Then select the button. In the Property inspector, click on the tab "Events". There are two events available, OnClick and OnUpdateUI. Select the property OnClick. Drop down the combobox, and choose "&lt;Add new function&gt;". The code editor opens, and a function called "btnClickClick" is created. In this function you see the text "// insert your code here". This function will be executed when you click the button.
+
+<img src="img/dlg3.png">
+ 
+Now, replace the content of the function "btnClickClick" with the following code:
+<code><pre><font color="blue">  // get the text from the two editboxes
+  wxString nameValue = txtName->GetValue();
+  wxString ageValue = txtAge->GetValue();
+
+  // convert the string with the age to a long value
+  long age = 0;
+  ageValue.ToLong(&age, 10);
+
+  // calculate the year of birth from the given age and current year, 
+  // then convert it to a string
+  int yearnow = wxDateTime::GetCurrentYear();
+  wxString yearofbirth = wxString::Format("%i", yearnow - age);
+
+  // open a message box.
+  wxString info = "Hello " + nameValue + ", welcome!" + "\n" + "\n"
+                  "So you are born in " + yearofbirth + "...";
+  wxMessageBox(info, "Welcome!");
+</font></pre></code>
+
+<img src="img/dlg4.png"> 
+
+You can compile the program again, go to the menu Execute and click on "Compile & Run (F9)". When program is started, you can enter your name and age and press the button "Click here". A messagebox will open that will welcome you and calculate your year of birth.
+</p>
+
+<a name="executable"></a>
+<h2>The executable</h2>
+<p>
+Once you have compiled the program, the executable is by default located in the subfolder \Output\MingW, and is called "Project1.exe". You can run this executable on other computers directly, without having to install extra components on the specific computers. 
+</p>
+
+<p>
+The size of the program is large: about 3 MB by default. You can optimize the program in several ways. 
+If you want to optimize the program, go to menu Project, "Project options (Alt+P)". Go to tab "Compiler". On the left you see a list containing "Linker:". Click on it. Then set the value "Strip Executabe" to "Yes". This will reduce the executable to about 2.1 MB. There are some more optimization options under "Optimization". Also, with an executable compressor like <a href="http://www.bitsum.com/pecompact.php" target="_blank">PEcompact2</a>, <a href="http://upx.sourceforge.net/" target="_blank">UPX</a>, or <a href="http://www.un4seen.com/petite/" target="_blank">Petite</a> you can reduce the size of the executable to about 600 KB.
+</p>
+
+<a name="documentation"></a>
+<h2>More documentation and tutorials</h2>
+<p>
+For more documentation on wxWidgets, you can:
+<ul>
+<li>Buy the book <a href="http://www.wxwidgets.org/docs/book/" target="_blank">Cross-Platform GUI Programming with wxWidgets</a> by Julian Smart and Kevin Hock.</li>
+<li>On the <a href="http://www.wxwidgets.org/docs/tutorials.htm" target="_blank">tutorials page</a> of the wxWidgets site you find more excellent tutorials.</li>
+<li>Check the site <a href="http://wiki.wxwidgets.org/Main_Page" target="_blank">wxWiki</a>, containing a lot of resources, guides, and tutorials.</li>
+<li>Check the site <a href="http://www.wxcommunity.com/" target="_blank">wxCommunity</a>, also containing a lot of resources, add-ons, and applications built with wxWidgets.</li>
+
+
+<li>To to the <a href="http://wxforum.shadonet.com/" target="_blank">wxWidgets forums</a>.</li>
+<li>Use the <a href="http://docs.wxwidgets.org/stable/" target="_blank">online manual</a> of wxWidgets.</li>
+
+</ul>
+
+
+</p>
+
+
+<p>
+Jos de Jong<br>
+May 2008
+</p>
+
+</div>
+</body>
+</html>

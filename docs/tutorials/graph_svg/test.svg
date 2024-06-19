@@ -1,0 +1,34 @@
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
+    "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd"> 
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve"
+         width="200" height="110"
+         viewBox="0 0 200 110"  > 
+	
+	<!-- Matthew Bystedt http://pike.port5.com 2005 --> 
+	
+	<!-- Pattern Definition --> 
+	<defs> 
+		<pattern id="rulerPattern" patternUnits="userSpaceOnUse"
+				x="0" y="0" width="10" height="10"
+				viewBox="0 0 10 10" > 
+				
+			<line x1="0" y1="0" x2="10" y2="0" stroke="lightblue" fill="none" stroke-dasharray="2,2" /> 
+			<line x1="0" y1="0" x2="0" y2="10" stroke="lightblue" fill="none" stroke-dasharray="2,2" /> 
+		</pattern> 
+ 
+        <path id="path1" d="M25, 100 C10,10 175,10 175,100" /> 
+        
+	</defs> 
+ 
+	<!-- Background --> 
+	<rect x="0" y="0" width="100%" height="100%" fill="url(#rulerPattern)" stroke="black" /> 
+ 
+	<!-- Path Text Example --> 
+    
+    <use xlink:href="#path1" fill="none" stroke="red"  /> 
+ 
+    <text font-size="19.5" fill="blue"> 
+        <textPath xlink:href="#path1">Hello text-on-a-path world!</textPath> 
+    </text> 
+  </svg>

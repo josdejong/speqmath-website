@@ -1,0 +1,777 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Untitled</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="generator" content="SynEdit HTML exporter" />
+<style type="text/css">
+<!--
+body { color: #000000; background-color: #FFFFFF; }
+.cpp1-assembler { }
+.cpp1-character { }
+.cpp1-comment { color: #000080; font-style: italic; }
+.cpp1-float { color: #800040; }
+.cpp1-hexadecimal { color: #800040; }
+.cpp1-identifier { }
+.cpp1-illegalchar { }
+.cpp1-number { color: #800040; }
+.cpp1-octal { color: #800040; }
+.cpp1-preprocessor { color: #008000; }
+.cpp1-reservedword { font-weight: bold; }
+.cpp1-space { color: #008080; }
+.cpp1-string { color: #FF0000; }
+.cpp1-symbol { }
+-->
+</style>
+</head>
+<body>
+<pre>
+<code><span style="font: 10pt Courier New;">
+<span class="cpp1-comment">// declarations
+</span><span class="cpp1-preprocessor">#include &quot;parser.h&quot;
+
+
+</span><span class="cpp1-reservedword">using</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">namespace</span><span class="cpp1-space"> </span><span class="cpp1-identifier">std;
+
+
+
+</span><span class="cpp1-comment">/*
+ * constructor. 
+ * Initializes all data with zeros and empty strings
+ */
+</span><span class="cpp1-identifier">Parser::Parser()
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">expr[</span><span class="cpp1-number">0</span><span class="cpp1-symbol">]</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-character">'\0';
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">e</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">NULL;
+
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">token[</span><span class="cpp1-number">0</span><span class="cpp1-symbol">]</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-character">'\0';
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">token_type</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">NOTHING;
+}
+
+
+</span><span class="cpp1-comment">/**
+ * parses and evaluates the given expression
+ * On error, an error of type Error is thrown
+ */
+</span><span class="cpp1-reservedword">char</span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Parser::parse(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">char</span><span class="cpp1-space"> </span><span class="cpp1-identifier">new_expr[])
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">try
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-comment">// check the length of expr
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(strlen(new_expr)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&gt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">EXPR_LEN_MAX)
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">            </span><span class="cpp1-reservedword">throw</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Error(row(),</span><span class="cpp1-space"> </span><span class="cpp1-identifier">col(),</span><span class="cpp1-space"> </span><span class="cpp1-number">200</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">        </span><span class="cpp1-comment">// initialize all variables
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">strcpy(expr,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">new_expr);</span><span class="cpp1-space">     </span><span class="cpp1-comment">// copy the given expression to expr
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">e</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">expr;</span><span class="cpp1-space">                   </span><span class="cpp1-comment">// let e point to the start of the expression
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">ans</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">getToken();
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(token_type</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">DELIMETER</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;&amp;</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*token</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-character">'\0')
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">            </span><span class="cpp1-reservedword">throw</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Error(row(),</span><span class="cpp1-space"> </span><span class="cpp1-identifier">col(),</span><span class="cpp1-space"> </span><span class="cpp1-number">4</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">ans</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level1();
+
+</span><span class="cpp1-space">        </span><span class="cpp1-comment">// check for garbage at the end of the expression 
+</span><span class="cpp1-space">        </span><span class="cpp1-comment">// an expression ends with a character '\0' and token_type = delimeter
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(token_type</span><span class="cpp1-space"> </span><span class="cpp1-symbol">!=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">DELIMETER</span><span class="cpp1-space"> </span><span class="cpp1-symbol">||</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*token</span><span class="cpp1-space"> </span><span class="cpp1-symbol">!=</span><span class="cpp1-space"> </span><span class="cpp1-character">'\0')
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">            </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(token_type</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">DELIMETER)
+</span><span class="cpp1-space">            </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">                </span><span class="cpp1-comment">// user entered a not existing operator like &quot;//&quot;
+</span><span class="cpp1-space">                </span><span class="cpp1-reservedword">throw</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Error(row(),</span><span class="cpp1-space"> </span><span class="cpp1-identifier">col(),</span><span class="cpp1-space"> </span><span class="cpp1-number">101</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">token);
+</span><span class="cpp1-space">            </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">            </span><span class="cpp1-reservedword">else
+</span><span class="cpp1-space">            </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">                </span><span class="cpp1-reservedword">throw</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Error(row(),</span><span class="cpp1-space"> </span><span class="cpp1-identifier">col(),</span><span class="cpp1-space"> </span><span class="cpp1-number">5</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">token);
+</span><span class="cpp1-space">            </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">}</span><span class="cpp1-space">  
+
+        </span><span class="cpp1-comment">// add the answer to memory as variable &quot;Ans&quot;
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">user_var.add(</span><span class="cpp1-string">&quot;Ans&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans);
+
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">snprintf(ans_str,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">sizeof</span><span class="cpp1-symbol">(ans_str),</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;Ans = %g&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans);
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">catch</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(Error</span><span class="cpp1-space"> </span><span class="cpp1-identifier">err)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(err.get_row()</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-</span><span class="cpp1-number">1</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">            </span><span class="cpp1-identifier">snprintf(ans_str,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">sizeof</span><span class="cpp1-symbol">(ans_str),</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;Error: %s (col %i)&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">err.get_msg(),</span><span class="cpp1-space"> </span><span class="cpp1-identifier">err.get_col());
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">else
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">            </span><span class="cpp1-identifier">snprintf(ans_str,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">sizeof</span><span class="cpp1-symbol">(ans_str),</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;Error: %s (ln %i, col %i)&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">err.get_msg(),</span><span class="cpp1-space"> </span><span class="cpp1-identifier">err.get_row(),</span><span class="cpp1-space"> </span><span class="cpp1-identifier">err.get_col());
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans_str;
+}
+
+
+</span><span class="cpp1-comment">/*
+ * checks if the given char c is a minus
+ */
+</span><span class="cpp1-reservedword">bool</span><span class="cpp1-space"> </span><span class="cpp1-identifier">isMinus(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">char</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c)
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">)</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-character">'-';
+}
+
+
+
+</span><span class="cpp1-comment">/*
+ * checks if the given char c is whitespace
+ * whitespace when space chr(32) or tab chr(9)
+ */
+</span><span class="cpp1-reservedword">bool</span><span class="cpp1-space"> </span><span class="cpp1-identifier">isWhiteSpace(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">char</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c)
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">)</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-number">32</span><span class="cpp1-space"> </span><span class="cpp1-symbol">||</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-number">9</span><span class="cpp1-symbol">;</span><span class="cpp1-space">  </span><span class="cpp1-comment">// space or tab
+</span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-comment">/*
+ * checks if the given char c is a delimeter
+ * minus is checked apart, can be unary minus
+ */
+</span><span class="cpp1-reservedword">bool</span><span class="cpp1-space"> </span><span class="cpp1-identifier">isDelimeter(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">char</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c)
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">)</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">strchr(</span><span class="cpp1-string">&quot;&amp;|&lt;&gt;=+/*%^!&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">!=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+}
+
+</span><span class="cpp1-comment">/*
+ * checks if the given char c is NO delimeter
+ */
+</span><span class="cpp1-reservedword">bool</span><span class="cpp1-space"> </span><span class="cpp1-identifier">isNotDelimeter(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">char</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c)
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">)</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">strchr(</span><span class="cpp1-string">&quot;&amp;|&lt;&gt;=+-/*%^!()&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">!=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+}
+
+</span><span class="cpp1-comment">/*
+ * checks if the given char c is a letter or undersquare
+ */
+</span><span class="cpp1-reservedword">bool</span><span class="cpp1-space"> </span><span class="cpp1-identifier">isAlpha(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">char</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c)
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">)</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">strchr(</span><span class="cpp1-string">&quot;ABCDEFGHIJKLMNOPQRSTUVWXYZ_&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">toupper(c))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">!=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+}
+
+</span><span class="cpp1-comment">/*
+ * checks if the given char c is a digit or dot
+ */
+</span><span class="cpp1-reservedword">bool</span><span class="cpp1-space"> </span><span class="cpp1-identifier">isDigitDot(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">char</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c)
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">)</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">strchr(</span><span class="cpp1-string">&quot;0123456789.&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">!=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+}
+
+</span><span class="cpp1-comment">/*
+ * checks if the given char c is a digit
+ */
+</span><span class="cpp1-reservedword">bool</span><span class="cpp1-space"> </span><span class="cpp1-identifier">isDigit(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">char</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c)
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(c</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">)</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">strchr(</span><span class="cpp1-string">&quot;0123456789&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">c)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">!=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+}
+
+
+</span><span class="cpp1-comment">/**
+ * Get next token in the current string expr.
+ * Uses the Parser data expr, e, token, t, token_type and err
+ */
+</span><span class="cpp1-reservedword">void</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Parser::getToken()
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">token_type</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">NOTHING;
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">char</span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">t;</span><span class="cpp1-space">           </span><span class="cpp1-comment">// points to a character in token
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">t</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">token;</span><span class="cpp1-space">         </span><span class="cpp1-comment">// let t point to the first character in token
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">*t</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-character">'\0';</span><span class="cpp1-space">         </span><span class="cpp1-comment">// set token empty
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">//printf(&quot;\tgetToken e:{%c}, ascii=%i, col=%i\n&quot;, *e, *e, e-expr);
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// skip over whitespaces
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">while</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(*e</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-character">' '</span><span class="cpp1-space"> </span><span class="cpp1-symbol">||</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*e</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-character">'\t')</span><span class="cpp1-space">     </span><span class="cpp1-comment">// space or tab
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">e++;
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// check for end of expression
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(*e</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-character">'\0')
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-comment">// token is still empty
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">token_type</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">DELIMETER;
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">return</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// check for minus
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(*e</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-character">'-')
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">token_type</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">DELIMETER;
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">*t</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*e;
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">e++;
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">t++;
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">*t</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-character">'\0';</span><span class="cpp1-space">  </span><span class="cpp1-comment">// add a null character at the end of token
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">return</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// check for parentheses
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(*e</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-character">'('</span><span class="cpp1-space"> </span><span class="cpp1-symbol">||</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*e</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-character">')')
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">token_type</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">DELIMETER;
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">*t</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*e;
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">e++;
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">t++;
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">*t</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-character">'\0';
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">return</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// check for operators (delimeters)
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(isDelimeter(*e))
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">token_type</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">DELIMETER;
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">while</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(isDelimeter(*e))
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">            </span><span class="cpp1-symbol">*t</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*e;
+</span><span class="cpp1-space">            </span><span class="cpp1-identifier">e++;
+</span><span class="cpp1-space">            </span><span class="cpp1-identifier">t++;
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">*t</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-character">'\0';</span><span class="cpp1-space">  </span><span class="cpp1-comment">// add a null character at the end of token
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">return</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    
+    </span><span class="cpp1-comment">// check for a value
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(isDigitDot(*e))
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">token_type</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">NUMBER;
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">while</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(isDigitDot(*e))
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">            </span><span class="cpp1-symbol">*t</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*e;
+</span><span class="cpp1-space">            </span><span class="cpp1-identifier">e++;
+</span><span class="cpp1-space">            </span><span class="cpp1-identifier">t++;
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">        
+        </span><span class="cpp1-comment">// check for scientific notation like &quot;2.3e-4&quot; or &quot;1.23e50&quot;
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(toupper(*e)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-character">'E')
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">            </span><span class="cpp1-symbol">*t</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*e;
+</span><span class="cpp1-space">            </span><span class="cpp1-identifier">e++;
+</span><span class="cpp1-space">            </span><span class="cpp1-identifier">t++;
+</span><span class="cpp1-space">    
+            </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(*e</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-character">'+'</span><span class="cpp1-space"> </span><span class="cpp1-symbol">||</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*e</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-character">'-')
+</span><span class="cpp1-space">            </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">                </span><span class="cpp1-symbol">*t</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*e;
+</span><span class="cpp1-space">                </span><span class="cpp1-identifier">e++;
+</span><span class="cpp1-space">                </span><span class="cpp1-identifier">t++;
+</span><span class="cpp1-space">            </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">            </span><span class="cpp1-reservedword">while</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(isDigit(*e))
+</span><span class="cpp1-space">            </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">                </span><span class="cpp1-symbol">*t</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*e;
+</span><span class="cpp1-space">                </span><span class="cpp1-identifier">e++;
+</span><span class="cpp1-space">                </span><span class="cpp1-identifier">t++;
+</span><span class="cpp1-space">            </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">        
+        </span><span class="cpp1-symbol">*t</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-character">'\0';
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">return</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// check for variables or functions
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(isAlpha(*e))
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">while</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(isAlpha(*e)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">||</span><span class="cpp1-space"> </span><span class="cpp1-identifier">isDigit(*e))
+</span><span class="cpp1-space">        </span><span class="cpp1-comment">//while (isNotDelimeter(*e))
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">            </span><span class="cpp1-symbol">*t</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*e;
+</span><span class="cpp1-space">            </span><span class="cpp1-identifier">e++;
+</span><span class="cpp1-space">            </span><span class="cpp1-identifier">t++;
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">*t</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-character">'\0';</span><span class="cpp1-space">  </span><span class="cpp1-comment">// add a null character at the end of token
+
+</span><span class="cpp1-space">        </span><span class="cpp1-comment">// check if this is a variable or a function.
+</span><span class="cpp1-space">        </span><span class="cpp1-comment">// a function has a parentesis '(' open after the name 
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">char</span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">e2</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">NULL;
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">e2</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">e;
+
+</span><span class="cpp1-space">        </span><span class="cpp1-comment">// skip whitespaces
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">while</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(*e2</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-character">' '</span><span class="cpp1-space"> </span><span class="cpp1-symbol">||</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*e2</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-character">'\t')</span><span class="cpp1-space">     </span><span class="cpp1-comment">// space or tab
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">            </span><span class="cpp1-identifier">e2++;
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">        
+        </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(*e2</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-character">'(')</span><span class="cpp1-space"> 
+        </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">            </span><span class="cpp1-identifier">token_type</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">FUNCTION;
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">else
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">            </span><span class="cpp1-identifier">token_type</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">VARIABLE;
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">return</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// something unknown is found, wrong characters -&gt; a syntax error
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">token_type</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">UNKNOWN;
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">while</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(*e</span><span class="cpp1-space"> </span><span class="cpp1-symbol">!=</span><span class="cpp1-space"> </span><span class="cpp1-character">'\0')
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">*t</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*e;
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">e++;
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">t++;
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">*t</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-character">'\0';
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">throw</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Error(row(),</span><span class="cpp1-space"> </span><span class="cpp1-identifier">col(),</span><span class="cpp1-space"> </span><span class="cpp1-number">1</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">token);
+
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-symbol">;
+}
+
+
+</span><span class="cpp1-comment">/*
+ * assignment of variable or function
+ */
+</span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Parser::parse_level1()
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(token_type</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">VARIABLE)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-comment">// copy current token
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">char</span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">e_now</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">e;
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">TOKENTYPE</span><span class="cpp1-space"> </span><span class="cpp1-identifier">token_type_now</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">token_type;
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">char</span><span class="cpp1-space"> </span><span class="cpp1-identifier">token_now[NAME_LEN_MAX+</span><span class="cpp1-number">1</span><span class="cpp1-symbol">];
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">strcpy(token_now,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">token);
+</span><span class="cpp1-space">        
+        </span><span class="cpp1-identifier">getToken();
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(strcmp(token,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;=&quot;</span><span class="cpp1-symbol">)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">            </span><span class="cpp1-comment">// assignment
+</span><span class="cpp1-space">            </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans;
+</span><span class="cpp1-space">            </span><span class="cpp1-identifier">getToken();
+</span><span class="cpp1-space">            </span><span class="cpp1-identifier">ans</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level2();
+</span><span class="cpp1-space">            </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(user_var.add(token_now,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">false</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">            </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">                </span><span class="cpp1-reservedword">throw</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Error(row(),</span><span class="cpp1-space"> </span><span class="cpp1-identifier">col(),</span><span class="cpp1-space"> </span><span class="cpp1-number">300</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">            </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">            </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans;
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">else
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">            </span><span class="cpp1-comment">// go back to previous token
+</span><span class="cpp1-space">            </span><span class="cpp1-identifier">e</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">e_now;
+</span><span class="cpp1-space">            </span><span class="cpp1-identifier">token_type</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">token_type_now;
+</span><span class="cpp1-space">            </span><span class="cpp1-identifier">strcpy(token,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">token_now);
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level2();
+}
+
+
+</span><span class="cpp1-comment">/*
+ * conditional operators and bitshift
+ */
+</span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Parser::parse_level2()
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">op_id;
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">ans</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level3();
+
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">get_operator_id(token);
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">while</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">AND</span><span class="cpp1-space"> </span><span class="cpp1-symbol">||</span><span class="cpp1-space"> </span><span class="cpp1-identifier">op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">OR</span><span class="cpp1-space"> </span><span class="cpp1-symbol">||</span><span class="cpp1-space"> </span><span class="cpp1-identifier">op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">BITSHIFTLEFT</span><span class="cpp1-space"> </span><span class="cpp1-symbol">||</span><span class="cpp1-space"> </span><span class="cpp1-identifier">op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">BITSHIFTRIGHT)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">getToken();
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">ans</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">eval_operator(op_id,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level3());
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">get_operator_id(token);
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans;
+}
+
+</span><span class="cpp1-comment">/*
+ * conditional operators
+ */
+</span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Parser::parse_level3()
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">op_id;
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">ans</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level4();
+
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">get_operator_id(token);
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">while</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">EQUAL</span><span class="cpp1-space"> </span><span class="cpp1-symbol">||</span><span class="cpp1-space"> </span><span class="cpp1-identifier">op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">UNEQUAL</span><span class="cpp1-space"> </span><span class="cpp1-symbol">||</span><span class="cpp1-space"> </span><span class="cpp1-identifier">op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">SMALLER</span><span class="cpp1-space"> </span><span class="cpp1-symbol">||</span><span class="cpp1-space"> </span><span class="cpp1-identifier">op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">LARGER</span><span class="cpp1-space"> </span><span class="cpp1-symbol">||</span><span class="cpp1-space"> </span><span class="cpp1-identifier">op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">SMALLEREQ</span><span class="cpp1-space"> </span><span class="cpp1-symbol">||</span><span class="cpp1-space"> </span><span class="cpp1-identifier">op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">LARGEREQ)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">getToken();
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">ans</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">eval_operator(op_id,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level4());
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">get_operator_id(token);
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans;
+}
+
+</span><span class="cpp1-comment">/*
+ * add or subtract
+ */
+</span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Parser::parse_level4()
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">op_id;
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">ans</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level5();
+</span><span class="cpp1-space">    
+    </span><span class="cpp1-identifier">op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">get_operator_id(token);
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">while</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">PLUS</span><span class="cpp1-space"> </span><span class="cpp1-symbol">||</span><span class="cpp1-space"> </span><span class="cpp1-identifier">op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">MINUS)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">getToken();
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">ans</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">eval_operator(op_id,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level5());
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">get_operator_id(token);
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans;
+}
+
+
+</span><span class="cpp1-comment">/*
+ * multiply, divide, modulus, xor
+ */
+</span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Parser::parse_level5()
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">op_id;
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">ans</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level6();
+
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">get_operator_id(token);
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">while</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">MULTIPLY</span><span class="cpp1-space"> </span><span class="cpp1-symbol">||</span><span class="cpp1-space"> </span><span class="cpp1-identifier">op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">DIVIDE</span><span class="cpp1-space"> </span><span class="cpp1-symbol">||</span><span class="cpp1-space"> </span><span class="cpp1-identifier">op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">MODULUS</span><span class="cpp1-space"> </span><span class="cpp1-symbol">||</span><span class="cpp1-space"> </span><span class="cpp1-identifier">op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">XOR)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">getToken();
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">ans</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">eval_operator(op_id,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level6());
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">get_operator_id(token);
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans;
+}
+
+
+</span><span class="cpp1-comment">/*
+ * power
+ */
+</span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Parser::parse_level6()
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">op_id;
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">ans</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level7();
+
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">get_operator_id(token);
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">while</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">POW)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">getToken();
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">ans</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">eval_operator(op_id,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level7());
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">get_operator_id(token);
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans;
+}
+
+</span><span class="cpp1-comment">/*
+ * Factorial
+ */
+</span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Parser::parse_level7()
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">op_id;
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans;
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">ans</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level8();
+
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">get_operator_id(token);
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">while</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">FACTORIAL)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">getToken();
+</span><span class="cpp1-space">        </span><span class="cpp1-comment">// factorial does not need a value right from the 
+</span><span class="cpp1-space">        </span><span class="cpp1-comment">// operator, so zero is filled in.
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">ans</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">eval_operator(op_id,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans,</span><span class="cpp1-space"> </span><span class="cpp1-float">0.0</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">get_operator_id(token);
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans;
+}
+
+</span><span class="cpp1-comment">/*
+ * Unary minus
+ */
+</span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Parser::parse_level8()
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans;
+</span><span class="cpp1-space">    
+    </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">get_operator_id(token);</span><span class="cpp1-space">    
+    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(op_id</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">MINUS)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">getToken();
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">ans</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level9();
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">ans</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-ans;
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">else
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">ans</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level9();
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    
+    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans;
+}
+
+
+</span><span class="cpp1-comment">/*
+ * functions
+ */
+</span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Parser::parse_level9()
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">char</span><span class="cpp1-space"> </span><span class="cpp1-identifier">fn_name[NAME_LEN_MAX+</span><span class="cpp1-number">1</span><span class="cpp1-symbol">];
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans;
+
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(token_type</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">FUNCTION)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">strcpy(fn_name,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">token);
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">getToken();
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">ans</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">eval_function(fn_name,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level10());
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">else
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">ans</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level10();
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    
+    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans;
+}
+
+
+</span><span class="cpp1-comment">/*
+ * parenthesized expression or value
+ */
+</span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Parser::parse_level10()
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// check if it is a parenthesized expression
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(token_type</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">DELIMETER)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(token[</span><span class="cpp1-number">0</span><span class="cpp1-symbol">]</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-character">'('</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">token[</span><span class="cpp1-number">1</span><span class="cpp1-symbol">]</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-character">'\0')
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">            </span><span class="cpp1-identifier">getToken();
+</span><span class="cpp1-space">            </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level2();
+</span><span class="cpp1-space">            </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(token_type</span><span class="cpp1-space"> </span><span class="cpp1-symbol">!=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">DELIMETER</span><span class="cpp1-space"> </span><span class="cpp1-symbol">||</span><span class="cpp1-space"> </span><span class="cpp1-identifier">token[</span><span class="cpp1-number">0</span><span class="cpp1-symbol">]</span><span class="cpp1-space"> </span><span class="cpp1-symbol">!=</span><span class="cpp1-space"> </span><span class="cpp1-character">')'</span><span class="cpp1-space"> </span><span class="cpp1-symbol">||</span><span class="cpp1-space"> </span><span class="cpp1-identifier">token[</span><span class="cpp1-number">1</span><span class="cpp1-symbol">]</span><span class="cpp1-space"> </span><span class="cpp1-symbol">||</span><span class="cpp1-space"> </span><span class="cpp1-character">'\0')
+</span><span class="cpp1-space">            </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">                </span><span class="cpp1-reservedword">throw</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Error(row(),</span><span class="cpp1-space"> </span><span class="cpp1-identifier">col(),</span><span class="cpp1-space"> </span><span class="cpp1-number">3</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">            </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">            </span><span class="cpp1-identifier">getToken();
+</span><span class="cpp1-space">            </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans;
+</span><span class="cpp1-space">        </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// if not parenthesized then the expression is a value
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_number();
+}
+
+
+</span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Parser::parse_number()
+{
+</span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">switch</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(token_type)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">case</span><span class="cpp1-space"> </span><span class="cpp1-identifier">NUMBER:
+</span><span class="cpp1-space">            </span><span class="cpp1-comment">// this is a number
+</span><span class="cpp1-space">            </span><span class="cpp1-identifier">ans</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">strtod(token,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">NULL);
+</span><span class="cpp1-space">            </span><span class="cpp1-identifier">getToken();
+</span><span class="cpp1-space">            </span><span class="cpp1-reservedword">break</span><span class="cpp1-symbol">;
+
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">case</span><span class="cpp1-space"> </span><span class="cpp1-identifier">VARIABLE:
+</span><span class="cpp1-space">            </span><span class="cpp1-comment">// this is a variable
+</span><span class="cpp1-space">            </span><span class="cpp1-identifier">ans</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">eval_variable(token);
+</span><span class="cpp1-space">            </span><span class="cpp1-identifier">getToken();</span><span class="cpp1-space">  
+            </span><span class="cpp1-reservedword">break</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">            
+        </span><span class="cpp1-reservedword">default</span><span class="cpp1-symbol">:
+</span><span class="cpp1-space">            </span><span class="cpp1-comment">// syntax error or unexpected end of expression
+</span><span class="cpp1-space">            </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(token[</span><span class="cpp1-number">0</span><span class="cpp1-symbol">]</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-character">'\0')
+</span><span class="cpp1-space">            </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">                </span><span class="cpp1-reservedword">throw</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Error(row(),</span><span class="cpp1-space"> </span><span class="cpp1-identifier">col(),</span><span class="cpp1-space"> </span><span class="cpp1-number">6</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">            </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">            </span><span class="cpp1-reservedword">else
+</span><span class="cpp1-space">            </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">                </span><span class="cpp1-reservedword">throw</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Error(row(),</span><span class="cpp1-space"> </span><span class="cpp1-identifier">col(),</span><span class="cpp1-space"> </span><span class="cpp1-number">7</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">            </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">            </span><span class="cpp1-reservedword">break</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans;
+}
+
+
+</span><span class="cpp1-comment">/*
+ * returns the id of the given operator
+ * treturns -1 if the operator is not recognized
+ */
+</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Parser::get_operator_id(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">char</span><span class="cpp1-space"> </span><span class="cpp1-identifier">op_name[])
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// level 2
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(op_name,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;&amp;&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">AND;}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(op_name,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;|&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">OR;}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(op_name,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;&lt;&lt;&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">BITSHIFTLEFT;}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(op_name,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;&gt;&gt;&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">BITSHIFTRIGHT;}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// level 3
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(op_name,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;=&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">EQUAL;}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(op_name,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;&lt;&gt;&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">UNEQUAL;}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(op_name,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;&lt;&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">SMALLER;}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(op_name,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;&gt;&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">LARGER;}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(op_name,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;&lt;=&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">SMALLEREQ;}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(op_name,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;&gt;=&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">LARGEREQ;}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// level 4
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(op_name,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;+&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">PLUS;}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(op_name,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;-&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">MINUS;}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// level 5
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(op_name,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;*&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">MULTIPLY;}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(op_name,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;/&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">DIVIDE;}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(op_name,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;%&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">MODULUS;}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(op_name,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;||&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">XOR;}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// level 6
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(op_name,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;^&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">POW;}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// level 7
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(op_name,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;!&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">FACTORIAL;}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-</span><span class="cpp1-number">1</span><span class="cpp1-symbol">;
+}
+
+
+</span><span class="cpp1-comment">/*
+ * evaluate an operator for given valuess
+ */
+</span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Parser::eval_operator(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">op_id,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;lhs,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;rhs)
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">switch</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(op_id)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-comment">// level 2
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">case</span><span class="cpp1-space"> </span><span class="cpp1-identifier">AND:</span><span class="cpp1-space">           </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">static_cast</span><span class="cpp1-symbol">&lt;</span><span class="cpp1-reservedword">int</span><span class="cpp1-symbol">&gt;(lhs)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">static_cast</span><span class="cpp1-symbol">&lt;</span><span class="cpp1-reservedword">int</span><span class="cpp1-symbol">&gt;(rhs);
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">case</span><span class="cpp1-space"> </span><span class="cpp1-identifier">OR:</span><span class="cpp1-space">            </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">static_cast</span><span class="cpp1-symbol">&lt;</span><span class="cpp1-reservedword">int</span><span class="cpp1-symbol">&gt;(lhs)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">|</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">static_cast</span><span class="cpp1-symbol">&lt;</span><span class="cpp1-reservedword">int</span><span class="cpp1-symbol">&gt;(rhs);
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">case</span><span class="cpp1-space"> </span><span class="cpp1-identifier">BITSHIFTLEFT:</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">static_cast</span><span class="cpp1-symbol">&lt;</span><span class="cpp1-reservedword">int</span><span class="cpp1-symbol">&gt;(lhs)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;&lt;</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">static_cast</span><span class="cpp1-symbol">&lt;</span><span class="cpp1-reservedword">int</span><span class="cpp1-symbol">&gt;(rhs);
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">case</span><span class="cpp1-space"> </span><span class="cpp1-identifier">BITSHIFTRIGHT:</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">static_cast</span><span class="cpp1-symbol">&lt;</span><span class="cpp1-reservedword">int</span><span class="cpp1-symbol">&gt;(lhs)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&gt;&gt;</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">static_cast</span><span class="cpp1-symbol">&lt;</span><span class="cpp1-reservedword">int</span><span class="cpp1-symbol">&gt;(rhs);
+
+</span><span class="cpp1-space">        </span><span class="cpp1-comment">// level 3
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">case</span><span class="cpp1-space"> </span><span class="cpp1-identifier">EQUAL:</span><span class="cpp1-space">     </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">lhs</span><span class="cpp1-space"> </span><span class="cpp1-symbol">==</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rhs;
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">case</span><span class="cpp1-space"> </span><span class="cpp1-identifier">UNEQUAL:</span><span class="cpp1-space">   </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">lhs</span><span class="cpp1-space"> </span><span class="cpp1-symbol">!=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rhs;
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">case</span><span class="cpp1-space"> </span><span class="cpp1-identifier">SMALLER:</span><span class="cpp1-space">   </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">lhs</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rhs;
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">case</span><span class="cpp1-space"> </span><span class="cpp1-identifier">LARGER:</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">lhs</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&gt;</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rhs;
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">case</span><span class="cpp1-space"> </span><span class="cpp1-identifier">SMALLEREQ:</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">lhs</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&lt;=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rhs;
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">case</span><span class="cpp1-space"> </span><span class="cpp1-identifier">LARGEREQ:</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">lhs</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&gt;=</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rhs;
+</span><span class="cpp1-space">        
+        </span><span class="cpp1-comment">// level 4
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">case</span><span class="cpp1-space"> </span><span class="cpp1-identifier">PLUS:</span><span class="cpp1-space">      </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">lhs</span><span class="cpp1-space"> </span><span class="cpp1-symbol">+</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rhs;
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">case</span><span class="cpp1-space"> </span><span class="cpp1-identifier">MINUS:</span><span class="cpp1-space">     </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">lhs</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rhs;
+</span><span class="cpp1-space">        
+        </span><span class="cpp1-comment">// level 5
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">case</span><span class="cpp1-space"> </span><span class="cpp1-identifier">MULTIPLY:</span><span class="cpp1-space">  </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">lhs</span><span class="cpp1-space"> </span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rhs;
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">case</span><span class="cpp1-space"> </span><span class="cpp1-identifier">DIVIDE:</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">lhs</span><span class="cpp1-space"> </span><span class="cpp1-symbol">/</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rhs;
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">case</span><span class="cpp1-space"> </span><span class="cpp1-identifier">MODULUS:</span><span class="cpp1-space">   </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">static_cast</span><span class="cpp1-symbol">&lt;</span><span class="cpp1-reservedword">int</span><span class="cpp1-symbol">&gt;(lhs)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">%</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">static_cast</span><span class="cpp1-symbol">&lt;</span><span class="cpp1-reservedword">int</span><span class="cpp1-symbol">&gt;(rhs);</span><span class="cpp1-space"> </span><span class="cpp1-comment">// todo: give a warning if the values are not integer?
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">case</span><span class="cpp1-space"> </span><span class="cpp1-identifier">XOR:</span><span class="cpp1-space">       </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">static_cast</span><span class="cpp1-symbol">&lt;</span><span class="cpp1-reservedword">int</span><span class="cpp1-symbol">&gt;(lhs)</span><span class="cpp1-space"> </span><span class="cpp1-symbol">^</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">static_cast</span><span class="cpp1-symbol">&lt;</span><span class="cpp1-reservedword">int</span><span class="cpp1-symbol">&gt;(rhs);
+</span><span class="cpp1-space">        
+        </span><span class="cpp1-comment">// level 6
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">case</span><span class="cpp1-space"> </span><span class="cpp1-identifier">POW:</span><span class="cpp1-space">       </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">pow(lhs,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">rhs);
+</span><span class="cpp1-space">        
+        </span><span class="cpp1-comment">// level 7
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">case</span><span class="cpp1-space"> </span><span class="cpp1-identifier">FACTORIAL:</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">factorial(lhs);
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">throw</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Error(row(),</span><span class="cpp1-space"> </span><span class="cpp1-identifier">col(),</span><span class="cpp1-space"> </span><span class="cpp1-number">104</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">op_id);</span><span class="cpp1-space">    
+    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+}
+
+
+</span><span class="cpp1-comment">/*
+ * evaluate a function
+ */
+</span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Parser::eval_function(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">char</span><span class="cpp1-space"> </span><span class="cpp1-identifier">fn_name[],</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;value)
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">try
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-comment">// first make the function name upper case
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">char</span><span class="cpp1-space"> </span><span class="cpp1-identifier">fnU[NAME_LEN_MAX+</span><span class="cpp1-number">1</span><span class="cpp1-symbol">];
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">toupper(fnU,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">fn_name);
+
+</span><span class="cpp1-space">        </span><span class="cpp1-comment">// arithmetic 
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(fnU,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;ABS&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">abs(value);}
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(fnU,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;EXP&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">exp(value);}
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(fnU,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;SIGN&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">sign(value);}
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(fnU,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;SQRT&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">sqrt(value);}
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(fnU,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;LOG&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">log(value);}
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(fnU,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;LOG10&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">log10(value);}
+</span><span class="cpp1-space">    
+        </span><span class="cpp1-comment">// trigonometric
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(fnU,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;SIN&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">sin(value);}
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(fnU,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;COS&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">cos(value);}
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(fnU,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;TAN&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">tan(value);}
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(fnU,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;ASIN&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">asin(value);}
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(fnU,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;ACOS&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">acos(value);}
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(fnU,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;ATAN&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">atan(value);}
+</span><span class="cpp1-space">    
+        </span><span class="cpp1-comment">// probability
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(fnU,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;FACTORIAL&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">factorial(value);}
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">catch</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(Error</span><span class="cpp1-space"> </span><span class="cpp1-identifier">err)
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-comment">// retrow error, add information about column and row of occurance
+</span><span class="cpp1-space">        </span><span class="cpp1-comment">// TODO: doesnt work yet
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">throw</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Error(col(),</span><span class="cpp1-space"> </span><span class="cpp1-identifier">row(),</span><span class="cpp1-space"> </span><span class="cpp1-identifier">err.get_id(),</span><span class="cpp1-space"> </span><span class="cpp1-identifier">err.get_msg());
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">    
+    </span><span class="cpp1-comment">// unknown function
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">throw</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Error(row(),</span><span class="cpp1-space"> </span><span class="cpp1-identifier">col(),</span><span class="cpp1-space"> </span><span class="cpp1-number">102</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">fn_name);
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+}
+
+
+</span><span class="cpp1-comment">/*
+ * evaluate a variable
+ */
+</span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Parser::eval_variable(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">char</span><span class="cpp1-space"> </span><span class="cpp1-identifier">var_name[])
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// first make the variable name uppercase
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">char</span><span class="cpp1-space"> </span><span class="cpp1-identifier">varU[NAME_LEN_MAX+</span><span class="cpp1-number">1</span><span class="cpp1-symbol">];
+</span><span class="cpp1-space">    </span><span class="cpp1-identifier">toupper(varU,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">var_name);
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// check for built-in variables
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(varU,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;E&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-float">2.7182818284590452353602874713527</span><span class="cpp1-symbol">;}
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(!strcmp(varU,</span><span class="cpp1-space"> </span><span class="cpp1-string">&quot;PI&quot;</span><span class="cpp1-symbol">))</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{</span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-float">3.1415926535897932384626433832795</span><span class="cpp1-symbol">;}
+</span><span class="cpp1-space">    
+    </span><span class="cpp1-comment">// check for user defined variables
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans;
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">if</span><span class="cpp1-space"> </span><span class="cpp1-symbol">(user_var.get_value(var_name,</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;ans))
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans;
+</span><span class="cpp1-space">    </span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// unknown variable
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">throw</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Error(row(),</span><span class="cpp1-space"> </span><span class="cpp1-identifier">col(),</span><span class="cpp1-space"> </span><span class="cpp1-number">103</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">var_name);
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+}
+
+
+
+</span><span class="cpp1-comment">/*
+ * Shortcut for getting the current row value (one based)
+ * Returns the line of the currently handled expression
+ */
+</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Parser::row()
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-</span><span class="cpp1-number">1</span><span class="cpp1-symbol">;
+}
+
+</span><span class="cpp1-comment">/*
+ * Shortcut for getting the current col value (one based)
+ * Returns the column (position) where the last token starts
+ */
+</span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Parser::col()
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">return</span><span class="cpp1-space"> </span><span class="cpp1-identifier">e-expr-strlen(token)+</span><span class="cpp1-number">1</span><span class="cpp1-symbol">;
+}
+
+</span></span>
+</code></pre>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Untitled</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="generator" content="SynEdit HTML exporter" />
+<style type="text/css">
+<!--
+body { color: #000000; background-color: #FFFFFF; }
+.cpp1-assembler { }
+.cpp1-character { }
+.cpp1-comment { color: #000080; font-style: italic; }
+.cpp1-float { color: #800040; }
+.cpp1-hexadecimal { color: #800040; }
+.cpp1-identifier { }
+.cpp1-illegalchar { }
+.cpp1-number { color: #800040; }
+.cpp1-octal { color: #800040; }
+.cpp1-preprocessor { color: #008000; }
+.cpp1-reservedword { font-weight: bold; }
+.cpp1-space { color: #008080; }
+.cpp1-string { color: #FF0000; }
+.cpp1-symbol { }
+-->
+</style>
+</head>
+<body>
+<pre>
+<code><span style="font: 10pt Courier New;"><span class="cpp1-comment">/*
+Expression parser
+lang:   C++ code, project developed with wxDev-C++
+author: Jos de Jong, 2007-12-22
+site:   www.speqmath.com
+
+Features:
+    Operators:
+        &amp; | &lt;&lt; &gt;&gt;
+        = &lt;&gt; &lt; &gt; &lt;= &gt;=
+        + -
+        * / % ||
+        ^
+        !
+
+    Functions:
+        Abs, Exp, Sign, Sqrt, Log, Log10
+        Sin, Cos, Tan, ASin, ACos, ATan
+        Factorial
+
+    Variables:
+        Pi, e
+        you can define your own variables
+        
+    Other:
+        Scientific notation supported
+        Error handling supported
+
+*/
+
+
+</span><span class="cpp1-preprocessor">#ifndef PARSER_H
+#define PARSER_H
+
+</span><span class="cpp1-comment">// declarations
+</span><span class="cpp1-preprocessor">#include &lt;cstdio&gt;
+#include &lt;cstdlib&gt;
+#include &lt;cstring&gt;
+#include &lt;cctype&gt;
+#include &lt;cmath&gt;
+
+#include &quot;constants.h&quot;
+#include &quot;error.h&quot;
+#include &quot;functions.h&quot;
+#include &quot;variablelist.h&quot;
+
+</span><span class="cpp1-reservedword">using</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">namespace</span><span class="cpp1-space"> </span><span class="cpp1-identifier">std;
+
+</span><span class="cpp1-reservedword">class</span><span class="cpp1-space"> </span><span class="cpp1-identifier">Parser
+{
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// public functions
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">public</span><span class="cpp1-symbol">:
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">Parser();
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">char</span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">char</span><span class="cpp1-space"> </span><span class="cpp1-identifier">expr[]);
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// enumerations
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">private</span><span class="cpp1-symbol">:
+</span><span class="cpp1-space">    
+        </span><span class="cpp1-reservedword">enum</span><span class="cpp1-space"> </span><span class="cpp1-identifier">TOKENTYPE</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{NOTHING</span><span class="cpp1-space"> </span><span class="cpp1-symbol">=</span><span class="cpp1-space"> </span><span class="cpp1-symbol">-</span><span class="cpp1-number">1</span><span class="cpp1-symbol">,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">DELIMETER,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">NUMBER,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">VARIABLE,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">FUNCTION,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">UNKNOWN};
+</span><span class="cpp1-space">    
+        </span><span class="cpp1-reservedword">enum</span><span class="cpp1-space"> </span><span class="cpp1-identifier">OPERATOR_ID</span><span class="cpp1-space"> </span><span class="cpp1-symbol">{AND,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">OR,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">BITSHIFTLEFT,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">BITSHIFTRIGHT,</span><span class="cpp1-space">                 </span><span class="cpp1-comment">// level 2
+</span><span class="cpp1-space">                       </span><span class="cpp1-identifier">EQUAL,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">UNEQUAL,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">SMALLER,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">LARGER,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">SMALLEREQ,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">LARGEREQ,</span><span class="cpp1-space">    </span><span class="cpp1-comment">// level 3
+</span><span class="cpp1-space">                       </span><span class="cpp1-identifier">PLUS,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">MINUS,</span><span class="cpp1-space">                     </span><span class="cpp1-comment">// level 4
+</span><span class="cpp1-space">                       </span><span class="cpp1-identifier">MULTIPLY,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">DIVIDE,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">MODULUS,</span><span class="cpp1-space"> </span><span class="cpp1-identifier">XOR,</span><span class="cpp1-space">  </span><span class="cpp1-comment">// level 5
+</span><span class="cpp1-space">                       </span><span class="cpp1-identifier">POW,</span><span class="cpp1-space">                             </span><span class="cpp1-comment">// level 6
+</span><span class="cpp1-space">                       </span><span class="cpp1-identifier">FACTORIAL};</span><span class="cpp1-space">                      </span><span class="cpp1-comment">// level 7
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// data
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">private</span><span class="cpp1-symbol">:
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">char</span><span class="cpp1-space"> </span><span class="cpp1-identifier">expr[EXPR_LEN_MAX+</span><span class="cpp1-number">1</span><span class="cpp1-symbol">];</span><span class="cpp1-space">    </span><span class="cpp1-comment">// holds the expression
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">char</span><span class="cpp1-symbol">*</span><span class="cpp1-space"> </span><span class="cpp1-identifier">e;</span><span class="cpp1-space">                      </span><span class="cpp1-comment">// points to a character in expr
+</span><span class="cpp1-space">        
+        </span><span class="cpp1-reservedword">char</span><span class="cpp1-space"> </span><span class="cpp1-identifier">token[NAME_LEN_MAX+</span><span class="cpp1-number">1</span><span class="cpp1-symbol">];</span><span class="cpp1-space">   </span><span class="cpp1-comment">// holds the token
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">TOKENTYPE</span><span class="cpp1-space"> </span><span class="cpp1-identifier">token_type;</span><span class="cpp1-space">         </span><span class="cpp1-comment">// type of the token
+
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans;</span><span class="cpp1-space">                   </span><span class="cpp1-comment">// holds the result of the expression
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">char</span><span class="cpp1-space"> </span><span class="cpp1-identifier">ans_str[</span><span class="cpp1-number">255</span><span class="cpp1-symbol">];</span><span class="cpp1-space">            </span><span class="cpp1-comment">// holds a string containing the result 
+</span><span class="cpp1-space">                                      </span><span class="cpp1-comment">// of the expression
+
+</span><span class="cpp1-space">        </span><span class="cpp1-identifier">Variablelist</span><span class="cpp1-space"> </span><span class="cpp1-identifier">user_var;</span><span class="cpp1-space">        </span><span class="cpp1-comment">// list with variables defined by user
+
+</span><span class="cpp1-space">    </span><span class="cpp1-comment">// private functions
+</span><span class="cpp1-space">    </span><span class="cpp1-reservedword">private</span><span class="cpp1-symbol">:
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">void</span><span class="cpp1-space"> </span><span class="cpp1-identifier">getToken();
+</span><span class="cpp1-space">        
+        </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level1();
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level2();
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level3();
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level4();
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level5();
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level6();
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level7();
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level8();
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level9();
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_level10();
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">parse_number();
+
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">get_operator_id(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">char</span><span class="cpp1-space"> </span><span class="cpp1-identifier">op_name[]);
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">eval_operator(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">op_id,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;lhs,</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;rhs);
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">eval_function(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">char</span><span class="cpp1-space"> </span><span class="cpp1-identifier">fn_name[],</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-symbol">&amp;value);
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">double</span><span class="cpp1-space"> </span><span class="cpp1-identifier">eval_variable(</span><span class="cpp1-reservedword">const</span><span class="cpp1-space"> </span><span class="cpp1-reservedword">char</span><span class="cpp1-space"> </span><span class="cpp1-identifier">var_name[]);
+
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">row();
+</span><span class="cpp1-space">        </span><span class="cpp1-reservedword">int</span><span class="cpp1-space"> </span><span class="cpp1-identifier">col();
+};
+
+</span><span class="cpp1-preprocessor">#endif
+
+</span></span>
+</code></pre>
+</body>
+</html>
